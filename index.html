@@ -34,8 +34,9 @@ body{
   min-height:100vh; overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
 }
-#spores{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;}
-.glow-fungi{position:fixed;left:0;right:0;bottom:-10px;z-index:0;width:100%;opacity:.6;pointer-events:none;filter:drop-shadow(0 0 18px rgba(46,230,197,.25));}
+.forest{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.82;}
+#spores{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;}
+.glow-fungi{position:fixed;left:0;right:0;bottom:-10px;z-index:1;width:100%;opacity:.62;pointer-events:none;filter:drop-shadow(0 0 18px rgba(46,230,197,.25));}
 .app{position:relative;z-index:2;max-width:920px;margin:0 auto;padding:18px 16px 130px;}
 
 /* header */
@@ -217,10 +218,55 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
 ::-webkit-scrollbar{width:8px;height:8px;}
 ::-webkit-scrollbar-thumb{background:rgba(120,225,210,.25);border-radius:8px;}
 .footer-note{text-align:center;color:var(--faint);font-size:.72rem;margin-top:22px;line-height:1.5;}
+/* water */
+.water-wrap{display:flex;align-items:center;gap:18px;}
+.glass{position:relative;width:78px;height:100px;flex:none;border:2px solid var(--brd-strong);border-top:none;border-radius:8px 8px 18px 18px;overflow:hidden;background:rgba(7,14,28,.45);box-shadow:inset 0 0 14px rgba(0,0,0,.4);}
+.glass-fill{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,#5be8ff,#2ee6c5);box-shadow:0 0 20px rgba(46,230,197,.7);transition:height .55s cubic-bezier(.3,.9,.3,1);}
+.glass-fill::after{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:rgba(220,255,250,.55);filter:blur(2px);}
+.water-right{flex:1;min-width:0;}
+.water-amt{font-size:1.5rem;font-weight:800;background:linear-gradient(180deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.water-amt small{font-size:.8rem;color:var(--muted);-webkit-text-fill-color:var(--muted);font-weight:600;}
+.water-sub{font-size:.78rem;color:var(--muted);margin:2px 0 12px;}
+.water-btns{display:flex;gap:8px;}
+.wbtn{flex:1;border:1px solid var(--brd);background:var(--glass-2);color:var(--text);border-radius:12px;padding:11px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;}
+.wbtn:hover{border-color:var(--brd-strong);}
+.wbtn.add{background:linear-gradient(150deg,rgba(46,230,197,.22),rgba(52,217,255,.18));color:var(--teal);}
+/* quick add */
+.qrow{display:flex;gap:8px;align-items:stretch;margin-bottom:8px;}
+.qrow .res{flex:1;margin:0;}
+.qhead{font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:6px 0 8px;}
+.star{width:46px;flex:none;border-radius:13px;border:1px solid var(--brd);background:var(--glass-2);color:var(--amber);font-size:1.05rem;cursor:pointer;transition:.2s;}
+.star.off{color:var(--faint);}
+.star:hover{border-color:var(--brd-strong);}
 @media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
 </style>
 </head>
 <body>
+<svg class="forest" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="trunkG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c2128"/><stop offset="1" stop-color="#04080e"/></linearGradient>
+    <radialGradient id="haze" cx="50%" cy="4%" r="82%"><stop offset="0" stop-color="rgba(58,196,184,.13)"/><stop offset="0.5" stop-color="rgba(90,120,225,.05)"/><stop offset="1" stop-color="transparent"/></radialGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#haze)"/>
+  <!-- distant canopy / treeline -->
+  <path opacity="0.5" fill="#06141d" d="M0 0 H1440 V118 C1360 150 1322 92 1250 130 C1180 168 1130 108 1050 150 C980 184 930 120 850 158 C770 196 720 118 640 158 C560 198 510 120 430 158 C350 196 300 118 220 148 C150 172 90 108 0 138 Z"/>
+  <!-- mid trees -->
+  <g opacity="0.6" fill="url(#trunkG)" stroke="rgba(70,220,200,.10)" stroke-width="1.5">
+    <path d="M250 900 C262 640 240 520 256 360 C262 300 250 250 270 170 C286 250 274 300 280 360 C296 520 274 640 286 900 Z"/>
+    <path d="M1172 900 C1184 620 1162 500 1178 340 C1184 280 1172 230 1192 150 C1208 230 1196 280 1202 340 C1218 500 1198 620 1210 900 Z"/>
+    <path opacity="0.55" d="M690 900 C700 680 684 560 700 420 C706 360 694 320 712 250 C726 320 716 360 722 420 C738 560 720 680 730 900 Z"/>
+  </g>
+  <!-- foreground framing trunks -->
+  <g fill="url(#trunkG)" stroke="rgba(80,235,210,.18)" stroke-width="2">
+    <path d="M-40 900 C70 760 30 600 110 470 C150 405 110 330 175 230 C150 360 205 410 185 520 C160 690 230 770 150 900 Z"/>
+    <path d="M1480 900 C1370 760 1420 590 1330 460 C1290 398 1330 320 1265 230 C1300 360 1240 410 1265 520 C1296 690 1224 770 1300 900 Z"/>
+  </g>
+  <!-- glowing branch tips -->
+  <g stroke="rgba(80,235,210,.22)" stroke-width="2.5" fill="none" opacity="0.7">
+    <path d="M150 360 q-50 -30 -90 -20"/><path d="M180 300 q50 -26 92 -10"/>
+    <path d="M1290 360 q50 -30 90 -20"/><path d="M1262 300 q-50 -26 -92 -10"/>
+  </g>
+</svg>
 <canvas id="spores"></canvas>
 <svg class="glow-fungi" viewBox="0 0 1200 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
   <defs>
@@ -277,6 +323,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
         <div class="hero-stats">
           <div class="statrow"><span class="k"><span class="dot" style="background:var(--purple)"></span>Goal</span><span class="v" id="sGoal">—</span></div>
           <div class="statrow"><span class="k"><span class="dot" style="background:var(--teal)"></span>Food</span><span class="v" id="sFood">0</span></div>
+          <div class="statrow" id="rowExercise" style="display:none"><span class="k"><span class="dot" style="background:var(--green)"></span>Exercise</span><span class="v" id="sExercise">+0</span></div>
           <div class="statrow"><span class="k"><span class="dot" style="background:var(--cyan)"></span>Progress</span><span class="v" id="sPct">0%</span></div>
         </div>
       </div>
@@ -296,9 +343,27 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
       </div>
     </div>
 
+    <div class="card" id="waterCard" style="margin-top:16px">
+      <div class="section-title">💧 Hydration</div>
+      <div class="water-wrap">
+        <div class="glass"><div class="glass-fill" id="glassFill"></div></div>
+        <div class="water-right">
+          <div class="water-amt"><span id="waterMl">0</span><small> / <span id="waterGoalTxt">2000</span> ml</small></div>
+          <div class="water-sub" id="waterCups">0 cups</div>
+          <div class="water-btns"><button class="wbtn" id="waterMinus">− 250 ml</button><button class="wbtn add" id="waterPlus">+ 250 ml</button></div>
+        </div>
+      </div>
+    </div>
+
     <div class="card" style="margin-top:16px">
       <div class="section-title">🍄 Food Log</div>
       <div id="meals"></div>
+    </div>
+
+    <div class="card" id="exCard" style="margin-top:16px">
+      <div class="meal-head"><div class="mh-l"><span class="emoji">🔥</span>Exercise <span class="mh-cal" id="exCal"></span></div>
+        <button class="add-mini" id="addExBtn">+ Add</button></div>
+      <div id="exList"></div>
     </div>
     <div class="footer-note">Tap <b>+</b> to log food · data is saved on this device</div>
   </section>
@@ -392,6 +457,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
           <div class="field"><label>Carbs (g)</label><input class="input" id="gC" type="number" inputmode="numeric"></div>
           <div class="field"><label>Fat (g)</label><input class="input" id="gF" type="number" inputmode="numeric"></div>
         </div>
+        <div class="field"><label>Daily water goal (ml)</label><input class="input" id="gWater" type="number" inputmode="numeric"></div>
         <button class="btn primary" id="saveGoals">Save goals</button>
       </div>
       <div class="card">
@@ -436,10 +502,16 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
         <button data-m="Breakfast" class="on">Breakfast</button><button data-m="Lunch">Lunch</button><button data-m="Dinner">Dinner</button><button data-m="Snacks">Snacks</button>
       </div>
       <div class="tabs-mini" id="addTabs">
-        <button data-t="search" class="on">Search</button><button data-t="browse">Common</button><button data-t="barcode">Barcode</button><button data-t="manual">Manual</button>
+        <button data-t="quick" class="on">Quick</button><button data-t="search">Search</button><button data-t="browse">Common</button><button data-t="barcode">Scan</button><button data-t="manual">Manual</button>
       </div>
 
-      <div id="pane-search">
+      <div id="pane-quick">
+        <div id="quickFav"></div>
+        <div id="quickRecent"></div>
+        <div class="hint" id="quickEmpty" style="display:none">Foods you log show up here for one-tap adding. Tap ⭐ on any food to pin it as a favourite.</div>
+      </div>
+
+      <div id="pane-search" style="display:none">
         <div class="search-row">
           <input class="input" id="searchInput" placeholder="Search foods (e.g. greek yogurt)…">
           <button class="btn primary" id="searchBtn">Go</button>
@@ -498,6 +570,22 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
   </div>
 </div>
 
+<!-- EXERCISE MODAL -->
+<div class="modal-bg" id="exBg">
+  <div class="modal">
+    <div class="modal-head"><h3>Log Exercise</h3><button class="icon-btn" id="exClose" aria-label="Close">✕</button></div>
+    <div class="modal-body">
+      <div class="meal-pick" id="exPresets">
+        <button data-n="Walking" data-k="120">🚶 Walk</button><button data-n="Running" data-k="300">🏃 Run</button><button data-n="Cycling" data-k="250">🚴 Cycle</button><button data-n="Weights" data-k="180">🏋️ Weights</button><button data-n="Swimming" data-k="270">🏊 Swim</button><button data-n="Yoga" data-k="120">🧘 Yoga</button>
+      </div>
+      <div class="field"><label>Activity</label><input class="input" id="exName" placeholder="e.g. Evening walk"></div>
+      <div class="field"><label>Calories burned (kcal)</label><input class="input" id="exKcal" type="number" inputmode="numeric" placeholder="200"></div>
+      <button class="btn primary" id="exAdd">Add exercise</button>
+      <small class="note">Presets estimate ~30 minutes of activity — adjust the calories to match what you did.</small>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -512,8 +600,8 @@ const round=(n,d=0)=>{const m=10**d;return Math.round((+n||0)*m)/m;};
 /* ---- state ---- */
 const defaultState = ()=>({
   profile:{ name:"", sex:"male", age:null, height:null, weight:null, activity:1.55, units:"metric",
-            calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60 },
-  log:{}, weights:[], prefs:{ animations:true }
+            calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000 },
+  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], prefs:{ animations:true }
 });
 let state = load();
 let curDate = todayKey();
@@ -556,15 +644,19 @@ function setRing(el,pct,circ){ el.style.strokeDashoffset = circ*(1-clamp(pct,0,1
 function renderToday(){
   const p=state.profile, t=dayTotals(curDate);
   const goal=p.calorieGoal||0;
-  const remain=Math.round(goal - t.kcal);
+  const ex=dayExercise(curDate).reduce((s,e)=>s+(+e.kcal||0),0);
+  const budget=goal+ex;
+  const remain=Math.round(budget - t.kcal);
   const rw=$("#calRingWrap");
   $("#calRemain").textContent = Math.abs(remain).toLocaleString();
   $("#calRemainLbl").textContent = remain<0 ? "kcal over" : "kcal left";
   rw.classList.toggle("over", remain<0);
-  setRing($("#calRing"), goal? t.kcal/goal : 0, 578);
+  setRing($("#calRing"), budget? t.kcal/budget : 0, 578);
   $("#sGoal").textContent = goal.toLocaleString();
   $("#sFood").textContent = Math.round(t.kcal).toLocaleString();
-  $("#sPct").textContent = goal? Math.round(t.kcal/goal*100)+"%" : "—";
+  $("#rowExercise").style.display = ex>0 ? "" : "none";
+  $("#sExercise").textContent = "+"+Math.round(ex);
+  $("#sPct").textContent = budget? Math.round(t.kcal/budget*100)+"%" : "—";
 
   const macro=(ring,pctEl,valEl,val,g,unit="g")=>{
     setRing($(ring), g? val/g : 0, 188);
@@ -576,6 +668,8 @@ function renderToday(){
   macro("#ringF","#pctF","#valF",t.fat,p.fatGoal);
 
   renderMeals();
+  renderExercise();
+  renderWater();
 }
 
 const MEALS=[["Breakfast","🌅"],["Lunch","☀️"],["Dinner","🌙"],["Snacks","🍪"]];
@@ -620,7 +714,68 @@ function addEntry(food){
   if(!state.log[curDate]) state.log[curDate]=[];
   state.log[curDate].push({ id:Date.now()+"-"+Math.random().toString(36).slice(2,6),
     name:food.name, meal:pendingMeal, unit:food.unit, qty:food.qty, serv:food.serv||"", per:food.per });
+  pushRecent(food);
   save(); renderToday();
+}
+
+/* ---- favorites + recent ---- */
+function foodKey(f){ return (f.name||"").toLowerCase()+"|"+f.unit; }
+function asQuickItem(f){ return { name:f.name, unit:f.unit, serv:f.serv||"", baseQty:f.unit==="g"?100:1, per:f.per, serving_size:f.serving_size||"" }; }
+function pushRecent(food){
+  const it=asQuickItem(food);
+  state.recent = state.recent.filter(r=>foodKey(r)!==foodKey(it));
+  state.recent.unshift(it);
+  if(state.recent.length>16) state.recent.length=16;
+}
+function isFav(it){ return state.favorites.some(f=>foodKey(f)===foodKey(it)); }
+function toggleFav(it){
+  if(isFav(it)) state.favorites=state.favorites.filter(f=>foodKey(f)!==foodKey(it));
+  else state.favorites.unshift(asQuickItem(it));
+  save(); renderQuick();
+}
+
+/* ---- exercise ---- */
+function dayExercise(k){ return state.exercise[k]||[]; }
+function addExercise(name,kcal){
+  if(!state.exercise[curDate]) state.exercise[curDate]=[];
+  state.exercise[curDate].push({ id:Date.now()+"-"+Math.random().toString(36).slice(2,6), name, kcal:Math.round(kcal) });
+  save(); renderToday();
+}
+function delExercise(id){
+  state.exercise[curDate]=dayExercise(curDate).filter(e=>e.id!==id);
+  if(!state.exercise[curDate].length) delete state.exercise[curDate];
+  save(); renderToday(); toast("Removed");
+}
+function renderExercise(){
+  const list=$("#exList"); list.innerHTML="";
+  const items=dayExercise(curDate);
+  const tot=items.reduce((s,e)=>s+(+e.kcal||0),0);
+  $("#exCal").textContent = tot? Math.round(tot)+" kcal" : "";
+  if(!items.length){ list.innerHTML='<div class="empty">No exercise logged</div>'; return; }
+  items.forEach(e=>{
+    const row=document.createElement("div"); row.className="entry";
+    row.innerHTML=`<div class="e-main"><div class="e-name">${esc(e.name)}</div><div class="e-sub">calories burned</div></div>
+      <div class="e-cal" style="color:var(--green)">+${Math.round(e.kcal)}</div>
+      <button class="e-del" data-id="${e.id}" aria-label="Delete">✕</button>`;
+    list.appendChild(row);
+  });
+  $$(".e-del",list).forEach(b=>b.onclick=()=>delExercise(b.dataset.id));
+}
+
+/* ---- water ---- */
+function renderWater(){
+  const goal=state.profile.waterGoal||2000;
+  const ml=state.water[curDate]||0;
+  $("#glassFill").style.height=clamp(ml/goal*100,0,100)+"%";
+  $("#waterMl").textContent=ml;
+  $("#waterGoalTxt").textContent=goal;
+  const cups=round(ml/250,1).toString().replace(/\.0$/,"");
+  $("#waterCups").textContent=cups+(cups==="1"?" cup":" cups");
+}
+function addWater(delta){
+  const v=Math.max(0,(state.water[curDate]||0)+delta);
+  if(v===0) delete state.water[curDate]; else state.water[curDate]=v;
+  save(); renderWater();
 }
 
 /* ============ views / nav ============ */
@@ -644,8 +799,9 @@ function openAdd(meal){
   pendingMeal=meal||pendingMeal;
   $$("#mealPick button").forEach(b=>b.classList.toggle("on",b.dataset.m===pendingMeal));
   modalBg.classList.add("show");
-  switchAddTab("search");
-  setTimeout(()=>$("#searchInput").focus(),250);
+  const hasQuick = state.favorites.length || state.recent.length;
+  switchAddTab(hasQuick ? "quick" : "search");
+  if(!hasQuick) setTimeout(()=>$("#searchInput").focus(),250);
 }
 function closeAdd(){ modalBg.classList.remove("show"); stopScan(); }
 $("#fab").onclick=()=>openAdd(pendingMeal);
@@ -655,7 +811,8 @@ $$("#mealPick button").forEach(b=>b.onclick=()=>{ pendingMeal=b.dataset.m; $$("#
 
 function switchAddTab(t){
   $$("#addTabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
-  ["search","browse","barcode","manual"].forEach(n=>$("#pane-"+n).style.display = n===t?"block":"none");
+  ["quick","search","browse","barcode","manual"].forEach(n=>$("#pane-"+n).style.display = n===t?"block":"none");
+  if(t==="quick") renderQuick();
   if(t==="browse") renderBrowse("");
   if(t!=="barcode") stopScan();
 }
@@ -706,6 +863,33 @@ function renderResults(box,items){
     btn.onclick=()=>openQty(it);
     box.appendChild(btn);
   });
+}
+
+/* ---- quick: favorites + recent ---- */
+function quickRow(it){
+  const wrap=document.createElement("div"); wrap.className="qrow";
+  const sub = it.unit==="g" ? Math.round(it.per.kcal*100)+" kcal / 100g" : Math.round(it.per.kcal)+" kcal · "+esc(it.serv||"serving");
+  const add=document.createElement("button"); add.className="res";
+  add.innerHTML=`<div class="r-main"><div class="r-name">${esc(it.name)}</div><div class="r-sub">${sub}</div></div><div class="r-cal">+</div>`;
+  add.onclick=()=>openQty(it);
+  const star=document.createElement("button"); const fav=isFav(it);
+  star.className="star"+(fav?"":" off"); star.textContent=fav?"★":"☆"; star.title="Favourite";
+  star.onclick=e=>{ e.stopPropagation(); toggleFav(it); };
+  wrap.appendChild(add); wrap.appendChild(star);
+  return wrap;
+}
+function renderQuick(){
+  const fav=$("#quickFav"), rec=$("#quickRecent"); fav.innerHTML=""; rec.innerHTML="";
+  if(state.favorites.length){
+    const h=document.createElement("div"); h.className="qhead"; h.textContent="★ Favourites"; fav.appendChild(h);
+    state.favorites.forEach(it=>fav.appendChild(quickRow(it)));
+  }
+  const recents=state.recent.filter(r=>!isFav(r));
+  if(recents.length){
+    const h=document.createElement("div"); h.className="qhead"; h.textContent="Recent"; rec.appendChild(h);
+    recents.forEach(it=>rec.appendChild(quickRow(it)));
+  }
+  $("#quickEmpty").style.display = (state.favorites.length||recents.length) ? "none" : "block";
 }
 
 /* ---- barcode ---- */
@@ -821,8 +1005,24 @@ function updateQtyPreview(){
 $("#qtyAdd").onclick=()=>{
   if(!pendingFood) return;
   const q=+$("#qtyInput").value||0; if(q<=0){ toast("Enter a quantity"); return; }
-  addEntry({ name:pendingFood.name, unit:pendingFood.unit, qty:q, serv:pendingFood.serv, per:pendingFood.per });
+  addEntry({ name:pendingFood.name, unit:pendingFood.unit, qty:q, serv:pendingFood.serv, per:pendingFood.per, serving_size:pendingFood.serving_size });
   qtyBg.classList.remove("show"); closeAdd(); toast("Added to "+pendingMeal);
+};
+
+/* ============ water ============ */
+$("#waterPlus").onclick=()=>addWater(250);
+$("#waterMinus").onclick=()=>addWater(-250);
+
+/* ============ exercise ============ */
+const exBg=$("#exBg");
+$("#addExBtn").onclick=()=>{ $("#exName").value=""; $("#exKcal").value=""; exBg.classList.add("show"); };
+$("#exClose").onclick=()=>exBg.classList.remove("show");
+exBg.onclick=e=>{ if(e.target===exBg) exBg.classList.remove("show"); };
+$$("#exPresets button").forEach(b=>b.onclick=()=>{ if(!$("#exName").value.trim()) $("#exName").value=b.dataset.n; $("#exKcal").value=b.dataset.k; });
+$("#exAdd").onclick=()=>{
+  const name=$("#exName").value.trim()||"Exercise"; const k=+$("#exKcal").value||0;
+  if(k<=0){ toast("Enter calories burned"); return; }
+  addExercise(name,k); exBg.classList.remove("show"); toast("Exercise logged 🔥");
 };
 
 /* ============ calculator ============ */
@@ -922,12 +1122,12 @@ $("#wAdd").onclick=()=>{
 /* ============ settings ============ */
 function fillSettings(){
   const p=state.profile;
-  $("#gCal").value=p.calorieGoal; $("#gP").value=p.proteinGoal; $("#gC").value=p.carbGoal; $("#gF").value=p.fatGoal;
+  $("#gCal").value=p.calorieGoal; $("#gP").value=p.proteinGoal; $("#gC").value=p.carbGoal; $("#gF").value=p.fatGoal; $("#gWater").value=p.waterGoal||2000;
   $$("#setUnits button").forEach(b=>b.classList.toggle("on",b.dataset.v===p.units));
   $$("#setAnim button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.animations?"on":"off")));
 }
 $("#saveGoals").onclick=()=>{
-  Object.assign(state.profile,{ calorieGoal:+$("#gCal").value||0, proteinGoal:+$("#gP").value||0, carbGoal:+$("#gC").value||0, fatGoal:+$("#gF").value||0 });
+  Object.assign(state.profile,{ calorieGoal:+$("#gCal").value||0, proteinGoal:+$("#gP").value||0, carbGoal:+$("#gC").value||0, fatGoal:+$("#gF").value||0, waterGoal:+$("#gWater").value||2000 });
   save(); render(); toast("Goals saved");
 };
 $$("#setUnits button").forEach(b=>b.onclick=()=>{ state.profile.units=b.dataset.v; $$("#setUnits button").forEach(x=>x.classList.toggle("on",x===b));
