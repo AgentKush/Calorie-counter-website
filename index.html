@@ -66,8 +66,6 @@ body{
 /* cards */
 .card{background:var(--glass);border:1px solid var(--brd);border-radius:var(--r);padding:20px;
   backdrop-filter:blur(13px);box-shadow:var(--shadow);position:relative;overflow:hidden;}
-.card::before{content:"";position:absolute;inset:0 0 auto 0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(120,225,210,.5),transparent);}
 .section-title{font-size:.74rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 
 /* hero calorie */
@@ -117,8 +115,8 @@ body{
 .tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:30;display:flex;gap:4px;
   background:rgba(10,18,34,.82);border:1px solid var(--brd);border-radius:20px;padding:7px;backdrop-filter:blur(16px);
   box-shadow:0 12px 36px rgba(0,0,0,.5);}
-.tabbar button{border:none;background:transparent;color:var(--muted);cursor:pointer;padding:9px 14px;border-radius:14px;
-  font-size:.74rem;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;transition:.2s;min-width:62px;}
+.tabbar button{border:none;background:transparent;color:var(--muted);cursor:pointer;padding:9px 9px;border-radius:13px;
+  font-size:.72rem;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;transition:.2s;min-width:52px;}
 .tabbar button .ti{font-size:1.15rem;line-height:1;}
 .tabbar button.active{color:var(--text);background:linear-gradient(160deg,rgba(46,230,197,.22),rgba(167,139,250,.2));
   box-shadow:inset 0 0 0 1px var(--brd-strong);}
@@ -243,6 +241,16 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
 .exfx{font-size:.84rem;color:var(--teal);margin:-4px 0 14px;min-height:1.1em;}
 .exfx b{color:#fff;font-weight:800;}
 .exfx .est{color:var(--amber);}
+.recipe .rec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;}
+.recipe .rec-name{font-weight:700;font-size:1.02rem;}
+.recipe .rec-cal{font-weight:800;color:var(--teal);white-space:nowrap;}
+.recipe .rec-macros{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.rec-macros .mp{font-size:.76rem;font-weight:700;padding:4px 10px;border-radius:10px;border:1px solid rgba(120,225,210,.14);}
+.rec-macros .p{color:var(--green);} .rec-macros .c{color:var(--cyan);} .rec-macros .f{color:var(--magenta);}
+.recipe .rec-why{font-size:.86rem;color:var(--text);margin-bottom:8px;}
+.recipe .rec-ing{font-size:.82rem;color:var(--muted);margin-bottom:14px;line-height:1.45;}
+.recipe .rec-ing b{color:var(--faint);font-weight:700;}
+.recipe .rec-log{width:auto;padding:10px 16px;}
 @media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
 </style>
 </head>
@@ -351,7 +359,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
       <div class="water-wrap">
         <div class="glass"><div class="glass-fill" id="glassFill"></div></div>
         <div class="water-right">
-          <div class="water-amt"><span id="waterMl">0</span><small> / <span id="waterGoalTxt">2000</span> ml</small></div>
+          <div class="water-amt"><span id="waterMl">0</span><small> / <span id="waterGoalTxt">2000</span> <span id="waterUnitTxt">ml</span></small></div>
           <div class="water-sub" id="waterCups">0 cups</div>
           <div class="water-btns"><button class="wbtn" id="waterMinus">− 250 ml</button><button class="wbtn add" id="waterPlus">+ 250 ml</button></div>
         </div>
@@ -430,7 +438,17 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
           <option value="0" selected>Maintain</option>
           <option value="0.1">Mild gain (+10%)</option>
           <option value="0.2">Build muscle (+20%)</option>
+          <option value="custom">Custom target…</option>
         </select>
+      </div>
+      <div id="customGoal" style="display:none">
+        <div class="field"><label>I want to</label>
+          <div class="segmented" id="cDir"><button data-d="gain" class="on">Gain</button><button data-d="lose">Lose</button></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label id="cAmtLbl">Amount (kg)</label><input class="input" id="cAmt" type="number" inputmode="decimal" placeholder="10"></div>
+          <div class="field"><label>Over (weeks)</label><input class="input" id="cWeeks" type="number" inputmode="numeric" placeholder="12"></div>
+        </div>
       </div>
       <button class="btn primary" id="cCalc">Calculate</button>
       <div class="calc-out" id="calcOut">
@@ -444,9 +462,20 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
           <div class="calc-cell"><div class="cv" id="oC" style="font-size:1.2rem;color:#34d9ff;-webkit-text-fill-color:#34d9ff">—</div><div class="ck">Carbs</div></div>
           <div class="calc-cell"><div class="cv" id="oF" style="font-size:1.2rem;color:#e85bf0;-webkit-text-fill-color:#e85bf0">—</div><div class="ck">Fat</div></div>
         </div>
+        <div class="exfx" id="calcNote" style="margin:-4px 0 14px"></div>
         <button class="btn primary" id="cApply">Apply as my goals</button>
       </div>
     </div>
+  </section>
+
+  <!-- RECIPES -->
+  <section class="view" id="view-recipes">
+    <div class="card">
+      <div class="section-title">🍲 Recipe Ideas</div>
+      <p class="welcome" style="margin-bottom:14px">Meals matched to your goal — tap “Log it” to add one to today's log. Calories and macros are per serving.</p>
+      <div class="segmented" id="recGoal"><button data-g="lose">Fat loss</button><button data-g="maintain">Maintain</button><button data-g="gain">Muscle gain</button></div>
+    </div>
+    <div id="recList" class="stack" style="margin-top:16px"></div>
   </section>
 
   <!-- SETTINGS -->
@@ -460,7 +489,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
           <div class="field"><label>Carbs (g)</label><input class="input" id="gC" type="number" inputmode="numeric"></div>
           <div class="field"><label>Fat (g)</label><input class="input" id="gF" type="number" inputmode="numeric"></div>
         </div>
-        <div class="field"><label>Daily water goal (ml)</label><input class="input" id="gWater" type="number" inputmode="numeric"></div>
+        <div class="field"><label id="gWaterLbl">Daily water goal (ml)</label><input class="input" id="gWater" type="number" inputmode="numeric"></div>
         <button class="btn primary" id="saveGoals">Save goals</button>
       </div>
       <div class="card">
@@ -493,6 +522,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
   <button data-view="today" class="active"><span class="ti">🌿</span>Today</button>
   <button data-view="trends"><span class="ti">📊</span>Trends</button>
   <button data-view="calc"><span class="ti">🔥</span>Calc</button>
+  <button data-view="recipes"><span class="ti">🍲</span>Recipes</button>
   <button data-view="settings"><span class="ti">⚙️</span>More</button>
 </div>
 
@@ -608,7 +638,7 @@ const round=(n,d=0)=>{const m=10**d;return Math.round((+n||0)*m)/m;};
 /* ---- state ---- */
 const defaultState = ()=>({
   profile:{ name:"", sex:"male", age:null, height:null, weight:null, activity:1.55, units:"metric",
-            calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000 },
+            calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain" },
   log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], prefs:{ animations:true }
 });
 let state = load();
@@ -773,19 +803,33 @@ function renderExercise(){
   $$(".e-del",list).forEach(b=>b.onclick=()=>delExercise(b.dataset.id));
 }
 
-/* ---- water ---- */
+/* ---- water (stored canonically in ml; shown in ml or US fl oz) ---- */
+const ML_OZ=29.5735;
 function renderWater(){
-  const goal=state.profile.waterGoal||2000;
+  const im=state.profile.units==="imperial";
+  const goalMl=state.profile.waterGoal||2000;
   const ml=state.water[curDate]||0;
-  $("#glassFill").style.height=clamp(ml/goal*100,0,100)+"%";
-  $("#waterMl").textContent=ml;
-  $("#waterGoalTxt").textContent=goal;
-  const cups=round(ml/250,1).toString().replace(/\.0$/,"");
-  $("#waterCups").textContent=cups+(cups==="1"?" cup":" cups");
+  $("#glassFill").style.height=clamp(ml/goalMl*100,0,100)+"%";
+  if(im){
+    $("#waterMl").textContent=Math.round(ml/ML_OZ);
+    $("#waterGoalTxt").textContent=Math.round(goalMl/ML_OZ);
+    $("#waterUnitTxt").textContent="fl oz";
+    const cups=round(ml/ML_OZ/8,1).toString().replace(/\.0$/,"");
+    $("#waterCups").textContent=cups+(cups==="1"?" cup":" cups");
+    $("#waterMinus").textContent="− 8 fl oz"; $("#waterPlus").textContent="+ 8 fl oz";
+  } else {
+    $("#waterMl").textContent=Math.round(ml);
+    $("#waterGoalTxt").textContent=goalMl;
+    $("#waterUnitTxt").textContent="ml";
+    const cups=round(ml/250,1).toString().replace(/\.0$/,"");
+    $("#waterCups").textContent=cups+(cups==="1"?" cup":" cups");
+    $("#waterMinus").textContent="− 250 ml"; $("#waterPlus").textContent="+ 250 ml";
+  }
 }
-function addWater(delta){
-  const v=Math.max(0,(state.water[curDate]||0)+delta);
-  if(v===0) delete state.water[curDate]; else state.water[curDate]=v;
+function addWater(dir){
+  const inc = state.profile.units==="imperial" ? 8*ML_OZ : 250;
+  const v=Math.max(0,(state.water[curDate]||0)+dir*inc);
+  if(v<1) delete state.water[curDate]; else state.water[curDate]=v;
   save(); renderWater();
 }
 
@@ -796,6 +840,7 @@ function showView(v){
   $$(".tabbar button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
   if(v==="trends") renderTrends();
   if(v==="settings") fillSettings();
+  if(v==="recipes") renderRecipes();
   window.scrollTo({top:0,behavior:"smooth"});
 }
 $$(".tabbar button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
@@ -1021,8 +1066,8 @@ $("#qtyAdd").onclick=()=>{
 };
 
 /* ============ water ============ */
-$("#waterPlus").onclick=()=>addWater(250);
-$("#waterMinus").onclick=()=>addWater(-250);
+$("#waterPlus").onclick=()=>addWater(1);
+$("#waterMinus").onclick=()=>addWater(-1);
 
 /* ============ exercise ============ */
 const exBg=$("#exBg");
@@ -1056,28 +1101,96 @@ $("#exAdd").onclick=()=>{
 let calcSex="male";
 $$("#cSex button").forEach(b=>b.onclick=()=>{ calcSex=b.dataset.v; $$("#cSex button").forEach(x=>x.classList.toggle("on",x===b)); });
 $("#cCalc").onclick=()=>{
-  const age=+$("#cAge").value, h=+$("#cHeight").value, w=+$("#cWeight").value, act=+$("#cAct").value, adj=+$("#cGoal").value;
+  const age=+$("#cAge").value, h=+$("#cHeight").value, w=+$("#cWeight").value, act=+$("#cAct").value;
   if(!age||!h||!w){ toast("Fill age, height and weight"); return; }
   const metric = state.profile.units==="metric";
   const cm = metric? h : h*2.54;
   const kg = metric? w : w*0.453592;
-  let bmr = 10*kg + 6.25*cm - 5*age + (calcSex==="male"?5:-161);
+  const bmr = 10*kg + 6.25*cm - 5*age + (calcSex==="male"?5:-161);
   const tdee = bmr*act;
-  const target = tdee*(1+adj);
-  const protG = Math.round(kg*(adj<0?2.2:1.9));         // higher protein when cutting
+  const goalVal = $("#cGoal").value;
+  let target, dir, note="";
+  if(goalVal==="custom"){
+    const amt=+$("#cAmt").value||0, weeks=+$("#cWeeks").value||0;
+    if(amt<=0||weeks<=0){ toast("Enter an amount and number of weeks"); return; }
+    dir = customDir;                                   // "gain" | "lose"
+    const unit = metric?"kg":"lb";
+    const kcalPerUnit = metric?7700:3500;              // energy in 1 kg / 1 lb of body weight
+    const weeklyRate = amt/weeks;                      // units per week
+    const dailyAdj = weeklyRate*kcalPerUnit/7;         // kcal/day surplus or deficit
+    target = tdee + (dir==="lose" ? -dailyAdj : dailyAdj);
+    let floored=false;
+    if(target<1200){ target=1200; floored=true; }
+    const rateTxt = (Math.round(weeklyRate*100)/100)+" "+unit+"/wk";
+    note = (dir==="lose"?"−":"+")+Math.round(dailyAdj)+" kcal/day · "+rateTxt+" · "+amt+" "+unit+" in "+weeks+" wk";
+    const fast = weeklyRate > 0.0125*(metric?kg:w) || (metric ? weeklyRate>1 : weeklyRate>2);
+    if(floored) note += " — floored at 1200 kcal for safety";
+    else if(fast) note += " — aggressive pace; a slower rate is safer & easier to sustain";
+  } else {
+    const adj=+goalVal;
+    target = tdee*(1+adj);
+    dir = adj<0?"lose":adj>0?"gain":"maintain";
+  }
+  const protG = Math.round(kg*(dir==="lose"?2.2:1.9));
   const fatG = Math.round(target*0.25/9);
   const carbG = Math.max(0,Math.round((target-protG*4-fatG*9)/4));
   $("#oBMR").textContent=Math.round(bmr); $("#oTDEE").textContent=Math.round(tdee);
   $("#oTarget").textContent=Math.round(target); $("#oP").textContent=protG+"g"; $("#oC").textContent=carbG+"g"; $("#oF").textContent=fatG+"g";
+  $("#calcNote").textContent=note;
   $("#calcOut").classList.add("show");
-  $("#calcOut").dataset.payload=JSON.stringify({cal:Math.round(target),p:protG,c:carbG,f:fatG,sex:calcSex,age,height:h,weight:w,activity:act});
+  $("#calcOut").dataset.payload=JSON.stringify({cal:Math.round(target),p:protG,c:carbG,f:fatG,sex:calcSex,age,height:h,weight:w,activity:act,goalDir:dir});
 };
+let customDir="gain";
+$$("#cDir button").forEach(b=>b.onclick=()=>{ customDir=b.dataset.d; $$("#cDir button").forEach(x=>x.classList.toggle("on",x===b)); });
+$("#cGoal").addEventListener("change",()=>{ $("#customGoal").style.display = $("#cGoal").value==="custom" ? "block":"none"; });
 $("#cApply").onclick=()=>{
   const d=JSON.parse($("#calcOut").dataset.payload||"{}"); if(!d.cal) return;
   Object.assign(state.profile,{ calorieGoal:d.cal, proteinGoal:d.p, carbGoal:d.c, fatGoal:d.f,
-    sex:d.sex, age:d.age, height:d.height, weight:d.weight, activity:d.activity });
+    sex:d.sex, age:d.age, height:d.height, weight:d.weight, activity:d.activity, goalDir:d.goalDir||"maintain" });
+  recSel=d.goalDir||"maintain";
   save(); render(); toast("Goals applied ✨"); showView("today");
 };
+
+/* ============ recipes ============ */
+/* kcal is computed from macros (p*4 + c*4 + f*9) so it reconciles exactly when logged */
+const RECIPES=[
+  {name:"Greek Yogurt Berry Bowl",goal:"lose",kcal:251,p:26,c:30,f:3,serv:"1 bowl",why:"High protein and volume for very few calories — keeps you full while cutting.",ing:"200g non-fat Greek yogurt, 100g mixed berries, 10g honey, cinnamon."},
+  {name:"Grilled Chicken Salad",goal:"lose",kcal:322,p:40,c:18,f:10,serv:"1 plate",why:"Lean protein with low-calorie veg you can pile high.",ing:"150g grilled chicken breast, large mixed salad, cherry tomato, cucumber, 1 tbsp vinaigrette."},
+  {name:"Veggie Egg-White Omelette",goal:"lose",kcal:218,p:24,c:8,f:10,serv:"1 omelette",why:"Protein-dense, low-carb breakfast that stays light.",ing:"4 egg whites + 1 whole egg, spinach, peppers, onion, 20g feta."},
+  {name:"Tuna Cucumber Boats",goal:"lose",kcal:207,p:30,c:6,f:7,serv:"1 serving",why:"Fast, high-protein, barely any calories.",ing:"1 can tuna in water, 1 tbsp light mayo, cucumber halves, lemon, pepper."},
+  {name:"Cottage Cheese & Pineapple",goal:"lose",kcal:195,p:24,c:18,f:3,serv:"1 cup",why:"Slow-digesting casein protein to curb hunger.",ing:"200g low-fat cottage cheese, 100g pineapple."},
+  {name:"Protein Green Smoothie",goal:"lose",kcal:256,p:30,c:25,f:4,serv:"1 glass",why:"Filling, high-protein, easy to keep low-calorie.",ing:"1 scoop whey, handful spinach, 1/2 banana, 250ml almond milk, ice."},
+
+  {name:"Peanut Butter Banana Oats",goal:"gain",kcal:634,p:22,c:78,f:26,serv:"1 bowl",why:"Calorie-dense carbs and fats to fuel a surplus.",ing:"80g oats, 250ml whole milk, 1 banana, 2 tbsp peanut butter, honey."},
+  {name:"Mass-Gainer Shake",goal:"gain",kcal:702,p:45,c:90,f:18,serv:"1 large shake",why:"Easy liquid calories when eating enough is hard.",ing:"2 scoops whey, 1 banana, 80g oats, 1 tbsp peanut butter, 400ml whole milk."},
+  {name:"Chicken, Rice & Avocado Bowl",goal:"gain",kcal:678,p:50,c:70,f:22,serv:"1 bowl",why:"Big protein and carbs with calorie-dense healthy fat.",ing:"200g chicken, 1.5 cups cooked rice, 1/2 avocado, olive oil, salsa."},
+  {name:"Beef & Pasta",goal:"gain",kcal:766,p:48,c:85,f:26,serv:"1 plate",why:"Classic mass-building combo of carbs and protein.",ing:"150g lean ground beef, 120g (dry) pasta, tomato sauce, parmesan."},
+  {name:"Salmon & Sweet Potato",goal:"gain",kcal:640,p:42,c:55,f:28,serv:"1 plate",why:"Omega-3 fats plus quality carbs for recovery.",ing:"180g salmon, 1 large sweet potato, olive oil, greens."},
+  {name:"Trail Mix Yogurt Parfait",goal:"gain",kcal:586,p:24,c:55,f:30,serv:"1 serving",why:"Quick, calorie-dense snack to top up your day.",ing:"150g Greek yogurt, 60g granola, 40g mixed nuts, honey."},
+
+  {name:"Chicken Burrito Bowl",goal:"maintain",kcal:506,p:40,c:55,f:14,serv:"1 bowl",why:"Balanced protein, carbs and fat for a steady day.",ing:"150g chicken, 1 cup rice, black beans, salsa, corn, lettuce."},
+  {name:"Turkey Avocado Sandwich",goal:"maintain",kcal:440,p:32,c:42,f:16,serv:"1 sandwich",why:"Solid everyday lunch with a good protein hit.",ing:"2 slices wholegrain bread, 100g turkey, 1/4 avocado, lettuce, tomato."},
+  {name:"Tofu Veggie Stir-Fry",goal:"maintain",kcal:480,p:26,c:58,f:16,serv:"1 plate",why:"Balanced plant-based plate with plenty of veg.",ing:"200g tofu, mixed vegetables, 1 cup rice, soy sauce, sesame oil."},
+  {name:"Overnight Oats & Fruit",goal:"maintain",kcal:428,p:18,c:62,f:12,serv:"1 jar",why:"Make-ahead balanced breakfast with slow carbs.",ing:"60g oats, 200ml milk, 100g berries, 1 tbsp chia, honey."}
+];
+let recSel=null;
+function recipeItem(r){ return { name:r.name, unit:"serving", baseQty:1, serv:r.serv, per:{ kcal:r.kcal, protein:r.p, carbs:r.c, fat:r.f } }; }
+function renderRecipes(){
+  const g = recSel || state.profile.goalDir || "maintain"; recSel=g;
+  $$("#recGoal button").forEach(b=>b.classList.toggle("on",b.dataset.g===g));
+  const list=$("#recList"); list.innerHTML="";
+  RECIPES.filter(r=>r.goal===g).forEach(r=>{
+    const card=document.createElement("div"); card.className="card recipe";
+    card.innerHTML=`<div class="rec-head"><div class="rec-name">${esc(r.name)}</div><div class="rec-cal">${r.kcal} kcal</div></div>
+      <div class="rec-macros"><span class="mp p">P ${r.p}g</span><span class="mp c">C ${r.c}g</span><span class="mp f">F ${r.f}g</span></div>
+      <div class="rec-why">${esc(r.why)}</div>
+      <div class="rec-ing"><b>Ingredients:</b> ${esc(r.ing)}</div>
+      <button class="btn ghost rec-log">+ Log it (${esc(r.serv)})</button>`;
+    card.querySelector(".rec-log").onclick=()=>{ pendingMeal="Lunch"; openQty(recipeItem(r)); };
+    list.appendChild(card);
+  });
+}
+$$("#recGoal button").forEach(b=>b.onclick=()=>{ recSel=b.dataset.g; renderRecipes(); });
 
 /* ============ trends ============ */
 $$("#rangeSel button").forEach(b=>b.onclick=()=>{ chartRange=+b.dataset.r; $$("#rangeSel button").forEach(x=>x.classList.toggle("on",x===b)); renderTrends(); });
@@ -1148,17 +1261,20 @@ $("#wAdd").onclick=()=>{
 
 /* ============ settings ============ */
 function fillSettings(){
-  const p=state.profile;
-  $("#gCal").value=p.calorieGoal; $("#gP").value=p.proteinGoal; $("#gC").value=p.carbGoal; $("#gF").value=p.fatGoal; $("#gWater").value=p.waterGoal||2000;
+  const p=state.profile; const im=p.units==="imperial";
+  $("#gCal").value=p.calorieGoal; $("#gP").value=p.proteinGoal; $("#gC").value=p.carbGoal; $("#gF").value=p.fatGoal;
+  $("#gWater").value = im ? Math.round((p.waterGoal||2000)/ML_OZ) : (p.waterGoal||2000);
+  $("#gWaterLbl").textContent = "Daily water goal ("+(im?"fl oz":"ml")+")";
   $$("#setUnits button").forEach(b=>b.classList.toggle("on",b.dataset.v===p.units));
   $$("#setAnim button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.animations?"on":"off")));
 }
 $("#saveGoals").onclick=()=>{
-  Object.assign(state.profile,{ calorieGoal:+$("#gCal").value||0, proteinGoal:+$("#gP").value||0, carbGoal:+$("#gC").value||0, fatGoal:+$("#gF").value||0, waterGoal:+$("#gWater").value||2000 });
+  const im=state.profile.units==="imperial"; const wIn=+$("#gWater").value||0;
+  Object.assign(state.profile,{ calorieGoal:+$("#gCal").value||0, proteinGoal:+$("#gP").value||0, carbGoal:+$("#gC").value||0, fatGoal:+$("#gF").value||0, waterGoal:(im? Math.round(wIn*ML_OZ) : wIn)||2000 });
   save(); render(); toast("Goals saved");
 };
 $$("#setUnits button").forEach(b=>b.onclick=()=>{ state.profile.units=b.dataset.v; $$("#setUnits button").forEach(x=>x.classList.toggle("on",x===b));
-  $("#cHLbl").textContent="Height ("+(b.dataset.v==="metric"?"cm":"in")+")"; $("#cWLbl").textContent="Weight ("+(b.dataset.v==="metric"?"kg":"lb")+")"; save(); });
+  $("#cHLbl").textContent="Height ("+(b.dataset.v==="metric"?"cm":"in")+")"; $("#cWLbl").textContent="Weight ("+(b.dataset.v==="metric"?"kg":"lb")+")"; $("#cAmtLbl").textContent="Amount ("+(b.dataset.v==="metric"?"kg":"lb")+")"; save(); fillSettings(); renderToday(); });
 $$("#setAnim button").forEach(b=>b.onclick=()=>{ state.prefs.animations=b.dataset.v==="on"; $$("#setAnim button").forEach(x=>x.classList.toggle("on",x===b)); save(); toggleSpores(); });
 
 $("#exportBtn").onclick=()=>{

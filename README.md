@@ -29,13 +29,16 @@ A quantity step lets you set grams (database/barcode foods) or servings (common/
 Pick an activity (Walk, Run, Cycle, Weights, Swim, Yoga) and a **duration** (quick chips for 15 m → 2 h, or any custom minutes). Calories are computed from your body weight using the standard MET method and the number shown is exactly what gets logged. You can always type a calorie value in directly.
 
 ### BMR / TDEE calculator
-Mifflin–St Jeor BMR with an activity multiplier and a goal adjustment. One tap applies the result — calorie target **and** a protein/carb/fat split — as your daily goals.
+Mifflin–St Jeor BMR with an activity multiplier and a goal preset (−20 % … +20 %). One tap applies the result — calorie target **and** a protein/carb/fat split — as your daily goals. A **Custom target** option lets you enter how much you want to gain or lose and over how many weeks; it works out the daily calories from the energy in body weight (3500 kcal/lb, 7700 kcal/kg), with a 1200-kcal safety floor and a heads-up when the pace is aggressive.
+
+### Recipe ideas
+A **Recipes** tab suggests meals matched to your goal — fat loss, maintain, or muscle gain (it defaults to the goal you set in the calculator). Each card shows per-serving calories and macros with a one-tap **Log it**. Recipe calories are derived from their macros, so logging one keeps your day's totals consistent.
 
 ### Trends
 7 / 14 / 30-day calorie bar chart with a goal line, a weight line chart, and summary stats: average intake, day streak, days logged, and weight change.
 
 ### Settings
-Manual calorie + macro goals, water goal, metric/imperial units, background-animation toggle, and full **export / import / reset** of your data as JSON.
+Manual calorie + macro goals, water goal, metric/imperial units, background-animation toggle, and full **export / import / reset** of your data as JSON. Switching to **Imperial** shows weight in lb, height in inches, and the water tracker in **US fl oz / cups** (Metric uses kg, cm and ml).
 
 ### Look & feel
 Layered pine-forest silhouettes, glowing bioluminescent mushrooms, and a drifting spore particle field — mobile-first and responsive, with a reduced-motion fallback.
@@ -56,6 +59,8 @@ All figures are estimates (not medical advice), but the math is transparent:
 | Fat | 25 % of target ÷ 9 |
 | Carbs | remaining calories ÷ 4 |
 | Exercise | **MET × bodyweight (kg) × hours** (Walk 3.5 · Run 9.8 · Cycle 7.5 · Weights 5 · Swim 7 · Yoga 3) |
+| Custom target | TDEE ± (weekly rate × 3500 kcal/lb or 7700 kcal/kg ÷ 7); floored at 1200 kcal |
+| Water (Imperial) | fl oz = ml ÷ 29.5735; 1 US cup = 8 fl oz |
 | Day budget | goal − food + exercise |
 
 Imperial inputs are converted automatically (in → cm × 2.54, lb → kg × 0.453592).
