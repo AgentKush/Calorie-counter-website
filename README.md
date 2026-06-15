@@ -32,7 +32,7 @@ Pick an activity (Walk, Run, Cycle, Weights, Swim, Yoga) and a **duration** (qui
 Mifflin–St Jeor BMR with an activity multiplier and a goal preset (−20 % … +20 %). One tap applies the result — calorie target **and** a protein/carb/fat split — as your daily goals. A **Custom target** option lets you enter how much you want to gain or lose and over how many weeks; it works out the daily calories from the energy in body weight (3500 kcal/lb, 7700 kcal/kg), with a 1200-kcal safety floor and a heads-up when the pace is aggressive.
 
 ### Recipe ideas
-A **Recipes** tab suggests meals matched to your goal — fat loss, maintain, or muscle gain (it defaults to the goal you set in the calculator). Each card shows per-serving calories and macros with a one-tap **Log it**. Recipe calories are derived from their macros, so logging one keeps your day's totals consistent.
+A **Recipes** tab suggests 21 meals matched to your goal — fat loss, maintain, or muscle gain (it defaults to the goal you set in the calculator). Each card shows a real photo, per-serving calories and macros, ingredients, and a one-tap **Log it**. Photos are hot-linked from TheMealDB and Wikimedia Commons (with an emoji-tile fallback if one ever fails to load), and recipe calories are derived from their macros so logging one keeps your day's totals consistent.
 
 ### Trends
 7 / 14 / 30-day calorie bar chart with a goal line, a weight line chart, and summary stats: average intake, day streak, days logged, and weight change.
