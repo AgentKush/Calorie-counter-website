@@ -103,7 +103,7 @@ body{
 .entry{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;background:var(--glass-2);
   border:1px solid rgba(120,225,210,.08);margin-bottom:7px;animation:rise .35s ease;}
 @keyframes rise{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
-.entry .e-main{flex:1;min-width:0;}
+.entry .e-main{flex:1;min-width:0;cursor:pointer;}
 .entry .e-name{font-weight:600;font-size:.94rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .entry .e-sub{font-size:.76rem;color:var(--muted);margin-top:2px;}
 .entry .e-cal{font-weight:700;font-size:.95rem;color:var(--teal);white-space:nowrap;}
@@ -247,6 +247,16 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
 .recipe .rec-img .ph{position:absolute;inset:0;z-index:0;display:grid;place-items:center;font-size:3rem;opacity:.7;}
 .recipe .rec-img img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block;}
 .recipe .rec-img .rec-cal{position:absolute;z-index:2;right:10px;bottom:10px;background:rgba(6,12,22,.85);color:var(--teal);font-weight:800;font-size:.84rem;padding:5px 11px;border-radius:11px;border:1px solid var(--brd);backdrop-filter:blur(4px);}
+.recipe .rec-fav{position:absolute;z-index:2;top:10px;right:10px;width:38px;height:38px;border-radius:11px;border:1px solid var(--brd);background:rgba(6,12,22,.72);color:var(--amber);font-size:1.1rem;cursor:pointer;backdrop-filter:blur(4px);}
+.recipe .rec-fav.off{color:#cdd9ee;}
+.recipe.flash{outline:2px solid var(--teal);outline-offset:2px;box-shadow:0 0 30px rgba(46,230,197,.55);}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px;}
+.badge{text-align:center;padding:14px 8px;border-radius:14px;background:var(--glass-2);border:1px solid rgba(120,225,210,.1);opacity:.42;filter:grayscale(.7);transition:.25s;}
+.badge.earned{opacity:1;filter:none;border-color:var(--brd-strong);box-shadow:0 0 16px rgba(46,230,197,.18);}
+.badge .bi{font-size:1.9rem;line-height:1;}
+.badge.earned .bi{filter:drop-shadow(0 0 7px rgba(46,230,197,.5));}
+.badge .bn{font-size:.72rem;font-weight:700;margin-top:7px;}
+.badge .bd{font-size:.63rem;color:var(--muted);margin-top:3px;line-height:1.3;}
 .recipe .rec-body{padding:14px 18px 18px;}
 .recipe .rec-name{font-weight:700;font-size:1.04rem;margin-bottom:10px;}
 .recipe .rec-macros{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
@@ -411,6 +421,10 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
           <div class="stat-cell"><div class="sv" id="stWeight">—</div><div class="sk">Weight change</div></div>
         </div>
       </div>
+      <div class="card">
+        <div class="section-title">🏅 Achievements <span id="badgeCount" style="color:var(--faint);font-weight:600"></span></div>
+        <div class="badges" id="badgeGrid"></div>
+      </div>
     </div>
   </section>
 
@@ -479,6 +493,11 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
       <div class="section-title">🍲 Recipe Ideas</div>
       <p class="welcome" style="margin-bottom:14px">Meals matched to your goal — tap “Log it” to add one to today's log. Calories and macros are per serving.</p>
       <div class="segmented" id="recGoal"><button data-g="lose">Fat loss</button><button data-g="maintain">Maintain</button><button data-g="gain">Muscle gain</button></div>
+      <input class="input" id="recSearch" placeholder="Search recipes or ingredients…" style="margin-top:12px">
+      <div class="seg-range" id="recDiet" style="margin-top:8px;flex-wrap:wrap">
+        <button data-d="all" class="on">All</button><button data-d="veg">Veg</button><button data-d="high">High-protein</button><button data-d="seafood">Seafood</button><button data-d="fav">★ Saved</button>
+      </div>
+      <button class="btn ghost" id="recSurprise" style="margin-top:10px">🎲 Surprise me</button>
     </div>
     <div id="recList" class="stack" style="margin-top:16px"></div>
   </section>
@@ -544,9 +563,10 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
       </div>
 
       <div id="pane-quick">
+        <div id="quickMine"></div>
         <div id="quickFav"></div>
         <div id="quickRecent"></div>
-        <div class="hint" id="quickEmpty" style="display:none">Foods you log show up here for one-tap adding. Tap ⭐ on any food to pin it as a favourite.</div>
+        <div class="hint" id="quickEmpty" style="display:none">Foods you log show up here for one-tap adding. Tap ⭐ on any food to pin it, or save your own under Manual → Save to My Foods.</div>
       </div>
 
       <div id="pane-search" style="display:none">
@@ -585,6 +605,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
         </div>
         <div class="field"><label>Quantity (servings)</label><input class="input" id="mQty" type="number" inputmode="decimal" value="1"></div>
         <button class="btn primary" id="mAdd">Add to log</button>
+        <button class="btn ghost" id="mSave" style="margin-top:8px">💾 Save to My Foods</button>
       </div>
     </div>
   </div>
@@ -644,7 +665,7 @@ const round=(n,d=0)=>{const m=10**d;return Math.round((+n||0)*m)/m;};
 const defaultState = ()=>({
   profile:{ name:"", sex:"male", age:null, height:null, weight:null, activity:1.55, units:"metric",
             calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain" },
-  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], prefs:{ animations:true }
+  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], favRecipes:[], prefs:{ animations:true }
 });
 let state = load();
 let curDate = todayKey();
@@ -730,8 +751,8 @@ function renderMeals(){
       items.forEach(e=>{
         const x=entryTotals(e);
         const row=document.createElement("div"); row.className="entry";
-        row.innerHTML=`<div class="e-main"><div class="e-name">${esc(e.name)}</div>
-          <div class="e-sub">${esc(qtyLabel(e))} · P ${round(x.protein)} · C ${round(x.carbs)} · F ${round(x.fat)}</div></div>
+        row.innerHTML=`<div class="e-main" data-edit="${e.id}"><div class="e-name">${esc(e.name)}</div>
+          <div class="e-sub">${esc(qtyLabel(e))} · P ${round(x.protein)} · C ${round(x.carbs)} · F ${round(x.fat)} · tap to edit</div></div>
           <div class="e-cal">${Math.round(x.kcal)}</div>
           <button class="e-del" data-id="${e.id}" aria-label="Delete">✕</button>`;
         block.appendChild(row);
@@ -744,6 +765,7 @@ function renderMeals(){
   });
   $$(".add-mini",wrap).forEach(b=>b.onclick=()=>openAdd(b.dataset.meal));
   $$(".e-del",wrap).forEach(b=>b.onclick=()=>{ delEntry(b.dataset.id); });
+  $$(".e-main[data-edit]",wrap).forEach(el=>el.onclick=()=>openEditEntry(el.dataset.edit));
 }
 function qtyLabel(e){ return e.unit==="g" ? round(e.qty)+" g" : (e.qty===1? (e.serv||"1 serving") : e.qty+" × "+(e.serv||"serving")); }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
@@ -752,6 +774,10 @@ function delEntry(id){
   state.log[curDate]=dayEntries(curDate).filter(e=>e.id!==id);
   if(!state.log[curDate].length) delete state.log[curDate];
   save(); renderToday(); toast("Removed");
+}
+function openEditEntry(id){
+  const e=dayEntries(curDate).find(x=>x.id===id); if(!e) return;
+  openQty({ name:e.name, unit:e.unit, serv:e.serv, per:e.per, serving_size:"" }, id, e.qty);
 }
 function addEntry(food){
   if(!state.log[curDate]) state.log[curDate]=[];
@@ -860,7 +886,7 @@ function openAdd(meal){
   pendingMeal=meal||pendingMeal;
   $$("#mealPick button").forEach(b=>b.classList.toggle("on",b.dataset.m===pendingMeal));
   modalBg.classList.add("show");
-  const hasQuick = state.favorites.length || state.recent.length;
+  const hasQuick = state.favorites.length || state.recent.length || state.myFoods.length;
   switchAddTab(hasQuick ? "quick" : "search");
   if(!hasQuick) setTimeout(()=>$("#searchInput").focus(),250);
 }
@@ -927,20 +953,26 @@ function renderResults(box,items){
 }
 
 /* ---- quick: favorites + recent ---- */
-function quickRow(it){
+function quickRow(it, kind){
   const wrap=document.createElement("div"); wrap.className="qrow";
   const sub = it.unit==="g" ? Math.round(it.per.kcal*100)+" kcal / 100g" : Math.round(it.per.kcal)+" kcal · "+esc(it.serv||"serving");
   const add=document.createElement("button"); add.className="res";
   add.innerHTML=`<div class="r-main"><div class="r-name">${esc(it.name)}</div><div class="r-sub">${sub}</div></div><div class="r-cal">+</div>`;
   add.onclick=()=>openQty(it);
-  const star=document.createElement("button"); const fav=isFav(it);
-  star.className="star"+(fav?"":" off"); star.textContent=fav?"★":"☆"; star.title="Favourite";
-  star.onclick=e=>{ e.stopPropagation(); toggleFav(it); };
-  wrap.appendChild(add); wrap.appendChild(star);
+  const btn=document.createElement("button");
+  if(kind==="myfood"){ btn.className="star off"; btn.textContent="✕"; btn.title="Remove";
+    btn.onclick=e=>{ e.stopPropagation(); state.myFoods=state.myFoods.filter(f=>foodKey(f)!==foodKey(it)); save(); renderQuick(); }; }
+  else { const fav=isFav(it); btn.className="star"+(fav?"":" off"); btn.textContent=fav?"★":"☆"; btn.title="Favourite";
+    btn.onclick=e=>{ e.stopPropagation(); toggleFav(it); }; }
+  wrap.appendChild(add); wrap.appendChild(btn);
   return wrap;
 }
 function renderQuick(){
-  const fav=$("#quickFav"), rec=$("#quickRecent"); fav.innerHTML=""; rec.innerHTML="";
+  const mine=$("#quickMine"), fav=$("#quickFav"), rec=$("#quickRecent"); mine.innerHTML=""; fav.innerHTML=""; rec.innerHTML="";
+  if(state.myFoods.length){
+    const h=document.createElement("div"); h.className="qhead"; h.textContent="My Foods"; mine.appendChild(h);
+    state.myFoods.forEach(it=>mine.appendChild(quickRow(it,"myfood")));
+  }
   if(state.favorites.length){
     const h=document.createElement("div"); h.className="qhead"; h.textContent="★ Favourites"; fav.appendChild(h);
     state.favorites.forEach(it=>fav.appendChild(quickRow(it)));
@@ -950,7 +982,7 @@ function renderQuick(){
     const h=document.createElement("div"); h.className="qhead"; h.textContent="Recent"; rec.appendChild(h);
     recents.forEach(it=>rec.appendChild(quickRow(it)));
   }
-  $("#quickEmpty").style.display = (state.favorites.length||recents.length) ? "none" : "block";
+  $("#quickEmpty").style.display = (state.myFoods.length||state.favorites.length||recents.length) ? "none" : "block";
 }
 
 /* ---- barcode ---- */
@@ -1038,18 +1070,27 @@ $("#mAdd").onclick=()=>{
   ["mName","mServ","mCal","mP","mC","mF"].forEach(id=>$("#"+id).value=""); $("#mQty").value=1;
   toast(name+" added"); closeAdd();
 };
+$("#mSave").onclick=()=>{
+  const name=$("#mName").value.trim(); if(!name){ toast("Enter a food name"); return; }
+  const it={ name, unit:"serving", serv:$("#mServ").value.trim()||"1 serving", baseQty:1,
+    per:{kcal:+$("#mCal").value||0, protein:+$("#mP").value||0, carbs:+$("#mC").value||0, fat:+$("#mF").value||0} };
+  state.myFoods=state.myFoods.filter(f=>foodKey(f)!==foodKey(it)); state.myFoods.unshift(it);
+  save(); toast(name+" saved to My Foods");
+};
 
 /* ---- quantity modal ---- */
 const qtyBg=$("#qtyBg");
-$("#qtyClose").onclick=()=>qtyBg.classList.remove("show");
-qtyBg.onclick=e=>{ if(e.target===qtyBg) qtyBg.classList.remove("show"); };
-function openQty(it){
-  pendingFood=it;
-  $("#qtyTitle").textContent=it.name.length>34?it.name.slice(0,34)+"…":it.name;
-  if(it.unit==="g"){ $("#qtyLbl").textContent="Amount (grams)"; $("#qtyInput").value=it.serving_size&&parseFloat(it.serving_size)?Math.round(parseFloat(it.serving_size)):100;
+let pendingEditId=null;
+$("#qtyClose").onclick=()=>{ pendingEditId=null; qtyBg.classList.remove("show"); };
+qtyBg.onclick=e=>{ if(e.target===qtyBg){ pendingEditId=null; qtyBg.classList.remove("show"); } };
+function openQty(it, editId, curQty){
+  pendingFood=it; pendingEditId=editId||null;
+  $("#qtyTitle").textContent=(editId?"Edit · ":"")+(it.name.length>30?it.name.slice(0,30)+"…":it.name);
+  if(it.unit==="g"){ $("#qtyLbl").textContent="Amount (grams)"; $("#qtyInput").value=curQty!=null?curQty:(it.serving_size&&parseFloat(it.serving_size)?Math.round(parseFloat(it.serving_size)):100);
     $("#qtyInfo").innerHTML=`<b>${Math.round(it.per.kcal*100)}</b> kcal per 100 g`; }
-  else { $("#qtyLbl").textContent="Quantity (servings)"; $("#qtyInput").value=1;
+  else { $("#qtyLbl").textContent="Quantity (servings)"; $("#qtyInput").value=curQty!=null?curQty:1;
     $("#qtyInfo").innerHTML=`<b>${Math.round(it.per.kcal)}</b> kcal per ${esc(it.serv||"serving")}`; }
+  $("#qtyAdd").textContent=editId?"Save changes":"Add to log";
   updateQtyPreview();
   qtyBg.classList.add("show");
   setTimeout(()=>$("#qtyInput").select(),250);
@@ -1066,8 +1107,14 @@ function updateQtyPreview(){
 $("#qtyAdd").onclick=()=>{
   if(!pendingFood) return;
   const q=+$("#qtyInput").value||0; if(q<=0){ toast("Enter a quantity"); return; }
-  addEntry({ name:pendingFood.name, unit:pendingFood.unit, qty:q, serv:pendingFood.serv, per:pendingFood.per, serving_size:pendingFood.serving_size });
-  qtyBg.classList.remove("show"); closeAdd(); toast("Added to "+pendingMeal);
+  if(pendingEditId){
+    const e=dayEntries(curDate).find(x=>x.id===pendingEditId);
+    if(e){ e.qty=q; save(); renderToday(); }
+    pendingEditId=null; qtyBg.classList.remove("show"); toast("Updated");
+  } else {
+    addEntry({ name:pendingFood.name, unit:pendingFood.unit, qty:q, serv:pendingFood.serv, per:pendingFood.per, serving_size:pendingFood.serving_size });
+    qtyBg.classList.remove("show"); closeAdd(); toast("Added to "+pendingMeal);
+  }
 };
 
 /* ============ water ============ */
@@ -1159,40 +1206,63 @@ $("#cApply").onclick=()=>{
 /* ============ recipes ============ */
 /* kcal is computed from macros (p*4 + c*4 + f*9) so it reconciles exactly when logged */
 const RECIPES=[
-  {name:"Tuna Niçoise Salad",goal:"lose",kcal:378,p:34,c:20,f:18,serv:"1 plate",why:"Lean tuna and egg over veg — high protein, naturally low-calorie.",ing:"Tuna, boiled egg, green beans, baby potatoes, olives, lettuce, light dressing.",img:"https://www.themealdb.com/images/media/meals/yypwwq1511304979.jpg"},
+  {name:"Tuna Niçoise Salad",goal:"lose",kcal:378,p:34,c:20,f:18,serv:"1 plate",why:"Lean tuna and egg over veg — high protein, naturally low-calorie.",ing:"Tuna, boiled egg, green beans, baby potatoes, olives, lettuce, light dressing.",img:"https://www.themealdb.com/images/media/meals/yypwwq1511304979.jpg",seafood:true},
   {name:"Grilled Chicken Salad",goal:"lose",kcal:340,p:40,c:18,f:12,serv:"1 plate",why:"Lean protein with low-calorie veg you can pile high.",ing:"Grilled chicken breast, mixed salad, tomato, cucumber, light vinaigrette.",img:"https://www.themealdb.com/images/media/meals/pk8wtn1763758591.jpg"},
-  {name:"Veggie Omelette",goal:"lose",kcal:250,p:22,c:9,f:14,serv:"1 omelette",why:"Protein-dense, low-carb breakfast that stays light.",ing:"3 eggs, spinach, peppers, onion, 20g feta.",img:"https://www.themealdb.com/images/media/meals/hqaejl1695738653.jpg"},
-  {name:"Shrimp Stir-Fry",goal:"lose",kcal:304,p:28,c:30,f:8,serv:"1 bowl",why:"High-protein seafood with plenty of veg for few calories.",ing:"Shrimp, mixed vegetables, rice noodles, soy sauce, garlic, ginger.",img:"https://www.themealdb.com/images/media/meals/1529445434.jpg"},
-  {name:"Greek Yogurt & Berry Bowl",goal:"lose",kcal:251,p:26,c:30,f:3,serv:"1 bowl",why:"High protein and volume for very few calories.",ing:"200g non-fat Greek yogurt, 100g mixed berries, 10g honey, cinnamon.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/A%C3%A7a%C3%AD_do_Par%C3%A1.jpg/500px-A%C3%A7a%C3%AD_do_Par%C3%A1.jpg"},
-  {name:"Green Protein Smoothie",goal:"lose",kcal:256,p:30,c:25,f:4,serv:"1 glass",why:"Filling, high-protein, easy to keep low-calorie.",ing:"1 scoop whey, spinach, 1/2 banana, 250ml almond milk, ice.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Kiwi_Smoothie.jpg/500px-Kiwi_Smoothie.jpg"},
-  {name:"Cottage Cheese Bowl",goal:"lose",kcal:195,p:24,c:18,f:3,serv:"1 cup",why:"Slow-digesting casein protein to curb hunger.",ing:"200g low-fat cottage cheese, 100g pineapple or berries.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Cottagecheese200px.jpg/500px-Cottagecheese200px.jpg"},
+  {name:"Veggie Omelette",goal:"lose",kcal:250,p:22,c:9,f:14,serv:"1 omelette",why:"Protein-dense, low-carb breakfast that stays light.",ing:"3 eggs, spinach, peppers, onion, 20g feta.",img:"https://www.themealdb.com/images/media/meals/hqaejl1695738653.jpg",veg:true},
+  {name:"Shrimp Stir-Fry",goal:"lose",kcal:304,p:28,c:30,f:8,serv:"1 bowl",why:"High-protein seafood with plenty of veg for few calories.",ing:"Shrimp, mixed vegetables, rice noodles, soy sauce, garlic, ginger.",img:"https://www.themealdb.com/images/media/meals/1529445434.jpg",seafood:true},
+  {name:"Greek Yogurt & Berry Bowl",goal:"lose",kcal:251,p:26,c:30,f:3,serv:"1 bowl",why:"High protein and volume for very few calories.",ing:"200g non-fat Greek yogurt, 100g mixed berries, 10g honey, cinnamon.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/A%C3%A7a%C3%AD_do_Par%C3%A1.jpg/500px-A%C3%A7a%C3%AD_do_Par%C3%A1.jpg",veg:true},
+  {name:"Green Protein Smoothie",goal:"lose",kcal:256,p:30,c:25,f:4,serv:"1 glass",why:"Filling, high-protein, easy to keep low-calorie.",ing:"1 scoop whey, spinach, 1/2 banana, 250ml almond milk, ice.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Kiwi_Smoothie.jpg/500px-Kiwi_Smoothie.jpg",veg:true},
+  {name:"Cottage Cheese Bowl",goal:"lose",kcal:195,p:24,c:18,f:3,serv:"1 cup",why:"Slow-digesting casein protein to curb hunger.",ing:"200g low-fat cottage cheese, 100g pineapple or berries.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Cottagecheese200px.jpg/500px-Cottagecheese200px.jpg",veg:true},
+  {name:"Thai Green Chicken Soup",goal:"lose",kcal:258,p:30,c:12,f:10,serv:"1 bowl",why:"Brothy, high-protein and light — filling for few calories.",ing:"Chicken, green curry paste, light coconut milk, veg, coriander.",img:"https://www.themealdb.com/images/media/meals/7kb44y1763589084.jpg"},
+  {name:"Salt Cod Tortilla",goal:"lose",kcal:318,p:30,c:18,f:14,serv:"1 slice",why:"Protein-rich egg and cod with modest carbs.",ing:"Eggs, salt cod, potato, onion, olive oil.",img:"https://www.themealdb.com/images/media/meals/njj1681763297231.jpg",seafood:true},
 
-  {name:"Salmon Avocado Salad",goal:"maintain",kcal:418,p:34,c:12,f:26,serv:"1 plate",why:"Omega-3 fats and lean protein in a balanced plate.",ing:"Salmon, avocado, mixed greens, cherry tomato, olive oil, lemon.",img:"https://www.themealdb.com/images/media/meals/1549542994.jpg"},
-  {name:"Mediterranean Pasta Salad",goal:"maintain",kcal:448,p:18,c:58,f:16,serv:"1 bowl",why:"Balanced carbs with veg, feta and olive oil.",ing:"Pasta, cucumber, tomato, olives, feta, red onion, olive oil.",img:"https://www.themealdb.com/images/media/meals/wvqpwt1468339226.jpg"},
+  {name:"Salmon Avocado Salad",goal:"maintain",kcal:418,p:34,c:12,f:26,serv:"1 plate",why:"Omega-3 fats and lean protein in a balanced plate.",ing:"Salmon, avocado, mixed greens, cherry tomato, olive oil, lemon.",img:"https://www.themealdb.com/images/media/meals/1549542994.jpg",seafood:true},
+  {name:"Mediterranean Pasta Salad",goal:"maintain",kcal:448,p:18,c:58,f:16,serv:"1 bowl",why:"Balanced carbs with veg, feta and olive oil.",ing:"Pasta, cucumber, tomato, olives, feta, red onion, olive oil.",img:"https://www.themealdb.com/images/media/meals/wvqpwt1468339226.jpg",veg:true},
   {name:"Turkey Club Sandwich",goal:"maintain",kcal:440,p:32,c:42,f:16,serv:"1 sandwich",why:"Solid everyday lunch with a good protein hit.",ing:"Wholegrain bread, turkey, bacon, lettuce, tomato, light mayo.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Club_sandwich_at_Caf%C3%A9_Picnic.jpg/500px-Club_sandwich_at_Caf%C3%A9_Picnic.jpg"},
-  {name:"Protein Pancakes",goal:"maintain",kcal:428,p:30,c:50,f:12,serv:"3 pancakes",why:"Balanced, protein-boosted breakfast.",ing:"Oats, egg, banana, scoop of whey, baking powder, berries to top.",img:"https://www.themealdb.com/images/media/meals/rwuyqx1511383174.jpg"},
-  {name:"Cajun Fish Tacos",goal:"maintain",kcal:464,p:32,c:48,f:16,serv:"2 tacos",why:"Lean fish, slaw and tortillas — balanced and filling.",ing:"White fish, Cajun spice, corn tortillas, slaw, lime, yogurt sauce.",img:"https://www.themealdb.com/images/media/meals/uvuyxu1503067369.jpg"},
-  {name:"Lentil & Tahini Bowl",goal:"maintain",kcal:444,p:20,c:55,f:16,serv:"1 bowl",why:"Plant protein and fibre for steady energy.",ing:"Lentils, tahini, lemon, garlic, parsley, olive oil, rice.",img:"https://www.themealdb.com/images/media/meals/vpxyqt1511464175.jpg"},
-  {name:"Overnight Oats",goal:"maintain",kcal:428,p:18,c:62,f:12,serv:"1 jar",why:"Make-ahead balanced breakfast with slow carbs.",ing:"Oats, milk, berries, chia seeds, honey.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Dorset_Cereals_muesli.jpg/500px-Dorset_Cereals_muesli.jpg"},
+  {name:"Protein Pancakes",goal:"maintain",kcal:428,p:30,c:50,f:12,serv:"3 pancakes",why:"Balanced, protein-boosted breakfast.",ing:"Oats, egg, banana, scoop of whey, baking powder, berries to top.",img:"https://www.themealdb.com/images/media/meals/rwuyqx1511383174.jpg",veg:true},
+  {name:"Cajun Fish Tacos",goal:"maintain",kcal:464,p:32,c:48,f:16,serv:"2 tacos",why:"Lean fish, slaw and tortillas — balanced and filling.",ing:"White fish, Cajun spice, corn tortillas, slaw, lime, yogurt sauce.",img:"https://www.themealdb.com/images/media/meals/uvuyxu1503067369.jpg",seafood:true},
+  {name:"Lentil & Tahini Bowl",goal:"maintain",kcal:444,p:20,c:55,f:16,serv:"1 bowl",why:"Plant protein and fibre for steady energy.",ing:"Lentils, tahini, lemon, garlic, parsley, olive oil, rice.",img:"https://www.themealdb.com/images/media/meals/vpxyqt1511464175.jpg",veg:true},
+  {name:"Overnight Oats",goal:"maintain",kcal:428,p:18,c:62,f:12,serv:"1 jar",why:"Make-ahead balanced breakfast with slow carbs.",ing:"Oats, milk, berries, chia seeds, honey.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Dorset_Cereals_muesli.jpg/500px-Dorset_Cereals_muesli.jpg",veg:true},
+  {name:"Sushi",goal:"maintain",kcal:432,p:20,c:70,f:8,serv:"8 pieces",why:"Balanced carbs with lean fish; light on fat.",ing:"Sushi rice, fish, nori, cucumber, avocado, soy.",img:"https://www.themealdb.com/images/media/meals/g046bb1663960946.jpg",seafood:true},
+  {name:"Chickpea Fajitas",goal:"maintain",kcal:446,p:18,c:62,f:14,serv:"2 wraps",why:"Plant-based, fibre-rich and balanced.",ing:"Chickpeas, peppers, onion, tortillas, spices, salsa.",img:"https://www.themealdb.com/images/media/meals/tvtxpq1511464705.jpg",veg:true},
 
   {name:"Spaghetti Bolognese",goal:"gain",kcal:754,p:40,c:90,f:26,serv:"1 large plate",why:"Classic mass-building combo of carbs and protein.",ing:"Beef mince, spaghetti, tomato sauce, onion, garlic, parmesan.",img:"https://www.themealdb.com/images/media/meals/sutysw1468247559.jpg"},
   {name:"Steak Diane",goal:"gain",kcal:680,p:50,c:30,f:40,serv:"1 plate",why:"High-protein and calorie-dense for serious gains.",ing:"Steak, butter, cream, mushrooms, mustard, potatoes.",img:"https://www.themealdb.com/images/media/meals/vussxq1511882648.jpg"},
-  {name:"Fettuccine Alfredo",goal:"gain",kcal:834,p:28,c:95,f:38,serv:"1 large plate",why:"Carb- and fat-dense to push a big surplus.",ing:"Fettuccine, butter, cream, parmesan, garlic.",img:"https://www.themealdb.com/images/media/meals/uquqtu1511178042.jpg"},
+  {name:"Fettuccine Alfredo",goal:"gain",kcal:834,p:28,c:95,f:38,serv:"1 large plate",why:"Carb- and fat-dense to push a big surplus.",ing:"Fettuccine, butter, cream, parmesan, garlic.",img:"https://www.themealdb.com/images/media/meals/uquqtu1511178042.jpg",veg:true},
   {name:"Beef Pho",goal:"gain",kcal:642,p:45,c:75,f:18,serv:"1 large bowl",why:"Hearty protein and carbs in a comforting bowl.",ing:"Rice noodles, beef, beef broth, herbs, bean sprouts, lime.",img:"https://www.themealdb.com/images/media/meals/pbzcrx1763765096.jpg"},
-  {name:"Peanut Butter Banana Oats",goal:"gain",kcal:634,p:22,c:78,f:26,serv:"1 bowl",why:"Calorie-dense carbs and fats to fuel a surplus.",ing:"80g oats, 250ml whole milk, 1 banana, 2 tbsp peanut butter, honey.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Oatmeal.jpg/500px-Oatmeal.jpg"},
-  {name:"Mass-Gainer Shake",goal:"gain",kcal:702,p:45,c:90,f:18,serv:"1 large shake",why:"Easy liquid calories when eating enough is hard.",ing:"2 scoops whey, 1 banana, 80g oats, 1 tbsp peanut butter, 400ml whole milk.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Strawberry_milk_shake_%28cropped%29.jpg/500px-Strawberry_milk_shake_%28cropped%29.jpg"},
-  {name:"Seafood Rice",goal:"gain",kcal:676,p:38,c:95,f:16,serv:"1 large plate",why:"Big carbs with protein-rich seafood for recovery.",ing:"Rice, mixed seafood, peas, peppers, stock, olive oil.",img:"https://www.themealdb.com/images/media/meals/5r5rvx1763287943.jpg"}
+  {name:"Peanut Butter Banana Oats",goal:"gain",kcal:634,p:22,c:78,f:26,serv:"1 bowl",why:"Calorie-dense carbs and fats to fuel a surplus.",ing:"80g oats, 250ml whole milk, 1 banana, 2 tbsp peanut butter, honey.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Oatmeal.jpg/500px-Oatmeal.jpg",veg:true},
+  {name:"Mass-Gainer Shake",goal:"gain",kcal:702,p:45,c:90,f:18,serv:"1 large shake",why:"Easy liquid calories when eating enough is hard.",ing:"2 scoops whey, 1 banana, 80g oats, 1 tbsp peanut butter, 400ml whole milk.",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Strawberry_milk_shake_%28cropped%29.jpg/500px-Strawberry_milk_shake_%28cropped%29.jpg",veg:true},
+  {name:"Seafood Rice",goal:"gain",kcal:676,p:38,c:95,f:16,serv:"1 large plate",why:"Big carbs with protein-rich seafood for recovery.",ing:"Rice, mixed seafood, peas, peppers, stock, olive oil.",img:"https://www.themealdb.com/images/media/meals/5r5rvx1763287943.jpg",seafood:true},
+  {name:"Lasagne",goal:"gain",kcal:722,p:38,c:75,f:30,serv:"1 large slice",why:"Layered carbs, cheese and beef for a big surplus.",ing:"Pasta sheets, beef mince, tomato, béchamel, cheese.",img:"https://www.themealdb.com/images/media/meals/wtsvxx1511296896.jpg"},
+  {name:"Katsu Chicken Curry",goal:"gain",kcal:762,p:42,c:90,f:26,serv:"1 plate",why:"Breaded chicken with rice and sauce — calorie-dense.",ing:"Breaded chicken, rice, katsu curry sauce, veg.",img:"https://www.themealdb.com/images/media/meals/vwrpps1503068729.jpg"}
 ];
-let recSel=null;
+let recSel=null, recDiet="all", recQuery="";
 function recipeItem(r){ return { name:r.name, unit:"serving", baseQty:1, serv:r.serv, per:{ kcal:r.kcal, protein:r.p, carbs:r.c, fat:r.f } }; }
+function isFavRecipe(r){ return state.favRecipes.includes(r.name); }
+function toggleFavRecipe(name){ state.favRecipes = state.favRecipes.includes(name) ? state.favRecipes.filter(n=>n!==name) : [name,...state.favRecipes]; save(); renderRecipes(); }
+function recipeShown(r){
+  if(recDiet==="fav"){ if(!isFavRecipe(r)) return false; }
+  else {
+    if(r.goal!==(recSel||state.profile.goalDir||"maintain")) return false;
+    if(recDiet==="veg" && !r.veg) return false;
+    if(recDiet==="high" && r.p<30) return false;
+    if(recDiet==="seafood" && !r.seafood) return false;
+  }
+  if(recQuery){ const q=recQuery.toLowerCase(); if(!((r.name+" "+r.ing).toLowerCase().includes(q))) return false; }
+  return true;
+}
 function renderRecipes(){
   const g = recSel || state.profile.goalDir || "maintain"; recSel=g;
   $$("#recGoal button").forEach(b=>b.classList.toggle("on",b.dataset.g===g));
+  $$("#recDiet button").forEach(b=>b.classList.toggle("on",b.dataset.d===recDiet));
   const list=$("#recList"); list.innerHTML="";
-  RECIPES.filter(r=>r.goal===g).forEach(r=>{
+  const items=RECIPES.filter(recipeShown);
+  if(!items.length){ list.innerHTML='<div class="card"><div class="rec-body"><div class="empty">No recipes match — clear the search or filters.</div></div></div>'; return; }
+  items.forEach(r=>{
     const card=document.createElement("div"); card.className="card recipe";
     const emoji = r.goal==="lose"?"🥗":r.goal==="gain"?"🍝":"🍽️";
-    card.innerHTML=`<div class="rec-img"><div class="bg" style="background-image:url('${r.img}')"></div><span class="ph">${emoji}</span><img src="${r.img}" alt="${esc(r.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"><span class="rec-cal">${r.kcal} kcal</span></div>
+    const fav=isFavRecipe(r);
+    card.innerHTML=`<div class="rec-img"><div class="bg" style="background-image:url('${r.img}')"></div><span class="ph">${emoji}</span><img src="${r.img}" alt="${esc(r.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"><button class="rec-fav${fav?"":" off"}" aria-label="Save recipe">${fav?"★":"☆"}</button><span class="rec-cal">${r.kcal} kcal</span></div>
       <div class="rec-body">
         <div class="rec-name">${esc(r.name)}</div>
         <div class="rec-macros"><span class="mp p">P ${r.p}g</span><span class="mp c">C ${r.c}g</span><span class="mp f">F ${r.f}g</span></div>
@@ -1201,10 +1271,18 @@ function renderRecipes(){
         <button class="btn ghost rec-log">+ Log it (${esc(r.serv)})</button>
       </div>`;
     card.querySelector(".rec-log").onclick=()=>{ pendingMeal="Lunch"; openQty(recipeItem(r)); };
+    card.querySelector(".rec-fav").onclick=()=>toggleFavRecipe(r.name);
     list.appendChild(card);
   });
 }
-$$("#recGoal button").forEach(b=>b.onclick=()=>{ recSel=b.dataset.g; renderRecipes(); });
+$$("#recGoal button").forEach(b=>b.onclick=()=>{ recSel=b.dataset.g; if(recDiet==="fav") recDiet="all"; renderRecipes(); });
+$$("#recDiet button").forEach(b=>b.onclick=()=>{ recDiet=b.dataset.d; renderRecipes(); });
+$("#recSearch").addEventListener("input",e=>{ recQuery=e.target.value.trim(); renderRecipes(); });
+$("#recSurprise").onclick=()=>{
+  const items=RECIPES.filter(recipeShown); if(!items.length){ toast("No recipes to pick from"); return; }
+  const idx=(Math.random()*items.length)|0; const card=$("#recList").children[idx];
+  if(card){ card.scrollIntoView({behavior:"smooth",block:"center"}); card.classList.add("flash"); setTimeout(()=>card.classList.remove("flash"),1600); }
+};
 
 /* ============ trends ============ */
 $$("#rangeSel button").forEach(b=>b.onclick=()=>{ chartRange=+b.dataset.r; $$("#rangeSel button").forEach(x=>x.classList.toggle("on",x===b)); renderTrends(); });
@@ -1224,6 +1302,37 @@ function renderTrends(){
   const ws=state.weights.slice().sort((a,b)=>a.date<b.date?-1:1);
   if(ws.length>=2){ const diff=ws[ws.length-1].kg-ws[0].kg; $("#stWeight").textContent=(diff>0?"+":"")+round(diff,1)+" "+(state.profile.units==="metric"?"kg":"lb"); }
   else $("#stWeight").textContent="—";
+  renderBadges();
+}
+function computeBadges(){
+  const days=Object.keys(state.log);
+  const totalFoods=days.reduce((s,k)=>s+state.log[k].length,0);
+  const totalWorkouts=Object.keys(state.exercise).reduce((s,k)=>s+state.exercise[k].length,0);
+  const st=streak();
+  const proteinHit=days.some(k=>state.profile.proteinGoal>0 && dayTotals(k).protein>=state.profile.proteinGoal);
+  const goalHit=days.some(k=>state.profile.calorieGoal>0 && Math.abs(dayTotals(k).kcal-state.profile.calorieGoal)<=50);
+  const waterHit=Object.keys(state.water).some(k=>state.water[k]>=(state.profile.waterGoal||2000));
+  return [
+    {i:"🍽️",n:"First Bite",d:"Log a food",ok:totalFoods>=1},
+    {i:"🔥",n:"On a Roll",d:"3-day streak",ok:st>=3},
+    {i:"🌟",n:"Week Warrior",d:"7-day streak",ok:st>=7},
+    {i:"🏆",n:"Unstoppable",d:"30-day streak",ok:st>=30},
+    {i:"💪",n:"Protein Pro",d:"Hit protein goal",ok:proteinHit},
+    {i:"🎯",n:"Goal Getter",d:"Hit calorie goal",ok:goalHit},
+    {i:"💧",n:"Hydrated",d:"Reach water goal",ok:waterHit},
+    {i:"🏃",n:"Sweat Equity",d:"Log a workout",ok:totalWorkouts>=1},
+    {i:"🏋️",n:"Gym Rat",d:"Log 10 workouts",ok:totalWorkouts>=10},
+    {i:"⚖️",n:"On the Scale",d:"Log your weight",ok:state.weights.length>=1},
+    {i:"📅",n:"Consistent",d:"Log 14 days",ok:days.length>=14},
+    {i:"💯",n:"Century",d:"Log 100 foods",ok:totalFoods>=100}
+  ];
+}
+function renderBadges(){
+  const grid=$("#badgeGrid"); if(!grid) return; grid.innerHTML="";
+  const badges=computeBadges(); const earned=badges.filter(b=>b.ok).length;
+  $("#badgeCount").textContent=earned+"/"+badges.length;
+  badges.forEach(b=>{ const el=document.createElement("div"); el.className="badge"+(b.ok?" earned":"");
+    el.innerHTML=`<div class="bi">${b.i}</div><div class="bn">${esc(b.n)}</div><div class="bd">${esc(b.d)}</div>`; grid.appendChild(el); });
 }
 function streak(){ let s=0,k=todayKey(); if(!dayEntries(k).length && dayEntries(shiftKey(k,-1)).length) k=shiftKey(k,-1);
   while(dayEntries(k).length){ s++; k=shiftKey(k,-1); } return s; }

@@ -17,13 +17,13 @@ A bioluminescent mushroom-forest themed calorie, macro, water and exercise track
 - Day switcher (previous / next / tap for today) — every section is per-day.
 
 ### Adding food
-- ⚡ **Quick** — one-tap re-logging of your **recent** foods and **★ favourites** (tap the star on any food to pin it).
+- ⚡ **Quick** — one-tap re-logging of your **My Foods**, **★ favourites**, and **recent** foods (tap the star on any food to pin it).
 - 🔎 **Search** the [Open Food Facts](https://world.openfoodfacts.org/) database (millions of products, no API key).
 - 🏷️ **Scan** — barcode lookup by number, plus optional **camera scan** (uses the native `BarcodeDetector` where supported).
 - 🥗 **Common** — a built-in list of ~50 everyday foods that works fully offline.
-- ✍️ **Manual** entry for anything else.
+- ✍️ **Manual** entry for anything else, with **Save to My Foods** to keep your own foods/meals for instant re-logging.
 
-A quantity step lets you set grams (database/barcode foods) or servings (common/manual) with a live nutrition preview before adding.
+A quantity step lets you set grams (database/barcode foods) or servings (common/manual) with a live nutrition preview before adding. **Tap any logged item to edit its quantity**, or the ✕ to remove it.
 
 ### Exercise with accurate calories
 Pick an activity (Walk, Run, Cycle, Weights, Swim, Yoga) and a **duration** (quick chips for 15 m → 2 h, or any custom minutes). Calories are computed from your body weight using the standard MET method and the number shown is exactly what gets logged. You can always type a calorie value in directly.
@@ -32,10 +32,10 @@ Pick an activity (Walk, Run, Cycle, Weights, Swim, Yoga) and a **duration** (qui
 Mifflin–St Jeor BMR with an activity multiplier and a goal preset (−20 % … +20 %). One tap applies the result — calorie target **and** a protein/carb/fat split — as your daily goals. A **Custom target** option lets you enter how much you want to gain or lose and over how many weeks; it works out the daily calories from the energy in body weight (3500 kcal/lb, 7700 kcal/kg), with a 1200-kcal safety floor and a heads-up when the pace is aggressive.
 
 ### Recipe ideas
-A **Recipes** tab suggests 21 meals matched to your goal — fat loss, maintain, or muscle gain (it defaults to the goal you set in the calculator). Each card shows a real photo, per-serving calories and macros, ingredients, and a one-tap **Log it**. Photos are hot-linked from TheMealDB and Wikimedia Commons (with an emoji-tile fallback if one ever fails to load), and recipe calories are derived from their macros so logging one keeps your day's totals consistent.
+A **Recipes** tab suggests 27 meals matched to your goal — fat loss, maintain, or muscle gain (it defaults to the goal you set in the calculator). You can **search** by name or ingredient, filter by **diet** (vegetarian / high-protein / seafood), mark **favourites** (★ Saved), and hit **🎲 Surprise me** for a random pick. Each card shows a real photo, per-serving calories and macros, ingredients, and a one-tap **Log it**. Photos are hot-linked from TheMealDB and Wikimedia Commons (with an emoji-tile fallback if one ever fails to load), and recipe calories are derived from their macros so logging one keeps your day's totals consistent.
 
 ### Trends
-7 / 14 / 30-day calorie bar chart with a goal line, a weight line chart, and summary stats: average intake, day streak, days logged, and weight change.
+7 / 14 / 30-day calorie bar chart with a goal line, a weight line chart, and summary stats: average intake, day streak, days logged, and weight change. An **Achievements** grid awards glowing badges as you build streaks and hit goals (logging, protein/calorie/water goals, workouts, weigh-ins, consistency).
 
 ### Settings
 Manual calorie + macro goals, water goal, metric/imperial units, background-animation toggle, and full **export / import / reset** of your data as JSON. Switching to **Imperial** shows weight in lb, height in inches, and the water tracker in **US fl oz / cups** (Metric uses kg, cm and ml).
