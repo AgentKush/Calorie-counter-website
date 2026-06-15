@@ -1,34 +1,76 @@
 # 🍄 Mycelia — Calorie Counter
 
-A bioluminescent-themed calorie and macro tracker. Single-page, no build step, no backend — it runs entirely in the browser and is served straight from GitHub Pages. All data lives privately in your own browser (`localStorage`).
+A bioluminescent mushroom-forest themed calorie, macro, water and exercise tracker. Single-page, no build step, no backend — it runs entirely in the browser and is served straight from GitHub Pages. All data lives privately in your own browser (`localStorage`).
 
 **Live site:** https://agentkush.github.io/Calorie-counter-website/
 
-![theme](https://img.shields.io/badge/theme-bioluminescent%20forest-2ee6c5) ![storage](https://img.shields.io/badge/data-local%20only-a78bfa) ![deps-Chart.js-34d9ff](https://img.shields.io/badge/charts-Chart.js-34d9ff)
+![theme](https://img.shields.io/badge/theme-bioluminescent%20forest-2ee6c5) ![storage](https://img.shields.io/badge/data-local%20only-a78bfa) ![charts](https://img.shields.io/badge/charts-Chart.js-34d9ff)
 
 ## Features
 
-- **Today dashboard** — animated calorie ring (consumed vs. goal, glows red when over) plus protein / carbs / fat macro rings.
-- **Meal logging** — Breakfast, Lunch, Dinner and Snacks with per-meal totals; edit/remove entries.
-- **Food sources**
-  - 🔎 **Search** the [Open Food Facts](https://world.openfoodfacts.org/) database (millions of products, no API key).
-  - 🏷️ **Barcode** lookup by number, plus optional **camera scan** (uses the native `BarcodeDetector` where supported).
-  - 🥗 **Common foods** — a built-in list of ~50 everyday foods that works fully offline.
-  - ✍️ **Manual entry** for anything else.
-- **BMR / TDEE calculator** — Mifflin–St Jeor equation with activity multiplier and a goal adjustment; one tap applies the result (calories + macro split) as your daily goals.
-- **Trends** — 7 / 14 / 30-day calorie bar chart with a goal line, weight line chart, and summary stats (average intake, day streak, days logged, weight change).
-- **Settings** — manual goals, metric/imperial units, animation toggle, and full **export / import / reset** of your data as JSON.
-- Mobile-first, responsive, with a glowing animated spore background.
+### Today
+- **Calorie ring** — animated progress of food eaten against your budget, where **budget = goal − food + exercise**. The centre shows calories left (or "over"), and the ring glows red when you exceed the budget.
+- **Macro rings** — protein, carbs and fat vs. their daily targets.
+- **Meal logging** — Breakfast, Lunch, Dinner and Snacks, each with its own running total; edit or remove any entry.
+- **💧 Hydration** — a glowing fill-up glass with −250 / +250 ml buttons, a cups read-out, and a goal you set in Settings (default 2000 ml).
+- **🔥 Exercise** — log workouts; the calories burned are added back to your daily budget.
+- Day switcher (previous / next / tap for today) — every section is per-day.
+
+### Adding food
+- ⚡ **Quick** — one-tap re-logging of your **recent** foods and **★ favourites** (tap the star on any food to pin it).
+- 🔎 **Search** the [Open Food Facts](https://world.openfoodfacts.org/) database (millions of products, no API key).
+- 🏷️ **Scan** — barcode lookup by number, plus optional **camera scan** (uses the native `BarcodeDetector` where supported).
+- 🥗 **Common** — a built-in list of ~50 everyday foods that works fully offline.
+- ✍️ **Manual** entry for anything else.
+
+A quantity step lets you set grams (database/barcode foods) or servings (common/manual) with a live nutrition preview before adding.
+
+### Exercise with accurate calories
+Pick an activity (Walk, Run, Cycle, Weights, Swim, Yoga) and a **duration** (quick chips for 15 m → 2 h, or any custom minutes). Calories are computed from your body weight using the standard MET method and the number shown is exactly what gets logged. You can always type a calorie value in directly.
+
+### BMR / TDEE calculator
+Mifflin–St Jeor BMR with an activity multiplier and a goal adjustment. One tap applies the result — calorie target **and** a protein/carb/fat split — as your daily goals.
+
+### Trends
+7 / 14 / 30-day calorie bar chart with a goal line, a weight line chart, and summary stats: average intake, day streak, days logged, and weight change.
+
+### Settings
+Manual calorie + macro goals, water goal, metric/imperial units, background-animation toggle, and full **export / import / reset** of your data as JSON.
+
+### Look & feel
+Layered pine-forest silhouettes, glowing bioluminescent mushrooms, and a drifting spore particle field — mobile-first and responsive, with a reduced-motion fallback.
+
+## How calories are calculated
+
+All figures are estimates (not medical advice), but the math is transparent:
+
+| Quantity | Formula |
+|----------|---------|
+| Food (database / barcode) | nutrition per 100 g ÷ 100 × grams eaten |
+| Food (common / manual) | nutrition per serving × number of servings |
+| Energy unit conversion | kcal = kJ ÷ 4.184 (when a product only lists kJ) |
+| BMR (Mifflin–St Jeor) | `10 × kg + 6.25 × cm − 5 × age + (male ? +5 : −161)` |
+| TDEE | BMR × activity factor (1.2 – 1.9) |
+| Daily target | TDEE × (1 + goal adjustment, −20 % … +20 %) |
+| Protein | bodyweight × 1.9 g/kg (2.2 g/kg when cutting) |
+| Fat | 25 % of target ÷ 9 |
+| Carbs | remaining calories ÷ 4 |
+| Exercise | **MET × bodyweight (kg) × hours** (Walk 3.5 · Run 9.8 · Cycle 7.5 · Weights 5 · Swim 7 · Yoga 3) |
+| Day budget | goal − food + exercise |
+
+Imperial inputs are converted automatically (in → cm × 2.54, lb → kg × 0.453592).
+
+> **Note on activity double-counting:** the calculator's target already includes an activity factor. If you also log exercise (which adds calories back), activity is counted twice. If you plan to log workouts, choose a lower activity level (e.g. Sedentary) in the calculator.
 
 ## How it works
 
-Everything is one file: [`index.html`](index.html) (HTML + CSS + JS inline). The only external dependency is [Chart.js](https://www.chartjs.org/) loaded from a CDN for the trend charts.
+Everything is one file: [`index.html`](index.html) (HTML + CSS + JS inline). The only external dependency is [Chart.js](https://www.chartjs.org/), loaded from a CDN for the trend charts.
 
-Data is stored under the `mycelia_v1` key in `localStorage`, so it stays on the device you use and is never uploaded anywhere.
+Data is stored under the `mycelia_v1` key in `localStorage` — profile/goals, per-day food log, exercise, water, weight history, and your recent/favourite foods — so it stays on the device you use and is never uploaded anywhere. New fields merge in over older saves, so updates won't wipe your data.
 
 ## Running locally
 
-Just open `index.html` in a browser, or serve the folder:
+Open `index.html` in a browser, or serve the folder:
 
 ```bash
 python -m http.server 8000
@@ -43,5 +85,5 @@ Served by **GitHub Pages** from the `main` branch root. Push `index.html` to the
 
 ## Notes
 
-- Open Food Facts is a free, crowd-sourced database; some products may have missing or imperfect nutrition data. The app skips products without calorie info and you can always fall back to manual entry.
-- Nutrition figures are estimates — not medical advice.
+- Open Food Facts is a free, crowd-sourced database; some products have missing or imperfect nutrition data. The app skips products without calorie info — fall back to Manual entry when needed.
+- Nutrition and calorie-burn figures are estimates, not medical advice.
