@@ -36,7 +36,7 @@ body{
 }
 .forest{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.82;}
 #spores{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;}
-.glow-fungi{position:fixed;left:0;right:0;bottom:-10px;z-index:1;width:100%;opacity:.62;pointer-events:none;filter:drop-shadow(0 0 18px rgba(46,230,197,.25));}
+.glow-fungi{position:fixed;left:0;right:0;bottom:-10px;z-index:1;width:100%;opacity:.8;pointer-events:none;filter:drop-shadow(0 0 18px rgba(46,230,197,.25));}
 .app{position:relative;z-index:2;max-width:920px;margin:0 auto;padding:18px 16px 130px;}
 
 /* header */
@@ -238,33 +238,34 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
 .star{width:46px;flex:none;border-radius:13px;border:1px solid var(--brd);background:var(--glass-2);color:var(--amber);font-size:1.05rem;cursor:pointer;transition:.2s;}
 .star.off{color:var(--faint);}
 .star:hover{border-color:var(--brd-strong);}
+.exfx{font-size:.84rem;color:var(--teal);margin:-4px 0 14px;min-height:1.1em;}
+.exfx b{color:#fff;font-weight:800;}
+.exfx .est{color:var(--amber);}
 @media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
 </style>
 </head>
 <body>
-<svg class="forest" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<svg class="forest" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
   <defs>
-    <linearGradient id="trunkG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c2128"/><stop offset="1" stop-color="#04080e"/></linearGradient>
-    <radialGradient id="haze" cx="50%" cy="4%" r="82%"><stop offset="0" stop-color="rgba(58,196,184,.13)"/><stop offset="0.5" stop-color="rgba(90,120,225,.05)"/><stop offset="1" stop-color="transparent"/></radialGradient>
+    <linearGradient id="pineN" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c5462"/><stop offset="1" stop-color="#05131d"/></linearGradient>
+    <linearGradient id="pineF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d323d"/><stop offset="1" stop-color="#071821"/></linearGradient>
+    <radialGradient id="haze2" cx="50%" cy="0%" r="75%"><stop offset="0" stop-color="rgba(58,196,184,.12)"/><stop offset="0.6" stop-color="rgba(90,120,225,.04)"/><stop offset="1" stop-color="transparent"/></radialGradient>
   </defs>
-  <rect width="1440" height="900" fill="url(#haze)"/>
-  <!-- distant canopy / treeline -->
-  <path opacity="0.5" fill="#06141d" d="M0 0 H1440 V118 C1360 150 1322 92 1250 130 C1180 168 1130 108 1050 150 C980 184 930 120 850 158 C770 196 720 118 640 158 C560 198 510 120 430 158 C350 196 300 118 220 148 C150 172 90 108 0 138 Z"/>
-  <!-- mid trees -->
-  <g opacity="0.6" fill="url(#trunkG)" stroke="rgba(70,220,200,.10)" stroke-width="1.5">
-    <path d="M250 900 C262 640 240 520 256 360 C262 300 250 250 270 170 C286 250 274 300 280 360 C296 520 274 640 286 900 Z"/>
-    <path d="M1172 900 C1184 620 1162 500 1178 340 C1184 280 1172 230 1192 150 C1208 230 1196 280 1202 340 C1218 500 1198 620 1210 900 Z"/>
-    <path opacity="0.55" d="M690 900 C700 680 684 560 700 420 C706 360 694 320 712 250 C726 320 716 360 722 420 C738 560 720 680 730 900 Z"/>
+  <rect width="1200" height="800" fill="url(#haze2)"/>
+  <g fill="url(#pineF)" opacity="0.4">
+    <path d="M80 470 L56 556 L69 549 L34 652 L56 642 L0 800 L160 800 L104 642 L126 652 L91 549 L104 556 Z"/>
+    <path d="M300 500 L279 578 L290 572 L259 665 L279 656 L230 800 L370 800 L321 656 L341 665 L310 572 L321 578 Z"/>
+    <path d="M520 460 L497 548 L509 542 L475 647 L497 637 L442 800 L598 800 L543 637 L565 647 L531 542 L543 548 Z"/>
+    <path d="M720 500 L698 578 L710 572 L678 665 L698 656 L648 800 L792 800 L742 656 L762 665 L730 572 L742 578 Z"/>
+    <path d="M940 470 L916 556 L929 549 L894 652 L916 642 L860 800 L1020 800 L964 642 L986 652 L951 549 L964 556 Z"/>
+    <path d="M1150 480 L1127 563 L1139 557 L1104 656 L1127 646 L1072 800 L1228 800 L1173 646 L1195 656 L1161 557 L1173 563 Z"/>
   </g>
-  <!-- foreground framing trunks -->
-  <g fill="url(#trunkG)" stroke="rgba(80,235,210,.18)" stroke-width="2">
-    <path d="M-40 900 C70 760 30 600 110 470 C150 405 110 330 175 230 C150 360 205 410 185 520 C160 690 230 770 150 900 Z"/>
-    <path d="M1480 900 C1370 760 1420 590 1330 460 C1290 398 1330 320 1265 230 C1300 360 1240 410 1265 520 C1296 690 1224 770 1300 900 Z"/>
-  </g>
-  <!-- glowing branch tips -->
-  <g stroke="rgba(80,235,210,.22)" stroke-width="2.5" fill="none" opacity="0.7">
-    <path d="M150 360 q-50 -30 -90 -20"/><path d="M180 300 q50 -26 92 -10"/>
-    <path d="M1290 360 q50 -30 90 -20"/><path d="M1262 300 q-50 -26 -92 -10"/>
+  <g fill="url(#pineN)" stroke="rgba(120,245,215,.16)" stroke-width="1.5" opacity="0.95">
+    <path d="M180 280 L143 415 L163 405 L108 566 L143 550 L55 800 L305 800 L218 550 L253 566 L198 405 L218 415 Z"/>
+    <path d="M380 330 L347 452 L365 443 L316 589 L347 574 L270 800 L490 800 L413 574 L444 589 L395 443 L413 452 Z"/>
+    <path d="M600 180 L555 341 L579 329 L513 521 L555 502 L450 800 L750 800 L645 502 L687 521 L621 329 L645 341 Z"/>
+    <path d="M820 300 L785 430 L803 420 L752 575 L785 560 L702 800 L938 800 L855 560 L888 575 L836 420 L855 430 Z"/>
+    <path d="M1020 240 L980 386 L1001 374 L942 548 L980 531 L885 800 L1155 800 L1061 531 L1098 548 L1039 374 L1061 386 Z"/>
   </g>
 </svg>
 <canvas id="spores"></canvas>
@@ -576,12 +577,17 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
     <div class="modal-head"><h3>Log Exercise</h3><button class="icon-btn" id="exClose" aria-label="Close">✕</button></div>
     <div class="modal-body">
       <div class="meal-pick" id="exPresets">
-        <button data-n="Walking" data-k="120">🚶 Walk</button><button data-n="Running" data-k="300">🏃 Run</button><button data-n="Cycling" data-k="250">🚴 Cycle</button><button data-n="Weights" data-k="180">🏋️ Weights</button><button data-n="Swimming" data-k="270">🏊 Swim</button><button data-n="Yoga" data-k="120">🧘 Yoga</button>
+        <button data-n="Walking" data-met="3.5">🚶 Walk</button><button data-n="Running" data-met="9.8">🏃 Run</button><button data-n="Cycling" data-met="7.5">🚴 Cycle</button><button data-n="Weights" data-met="5">🏋️ Weights</button><button data-n="Swimming" data-met="7">🏊 Swim</button><button data-n="Yoga" data-met="3">🧘 Yoga</button>
       </div>
       <div class="field"><label>Activity</label><input class="input" id="exName" placeholder="e.g. Evening walk"></div>
-      <div class="field"><label>Calories burned (kcal)</label><input class="input" id="exKcal" type="number" inputmode="numeric" placeholder="200"></div>
+      <div class="field"><label>Duration</label>
+        <input class="input" id="exMin" type="number" inputmode="numeric" value="30">
+        <div class="seg-range" id="exDur" style="margin-top:8px"><button data-m="15">15m</button><button data-m="30" class="on">30m</button><button data-m="45">45m</button><button data-m="60">1h</button><button data-m="90">1.5h</button><button data-m="120">2h</button></div>
+      </div>
+      <div class="field"><label>Calories burned (kcal)</label><input class="input" id="exKcal" type="number" inputmode="numeric" placeholder="pick an activity or type"></div>
+      <div class="exfx" id="exFormula"></div>
       <button class="btn primary" id="exAdd">Add exercise</button>
-      <small class="note">Presets estimate ~30 minutes of activity — adjust the calories to match what you did.</small>
+      <small class="note">Calories = activity intensity (MET) × your body weight × time. Set your weight in <b>Calc</b> or by logging it in <b>Trends</b> for accurate numbers — or just type the calories in directly.</small>
     </div>
   </div>
 </div>
@@ -736,9 +742,11 @@ function toggleFav(it){
 
 /* ---- exercise ---- */
 function dayExercise(k){ return state.exercise[k]||[]; }
-function addExercise(name,kcal){
+function userKg(){ const w=+state.profile.weight||0; if(!w) return 0; return state.profile.units==="imperial" ? w*0.453592 : w; }
+function fmtMin(m){ m=+m||0; if(!m) return ""; if(m>=60){ const h=m/60; return (Number.isInteger(h)? h : Math.round(h*10)/10)+" h"; } return m+" min"; }
+function addExercise(name,kcal,min){
   if(!state.exercise[curDate]) state.exercise[curDate]=[];
-  state.exercise[curDate].push({ id:Date.now()+"-"+Math.random().toString(36).slice(2,6), name, kcal:Math.round(kcal) });
+  state.exercise[curDate].push({ id:Date.now()+"-"+Math.random().toString(36).slice(2,6), name, kcal:Math.round(kcal), min:Math.round(min)||0 });
   save(); renderToday();
 }
 function delExercise(id){
@@ -754,7 +762,8 @@ function renderExercise(){
   if(!items.length){ list.innerHTML='<div class="empty">No exercise logged</div>'; return; }
   items.forEach(e=>{
     const row=document.createElement("div"); row.className="entry";
-    row.innerHTML=`<div class="e-main"><div class="e-name">${esc(e.name)}</div><div class="e-sub">calories burned</div></div>
+    const sub = fmtMin(e.min) || "calories burned";
+    row.innerHTML=`<div class="e-main"><div class="e-name">${esc(e.name)}</div><div class="e-sub">${sub}</div></div>
       <div class="e-cal" style="color:var(--green)">+${Math.round(e.kcal)}</div>
       <button class="e-del" data-id="${e.id}" aria-label="Delete">✕</button>`;
     list.appendChild(row);
@@ -1015,14 +1024,30 @@ $("#waterMinus").onclick=()=>addWater(-250);
 
 /* ============ exercise ============ */
 const exBg=$("#exBg");
-$("#addExBtn").onclick=()=>{ $("#exName").value=""; $("#exKcal").value=""; exBg.classList.add("show"); };
+let exMet=0;   // selected activity MET (0 = manual calories)
+function recomputeEx(){
+  const min=+$("#exMin").value||0;
+  if(exMet>0 && min>0){
+    let kg=userKg(); const est=!kg; if(est) kg=70;
+    const k=Math.round(exMet*kg*min/60);
+    $("#exKcal").value=k;
+    $("#exFormula").innerHTML=`≈ <b>${k}</b> kcal  ·  MET ${exMet} × ${Math.round(kg)} kg${est?'<span class="est"> (est — set weight)</span>':''} × ${fmtMin(min)}`;
+  } else { $("#exFormula").textContent=""; }
+}
+$("#addExBtn").onclick=()=>{ exMet=0; $("#exName").value=""; $("#exKcal").value=""; $("#exMin").value=30;
+  $$("#exPresets button").forEach(x=>x.classList.remove("on"));
+  $$("#exDur button").forEach(x=>x.classList.toggle("on",x.dataset.m==="30")); $("#exFormula").textContent=""; exBg.classList.add("show"); };
 $("#exClose").onclick=()=>exBg.classList.remove("show");
 exBg.onclick=e=>{ if(e.target===exBg) exBg.classList.remove("show"); };
-$$("#exPresets button").forEach(b=>b.onclick=()=>{ if(!$("#exName").value.trim()) $("#exName").value=b.dataset.n; $("#exKcal").value=b.dataset.k; });
+$$("#exPresets button").forEach(b=>b.onclick=()=>{ exMet=+b.dataset.met; if(!$("#exName").value.trim()) $("#exName").value=b.dataset.n;
+  $$("#exPresets button").forEach(x=>x.classList.toggle("on",x===b)); recomputeEx(); });
+$$("#exDur button").forEach(b=>b.onclick=()=>{ $("#exMin").value=b.dataset.m; $$("#exDur button").forEach(x=>x.classList.toggle("on",x===b)); recomputeEx(); });
+$("#exMin").addEventListener("input",()=>{ $$("#exDur button").forEach(x=>x.classList.toggle("on",x.dataset.m===$("#exMin").value)); recomputeEx(); });
+$("#exKcal").addEventListener("input",()=>{ exMet=0; $$("#exPresets button").forEach(x=>x.classList.remove("on")); $("#exFormula").textContent=""; });
 $("#exAdd").onclick=()=>{
-  const name=$("#exName").value.trim()||"Exercise"; const k=+$("#exKcal").value||0;
-  if(k<=0){ toast("Enter calories burned"); return; }
-  addExercise(name,k); exBg.classList.remove("show"); toast("Exercise logged 🔥");
+  const name=$("#exName").value.trim()||"Exercise"; const k=+$("#exKcal").value||0; const min=+$("#exMin").value||0;
+  if(k<=0){ toast("Pick an activity or enter calories"); return; }
+  addExercise(name,k,min); exBg.classList.remove("show"); toast("Exercise logged 🔥");
 };
 
 /* ============ calculator ============ */
