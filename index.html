@@ -22,16 +22,18 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
+html{background:#05080f;}
 body{
   font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   color:var(--text);
-  background:
+  background-color:#05080f;
+  background-image:
     radial-gradient(1100px 700px at 12% -8%, #163a4d 0%, transparent 55%),
     radial-gradient(1000px 720px at 92% 4%, #2a1750 0%, transparent 52%),
     radial-gradient(900px 900px at 50% 118%, #07332f 0%, transparent 55%),
     linear-gradient(170deg, var(--bg-1) 0%, var(--bg-0) 60%, #04060d 100%);
   background-attachment:fixed;
-  min-height:100vh; overflow-x:hidden;
+  min-height:100vh; overflow-x:hidden; overscroll-behavior:none;
   -webkit-font-smoothing:antialiased;
 }
 .forest{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.82;}
