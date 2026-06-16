@@ -90,6 +90,9 @@ body{
 .macro .mwrap .mc{position:absolute;inset:0;display:grid;place-content:center;font-size:.78rem;font-weight:700;}
 .macro .mname{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
 .macro .mval{font-size:.82rem;color:var(--text);margin-top:2px;}
+.nutri-extra{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center;}
+.nutri-extra .ne{font-size:.74rem;font-weight:600;color:var(--muted);background:var(--glass-2);border:1px solid rgba(120,225,210,.1);padding:5px 11px;border-radius:11px;}
+.nutri-extra .ne b{color:var(--text);font-weight:800;}
 
 /* meals / log */
 .meal{margin-top:14px;}
@@ -367,6 +370,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
           <div class="mc" id="pctF">0%</div></div>
           <div class="mname">Fat</div><div class="mval" id="valF">0 / 0 g</div></div>
       </div>
+      <div class="nutri-extra" id="nutriExtra"></div>
     </div>
 
     <div class="card" id="waterCard" style="margin-top:16px">
@@ -411,6 +415,10 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
           <button class="btn primary" id="wAdd" style="width:auto;padding:12px 18px">Log</button>
         </div>
         <div class="chart-box"><canvas id="wChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="section-title">🔬 Smart Insights</div>
+        <div id="insights"></div>
       </div>
       <div class="card">
         <div class="section-title">✨ Summary</div>
@@ -508,12 +516,16 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
       <div class="card">
         <div class="section-title">🎯 Daily Goals</div>
         <div class="field"><label>Calorie goal (kcal)</label><input class="input" id="gCal" type="number" inputmode="numeric"></div>
+        <div class="field"><label>Macro goals</label>
+          <div class="segmented" id="macroMode"><button data-m="g" class="on">By grams</button><button data-m="pct">By %</button></div>
+        </div>
         <div class="row3">
-          <div class="field"><label>Protein (g)</label><input class="input" id="gP" type="number" inputmode="numeric"></div>
-          <div class="field"><label>Carbs (g)</label><input class="input" id="gC" type="number" inputmode="numeric"></div>
-          <div class="field"><label>Fat (g)</label><input class="input" id="gF" type="number" inputmode="numeric"></div>
+          <div class="field"><label id="gPLbl">Protein (g)</label><input class="input" id="gP" type="number" inputmode="numeric"></div>
+          <div class="field"><label id="gCLbl">Carbs (g)</label><input class="input" id="gC" type="number" inputmode="numeric"></div>
+          <div class="field"><label id="gFLbl">Fat (g)</label><input class="input" id="gF" type="number" inputmode="numeric"></div>
         </div>
         <div class="field"><label id="gWaterLbl">Daily water goal (ml)</label><input class="input" id="gWater" type="number" inputmode="numeric"></div>
+        <div class="field"><label id="gWeightLbl">Goal weight (kg) — optional</label><input class="input" id="gWeight" type="number" inputmode="decimal" placeholder="e.g. 75"></div>
         <button class="btn primary" id="saveGoals">Save goals</button>
       </div>
       <div class="card">
@@ -664,7 +676,7 @@ const round=(n,d=0)=>{const m=10**d;return Math.round((+n||0)*m)/m;};
 /* ---- state ---- */
 const defaultState = ()=>({
   profile:{ name:"", sex:"male", age:null, height:null, weight:null, activity:1.55, units:"metric",
-            calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain" },
+            calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain", goalWeight:null },
   log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], favRecipes:[], prefs:{ animations:true }
 });
 let state = load();
@@ -688,10 +700,12 @@ function fmtDate(k){ return keyToDate(k).toLocaleDateString(undefined,{weekday:"
 
 /* ---- entries / totals ---- */
 function dayEntries(k){ return state.log[k] || []; }
-function entryTotals(e){ return { kcal:e.per.kcal*e.qty, protein:e.per.protein*e.qty, carbs:e.per.carbs*e.qty, fat:e.per.fat*e.qty }; }
+function entryTotals(e){ const p=e.per; return { kcal:p.kcal*e.qty, protein:p.protein*e.qty, carbs:p.carbs*e.qty, fat:p.fat*e.qty,
+  fiber:(p.fiber||0)*e.qty, sugar:(p.sugar||0)*e.qty, sodium:(p.sodium||0)*e.qty, satfat:(p.satfat||0)*e.qty }; }
 function dayTotals(k){
-  return dayEntries(k).reduce((t,e)=>{ const x=entryTotals(e); t.kcal+=x.kcal; t.protein+=x.protein; t.carbs+=x.carbs; t.fat+=x.fat; return t; },
-    {kcal:0,protein:0,carbs:0,fat:0});
+  return dayEntries(k).reduce((t,e)=>{ const x=entryTotals(e); t.kcal+=x.kcal; t.protein+=x.protein; t.carbs+=x.carbs; t.fat+=x.fat;
+    t.fiber+=x.fiber; t.sugar+=x.sugar; t.sodium+=x.sodium; t.satfat+=x.satfat; return t; },
+    {kcal:0,protein:0,carbs:0,fat:0,fiber:0,sugar:0,sodium:0,satfat:0});
 }
 
 /* ============ rendering ============ */
@@ -730,6 +744,8 @@ function renderToday(){
   macro("#ringP","#pctP","#valP",t.protein,p.proteinGoal);
   macro("#ringC","#pctC","#valC",t.carbs,p.carbGoal);
   macro("#ringF","#pctF","#valF",t.fat,p.fatGoal);
+  const netCarbs=Math.max(0,t.carbs-t.fiber);
+  $("#nutriExtra").innerHTML=`<span class="ne">Net carbs <b>${round(netCarbs)}</b> g</span><span class="ne">Fibre <b>${round(t.fiber)}</b> g</span><span class="ne">Sugar <b>${round(t.sugar)}</b> g</span><span class="ne">Sat fat <b>${round(t.satfat)}</b> g</span><span class="ne">Sodium <b>${Math.round(t.sodium*1000)}</b> mg</span>`;
 
   renderMeals();
   renderExercise();
@@ -936,7 +952,10 @@ function mapOFF(p){
   let name=(p.product_name||"").trim(); if(!name) return null;
   if(p.brands) name = name+" · "+p.brands.split(",")[0].trim();
   return { name:name.slice(0,80), unit:"g", baseQty:100,
-    per:{ kcal:+kcal/100, protein:(+n["proteins_100g"]||0)/100, carbs:(+n["carbohydrates_100g"]||0)/100, fat:(+n["fat_100g"]||0)/100 },
+    per:{ kcal:+kcal/100, protein:(+n["proteins_100g"]||0)/100, carbs:(+n["carbohydrates_100g"]||0)/100, fat:(+n["fat_100g"]||0)/100,
+          fiber:(+n["fiber_100g"]||0)/100, sugar:(+n["sugars_100g"]||0)/100,
+          sodium:((n["sodium_100g"]!=null ? +n["sodium_100g"] : (+n["salt_100g"]||0)/2.5)||0)/100,
+          satfat:(+n["saturated-fat_100g"]||0)/100 },
     serving_size:p.serving_size||"" };
 }
 function renderResults(box,items){
@@ -1302,7 +1321,51 @@ function renderTrends(){
   const ws=state.weights.slice().sort((a,b)=>a.date<b.date?-1:1);
   if(ws.length>=2){ const diff=ws[ws.length-1].kg-ws[0].kg; $("#stWeight").textContent=(diff>0?"+":"")+round(diff,1)+" "+(state.profile.units==="metric"?"kg":"lb"); }
   else $("#stWeight").textContent="—";
+  renderInsights();
   renderBadges();
+}
+function adaptiveTDEE(){
+  const ws=state.weights.slice().sort((a,b)=>a.date<b.date?-1:1);
+  if(ws.length<2) return null;
+  const win=ws.filter(w=>w.date>=shiftKey(todayKey(),-28)); const use=win.length>=2?win:ws.slice(-2);
+  const first=use[0], last=use[use.length-1];
+  const days=Math.round((keyToDate(last.date)-keyToDate(first.date))/86400000); if(days<7) return null;
+  const toKg=v=> state.profile.units==="imperial"? v*0.453592 : v;
+  const kgChange=toKg(last.kg)-toKg(first.kg);
+  let sum=0,n=0,k=first.date;
+  while(k<=last.date){ const c=dayTotals(k).kcal; if(c>0){ sum+=c; n++; } k=shiftKey(k,1); }
+  if(n<5) return null;
+  const tdee=sum/n - (kgChange*7700)/days;
+  if(tdee<800||tdee>6000) return null;
+  return { tdee:Math.round(tdee), days, loggedDays:n, kgChange:Math.round(kgChange*10)/10 };
+}
+function weeklyRate(){
+  const ws=state.weights.slice().sort((a,b)=>a.date<b.date?-1:1); if(ws.length<2) return null;
+  const win=ws.filter(w=>w.date>=shiftKey(todayKey(),-28)); const use=win.length>=2?win:ws.slice(-2);
+  const first=use[0], last=use[use.length-1];
+  const days=Math.round((keyToDate(last.date)-keyToDate(first.date))/86400000); if(days<1) return null;
+  return { rate:(last.kg-first.kg)/days*7, cur:last.kg };
+}
+function renderInsights(){
+  const box=$("#insights"); const a=adaptiveTDEE(); const unit=state.profile.units==="imperial"?"lb":"kg"; let html="";
+  if(a){
+    html+=`<div class="calc-grid"><div class="calc-cell"><div class="cv">${a.tdee.toLocaleString()}</div><div class="ck">Est. daily burn</div></div>`+
+          `<div class="calc-cell"><div class="cv" style="font-size:1.4rem">${a.loggedDays}</div><div class="ck">days of data</div></div></div>`;
+    html+=`<div class="exfx" style="margin:0 0 12px">From your weight change (${a.kgChange>0?"+":""}${a.kgChange} ${unit}) vs. logged intake over ${a.days} days — this learns your real metabolism, not just a formula.</div>`;
+  } else {
+    html+=`<div class="exfx" style="margin:0 0 12px">Log food and weigh in for ~2 weeks and I'll estimate your <b>real</b> daily burn from how your weight actually responds.</div>`;
+  }
+  const gw=state.profile.goalWeight, r=weeklyRate();
+  if(gw!=null && r){
+    const toGo=gw-r.cur;
+    if(Math.abs(toGo)<0.2){ html+=`<div class="statrow"><span class="k">🎯 Goal weight</span><span class="v">Reached! 🎉</span></div>`; }
+    else if((toGo<0&&r.rate<-0.02)||(toGo>0&&r.rate>0.02)){
+      const weeks=Math.abs(toGo/r.rate), eta=new Date(Date.now()+weeks*604800000);
+      html+=`<div class="statrow"><span class="k">🎯 To ${gw} ${unit}</span><span class="v">~${Math.round(weeks)} wk · ${eta.toLocaleDateString(undefined,{month:"short",year:"numeric"})}</span></div>`+
+            `<div class="exfx" style="margin-top:8px">At your current trend of ${r.rate>0?"+":""}${Math.round(r.rate*10)/10} ${unit}/wk.</div>`;
+    } else { html+=`<div class="statrow"><span class="k">🎯 Goal ${gw} ${unit}</span><span class="v">not trending there yet</span></div>`; }
+  } else if(gw==null){ html+=`<div class="exfx" style="margin:0">Set a <b>goal weight</b> in Settings to get a projected finish date.</div>`; }
+  box.innerHTML=html;
 }
 function computeBadges(){
   const days=Object.keys(state.log);
@@ -1364,11 +1427,15 @@ function drawWeight(){
     charts.w=new Chart(ctx,{type:"line",data:{labels:["—"],datasets:[{data:[null]}]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{ticks:chartFont,grid:{display:false}},y:{ticks:chartFont,grid:{color:"rgba(120,225,210,.08)"}}}}});
     return; }
+  const vals=ws.map(w=>w.kg); let prev=vals[0]; const ema=vals.map((v,i)=>{ prev=i===0?v:0.3*v+0.7*prev; return Math.round(prev*100)/100; });
   charts.w=new Chart(ctx,{ type:"line",
     data:{ labels:ws.map(w=>keyToDate(w.date).toLocaleDateString(undefined,{month:"numeric",day:"numeric"})),
-      datasets:[{ data:ws.map(w=>w.kg), borderColor:"#a78bfa", borderWidth:3, tension:.35,
-        pointBackgroundColor:"#e85bf0", pointRadius:4, fill:true,
-        backgroundColor:(()=>{const g=ctx.createLinearGradient(0,0,0,230);g.addColorStop(0,"rgba(167,139,250,.35)");g.addColorStop(1,"rgba(167,139,250,0)");return g;})() }] },
+      datasets:[
+        { label:"weight", data:vals, borderColor:"#a78bfa", borderWidth:3, tension:.35,
+          pointBackgroundColor:"#e85bf0", pointRadius:4, fill:true,
+          backgroundColor:(()=>{const g=ctx.createLinearGradient(0,0,0,230);g.addColorStop(0,"rgba(167,139,250,.35)");g.addColorStop(1,"rgba(167,139,250,0)");return g;})() },
+        { label:"trend", data:ema, borderColor:"#2ee6c5", borderWidth:2, borderDash:[6,4], tension:.35, pointRadius:0, fill:false }
+      ] },
     options:{ responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
       tooltip:{callbacks:{label:c=>c.parsed.y+" "+(state.profile.units==="metric"?"kg":"lb")}}},
       scales:{x:{grid:{display:false},ticks:chartFont,border:{display:false}},
@@ -1383,17 +1450,39 @@ $("#wAdd").onclick=()=>{
 };
 
 /* ============ settings ============ */
+let macroMode="g";
 function fillSettings(){
-  const p=state.profile; const im=p.units==="imperial";
+  const p=state.profile; const im=p.units==="imperial"; const wu=im?"lb":"kg";
+  macroMode="g"; $$("#macroMode button").forEach(b=>b.classList.toggle("on",b.dataset.m==="g"));
+  $("#gPLbl").textContent="Protein (g)"; $("#gCLbl").textContent="Carbs (g)"; $("#gFLbl").textContent="Fat (g)";
   $("#gCal").value=p.calorieGoal; $("#gP").value=p.proteinGoal; $("#gC").value=p.carbGoal; $("#gF").value=p.fatGoal;
   $("#gWater").value = im ? Math.round((p.waterGoal||2000)/ML_OZ) : (p.waterGoal||2000);
   $("#gWaterLbl").textContent = "Daily water goal ("+(im?"fl oz":"ml")+")";
+  $("#gWeight").value = p.goalWeight!=null ? p.goalWeight : "";
+  $("#gWeightLbl").textContent = "Goal weight ("+wu+") — optional";
   $$("#setUnits button").forEach(b=>b.classList.toggle("on",b.dataset.v===p.units));
   $$("#setAnim button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.animations?"on":"off")));
 }
+$$("#macroMode button").forEach(b=>b.onclick=()=>{
+  const mode=b.dataset.m; if(mode===macroMode) return;
+  const cal=+$("#gCal").value||0;
+  if(mode==="pct"){
+    const gP=+$("#gP").value||0,gC=+$("#gC").value||0,gF=+$("#gF").value||0;
+    $("#gP").value=cal?Math.round(gP*4/cal*100):0; $("#gC").value=cal?Math.round(gC*4/cal*100):0; $("#gF").value=cal?Math.round(gF*9/cal*100):0;
+    $("#gPLbl").textContent="Protein (%)"; $("#gCLbl").textContent="Carbs (%)"; $("#gFLbl").textContent="Fat (%)";
+  } else {
+    const pP=+$("#gP").value||0,pC=+$("#gC").value||0,pF=+$("#gF").value||0;
+    $("#gP").value=Math.round(cal*pP/100/4); $("#gC").value=Math.round(cal*pC/100/4); $("#gF").value=Math.round(cal*pF/100/9);
+    $("#gPLbl").textContent="Protein (g)"; $("#gCLbl").textContent="Carbs (g)"; $("#gFLbl").textContent="Fat (g)";
+  }
+  macroMode=mode; $$("#macroMode button").forEach(x=>x.classList.toggle("on",x===b));
+});
 $("#saveGoals").onclick=()=>{
-  const im=state.profile.units==="imperial"; const wIn=+$("#gWater").value||0;
-  Object.assign(state.profile,{ calorieGoal:+$("#gCal").value||0, proteinGoal:+$("#gP").value||0, carbGoal:+$("#gC").value||0, fatGoal:+$("#gF").value||0, waterGoal:(im? Math.round(wIn*ML_OZ) : wIn)||2000 });
+  const im=state.profile.units==="imperial"; const wIn=+$("#gWater").value||0; const cal=+$("#gCal").value||0;
+  let gP=+$("#gP").value||0, gC=+$("#gC").value||0, gF=+$("#gF").value||0;
+  if(macroMode==="pct"){ gP=Math.round(cal*gP/100/4); gC=Math.round(cal*gC/100/4); gF=Math.round(cal*gF/100/9); }
+  const gw=$("#gWeight").value.trim()===""?null:(+$("#gWeight").value||null);
+  Object.assign(state.profile,{ calorieGoal:cal, proteinGoal:gP, carbGoal:gC, fatGoal:gF, waterGoal:(im? Math.round(wIn*ML_OZ) : wIn)||2000, goalWeight:gw });
   save(); render(); toast("Goals saved");
 };
 $$("#setUnits button").forEach(b=>b.onclick=()=>{ state.profile.units=b.dataset.v; $$("#setUnits button").forEach(x=>x.classList.toggle("on",x===b));
