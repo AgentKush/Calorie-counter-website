@@ -35,7 +35,7 @@ body{
 /* The colour wash lives on a fixed full-viewport layer (like the trees) so it always
    covers the screen — the mobile address bar hiding/showing can't expose a gap behind it. */
 body::before{
-  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  content:""; position:fixed; top:0; left:0; width:100%; height:100vh; height:100lvh; z-index:-1; pointer-events:none;
   background-color:#05080f;
   background-image:
     radial-gradient(1100px 700px at 12% -8%, #163a4d 0%, transparent 55%),
@@ -44,8 +44,8 @@ body::before{
     linear-gradient(170deg, var(--bg-1) 0%, var(--bg-0) 60%, #04060d 100%);
   background-repeat:no-repeat;
 }
-.forest{position:fixed;inset:0;width:100%;height:100vh;height:100dvh;z-index:0;pointer-events:none;opacity:.82;}
-#spores{position:fixed;inset:0;width:100%;height:100vh;height:100dvh;z-index:1;pointer-events:none;}
+.forest{position:fixed;top:0;left:0;width:100%;height:100vh;height:100lvh;z-index:0;pointer-events:none;opacity:.82;}
+#spores{position:fixed;top:0;left:0;width:100%;height:100vh;height:100lvh;z-index:1;pointer-events:none;}
 .glow-fungi{position:fixed;left:0;right:0;bottom:-10px;z-index:1;width:100%;opacity:.8;pointer-events:none;filter:drop-shadow(0 0 18px rgba(46,230,197,.25));}
 .app{position:relative;z-index:2;max-width:920px;margin:0 auto;padding:18px 16px 130px;}
 
@@ -564,8 +564,8 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
           <div class="field"><label id="gFLbl">Fat (g)</label><input class="input" id="gF" type="number" inputmode="numeric"></div>
         </div>
         <div class="field"><label id="gWaterLbl">Daily water goal (ml)</label><input class="input" id="gWater" type="number" inputmode="numeric"></div>
-        <div class="row2">
-          <div class="field"><label id="gWeightLbl">Goal weight (kg) — optional</label><input class="input" id="gWeight" type="number" inputmode="decimal" placeholder="e.g. 75"></div>
+        <div class="row2" style="align-items:end">
+          <div class="field"><label id="gWeightLbl">Goal weight (kg)</label><input class="input" id="gWeight" type="number" inputmode="decimal" placeholder="e.g. 75"></div>
           <div class="field"><label>Reach it in (weeks)</label><input class="input" id="gWeeks" type="number" inputmode="numeric" placeholder="e.g. 12"></div>
         </div>
         <small class="note" id="goalNote" style="display:block;margin:-4px 0 12px">Add a goal weight + weeks and I'll set your daily calories automatically (needs your age, height & current weight — set those in Calc).</small>
@@ -600,8 +600,8 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
         <div class="section-title">💾 Your Data</div>
         <p class="welcome" style="margin-bottom:14px">Everything is stored privately in your browser on this device. Back it up or move it with export/import.</p>
         <div class="row2" style="margin-bottom:10px">
-          <button class="btn ghost" id="exportBtn">⬇ JSON</button>
-          <button class="btn ghost" id="importBtn">⬆ Import</button>
+          <button class="btn ghost" id="exportBtn">⬇ Export JSON</button>
+          <button class="btn ghost" id="importBtn">⬆ Import JSON</button>
         </div>
         <button class="btn ghost" id="exportCsv" style="margin-bottom:10px">⬇ Export food log (CSV)</button>
         <button class="btn danger" id="resetBtn">Reset all data</button>
@@ -1743,7 +1743,7 @@ $("#wAdd").onclick=()=>{
 let macroMode="g";
 function updateWeightLabels(){
   const u=wUnit();
-  const gl=$("#gWeightLbl"); if(gl) gl.textContent="Goal weight ("+u+") — optional";
+  const gl=$("#gWeightLbl"); if(gl) gl.textContent="Goal weight ("+u+")";
   const cw=$("#cWLbl"); if(cw) cw.textContent="Weight ("+u+")";
   const ca=$("#cAmtLbl"); if(ca) ca.textContent="Amount ("+u+")";
   const wi=$("#wInput"); if(wi) wi.placeholder="Today's weight ("+u+")";
