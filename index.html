@@ -128,6 +128,7 @@ body::before{
 .meal-head .mh-l{display:flex;align-items:center;gap:10px;font-weight:700;font-size:.98rem;}
 .meal-head .mh-l .emoji{font-size:1.1rem;filter:drop-shadow(0 0 6px rgba(46,230,197,.5));}
 .meal-head .mh-cal{font-size:.82rem;color:var(--muted);}
+.meal-head .mh-btns{display:flex;gap:6px;align-items:center;}
 .add-mini{border:1px dashed var(--brd-strong);background:transparent;color:var(--teal);border-radius:11px;
   padding:6px 12px;font-size:.82rem;cursor:pointer;transition:.2s;font-weight:600;}
 .add-mini:hover{background:rgba(46,230,197,.1);}
@@ -680,6 +681,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
       </div>
 
       <div id="pane-quick">
+        <div id="quickMeals"></div>
         <div id="quickMine"></div>
         <div id="quickFav"></div>
         <div id="quickRecent"></div>
@@ -813,7 +815,7 @@ const defaultState = ()=>({
   schemaV:2,
   profile:{ name:"", sex:"male", age:null, height:null, weight:null, weightKg:null, activity:1.55, units:"metric", weightUnit:"kg",
             calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain", goalWeight:null, goalWeightKg:null, goalWeeks:null },
-  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], favRecipes:[], plan:{}, fast:{start:null,target:16}, prefs:{ animations:true, waterRemind:false }
+  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], mealTemplates:[], favRecipes:[], plan:{}, fast:{start:null,target:16}, prefs:{ animations:true, waterRemind:false }
 });
 let state = load();
 let curDate = todayKey();
@@ -943,7 +945,7 @@ function renderMeals(){
     const block=document.createElement("div"); block.className="meal";
     block.innerHTML=`<div class="meal-head"><div class="mh-l"><span class="emoji">${emoji}</span>${meal}
       <span class="mh-cal">${kcal?Math.round(kcal)+" kcal":""}</span></div>
-      <button class="add-mini" data-meal="${meal}">+ Add</button></div>`;
+      <div class="mh-btns">${items.length?`<button class="add-mini save-meal" data-meal="${meal}" title="Save as a reusable meal" aria-label="Save ${meal} as a meal">💾</button>`:""}<button class="add-mini" data-meal="${meal}">+ Add</button></div></div>`;
     if(items.length){
       items.forEach(e=>{
         const x=entryTotals(e);
@@ -960,7 +962,8 @@ function renderMeals(){
     }
     wrap.appendChild(block);
   });
-  $$(".add-mini",wrap).forEach(b=>b.onclick=()=>openAdd(b.dataset.meal));
+  $$(".add-mini:not(.save-meal)",wrap).forEach(b=>b.onclick=()=>openAdd(b.dataset.meal));
+  $$(".save-meal",wrap).forEach(b=>b.onclick=()=>saveMealTemplate(b.dataset.meal));
   $$(".e-del",wrap).forEach(b=>b.onclick=()=>{ delEntry(b.dataset.id); });
   $$(".e-main[data-edit]",wrap).forEach(el=>el.onclick=()=>openEditEntry(el.dataset.edit));
 }
@@ -1002,6 +1005,37 @@ function addEntry(food){
     name:food.name, meal:pendingMeal, unit:food.unit, qty:food.qty, serv:food.serv||"", per:food.per });
   pushRecent(food);
   save(); renderToday();
+}
+
+/* ---- saved meals (templates) ---- */
+function saveMealTemplate(meal){
+  const items=dayEntries(curDate).filter(e=>e.meal===meal);
+  if(!items.length){ toast("Nothing logged in "+meal+" to save"); return; }
+  const name=(prompt("Name this saved meal:", meal)||"").trim();
+  if(!name) return;
+  state.mealTemplates.unshift({ id:Date.now()+"-"+Math.random().toString(36).slice(2,6), name,
+    items: items.map(e=>({ name:e.name, unit:e.unit, qty:e.qty, serv:e.serv||"", per:e.per })) });
+  if(state.mealTemplates.length>40) state.mealTemplates.length=40;
+  save(); toast('Saved "'+name+'" — re-log it any time from + → Quick');
+}
+function logTemplate(id){
+  const tpl=state.mealTemplates.find(t=>t.id===id); if(!tpl) return;
+  if(!state.log[curDate]) state.log[curDate]=[];
+  tpl.items.forEach(it=>state.log[curDate].push({ id:Date.now()+"-"+Math.random().toString(36).slice(2,6),
+    name:it.name, meal:pendingMeal, unit:it.unit, qty:it.qty, serv:it.serv||"", per:it.per }));
+  save(); renderToday(); closeAdd(); toast(tpl.name+" → "+pendingMeal+" ("+tpl.items.length+" item"+(tpl.items.length>1?"s":"")+")");
+}
+function delTemplate(id){ state.mealTemplates=state.mealTemplates.filter(t=>t.id!==id); save(); renderQuick(); }
+function templateRow(tpl){
+  const wrap=document.createElement("div"); wrap.className="qrow";
+  const kcal=tpl.items.reduce((s,it)=>s+(it.per.kcal||0)*it.qty,0);
+  const add=document.createElement("button"); add.className="res";
+  add.innerHTML=`<div class="r-main"><div class="r-name">🍽 ${esc(tpl.name)}</div><div class="r-sub">${tpl.items.length} item${tpl.items.length>1?"s":""} · ${Math.round(kcal)} kcal</div></div><div class="r-cal">+</div>`;
+  add.onclick=()=>logTemplate(tpl.id);
+  const del=document.createElement("button"); del.className="star off"; del.textContent="✕"; del.title="Delete saved meal";
+  del.onclick=e=>{ e.stopPropagation(); delTemplate(tpl.id); };
+  wrap.appendChild(add); wrap.appendChild(del);
+  return wrap;
 }
 
 /* ---- favorites + recent ---- */
@@ -1137,7 +1171,7 @@ function openAdd(meal){
   pendingMeal=meal||pendingMeal;
   $$("#mealPick button").forEach(b=>b.classList.toggle("on",b.dataset.m===pendingMeal));
   modalBg.classList.add("show");
-  const hasQuick = state.favorites.length || state.recent.length || state.myFoods.length;
+  const hasQuick = state.mealTemplates.length || state.favorites.length || state.recent.length || state.myFoods.length;
   switchAddTab(hasQuick ? "quick" : "search");
   if(!hasQuick) setTimeout(()=>$("#searchInput").focus(),250);
 }
@@ -1222,7 +1256,12 @@ function quickRow(it, kind){
   return wrap;
 }
 function renderQuick(){
-  const mine=$("#quickMine"), fav=$("#quickFav"), rec=$("#quickRecent"); mine.innerHTML=""; fav.innerHTML=""; rec.innerHTML="";
+  const meals=$("#quickMeals"), mine=$("#quickMine"), fav=$("#quickFav"), rec=$("#quickRecent");
+  meals.innerHTML=""; mine.innerHTML=""; fav.innerHTML=""; rec.innerHTML="";
+  if(state.mealTemplates.length){
+    const h=document.createElement("div"); h.className="qhead"; h.textContent="🍽 Saved meals"; meals.appendChild(h);
+    state.mealTemplates.forEach(t=>meals.appendChild(templateRow(t)));
+  }
   if(state.myFoods.length){
     const h=document.createElement("div"); h.className="qhead"; h.textContent="My Foods"; mine.appendChild(h);
     state.myFoods.forEach(it=>mine.appendChild(quickRow(it,"myfood")));
@@ -1236,7 +1275,7 @@ function renderQuick(){
     const h=document.createElement("div"); h.className="qhead"; h.textContent="Recent"; rec.appendChild(h);
     recents.forEach(it=>rec.appendChild(quickRow(it)));
   }
-  $("#quickEmpty").style.display = (state.myFoods.length||state.favorites.length||recents.length) ? "none" : "block";
+  $("#quickEmpty").style.display = (state.mealTemplates.length||state.myFoods.length||state.favorites.length||recents.length) ? "none" : "block";
 }
 
 /* ---- barcode ---- */
@@ -1966,8 +2005,10 @@ function firstRunCheck(){
 }
 render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
 /* ---- Changelog ---- */
-const APP_VERSION="1.15.0";
+const APP_VERSION="1.16.0";
 const CHANGELOG=[
+  {v:"1.16.0",d:"17 Jun 2026",items:[
+    "Save any meal you've logged (tap 💾 on a meal) and re-log the whole thing in one tap from + → Quick → Saved meals."]},
   {v:"1.15.0",d:"17 Jun 2026",items:[
     "New: a quick first-run setup wizard that builds your calorie & macro targets in a few taps.",
     "Re-open it any time from Settings → Preferences → Run setup wizard."]},
