@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🍄 Open Mycelia
+    url: https://agentkush.github.io/Calorie-counter-website/
+    about: Use the live app.
+  - name: 🗒 What's new (version history)
+    url: https://github.com/AgentKush/Calorie-counter-website/commits/main
+    about: See recent changes — the full changelog is also in the app under the 🗒 button.
