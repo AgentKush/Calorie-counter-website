@@ -93,8 +93,9 @@ body::before{
 
 /* macros */
 .macros{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px;}
-.macro{background:var(--glass-2);border:1px solid rgba(120,225,210,.1);border-radius:15px;padding:14px 10px;text-align:center;}
-.macro .mwrap{position:relative;width:74px;height:74px;margin:0 auto 8px;}
+.macro{background:var(--glass-2);border:1px solid rgba(120,225,210,.1);border-radius:15px;padding:14px 8px;text-align:center;min-width:0;}
+.macro .mwrap{position:relative;width:74px;max-width:100%;aspect-ratio:1;margin:0 auto 8px;}
+.macro .mwrap svg{width:100%;height:100%;display:block;}
 .macro .mwrap .mc{position:absolute;inset:0;display:grid;place-content:center;font-size:.78rem;font-weight:700;}
 .macro .mname{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
 .macro .mval{font-size:.82rem;color:var(--text);margin-top:2px;}
@@ -348,7 +349,10 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
       <svg class="mark" viewBox="0 0 32 32"><defs><radialGradient id="bm" cx="50%" cy="35%"><stop offset="0" stop-color="#7af9e0"/><stop offset="1" stop-color="#a855f7"/></radialGradient></defs><path d="M16 3C8 3 3 9 3 14.5 3 16.4 4.2 17 6 17h20c1.8 0 3-.6 3-2.5C29 9 24 3 16 3z" fill="url(#bm)"/><rect x="12.8" y="16" width="6.4" height="13" rx="3.2" fill="#cbb1ff"/></svg>
       <div><h1>Mycelia</h1><p>Calorie Tracker</p></div>
     </div>
-    <button class="icon-btn" id="navSettings" title="Settings" aria-label="Settings">⚙</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="icon-btn" id="navChangelog" title="What's new" aria-label="What's new">🗒</button>
+      <button class="icon-btn" id="navSettings" title="Settings" aria-label="Settings">⚙</button>
+    </div>
   </div>
 
   <!-- TODAY -->
@@ -735,6 +739,13 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
   <div class="modal">
     <div class="modal-head"><h3>📅 Weekly Planner</h3><button class="icon-btn" id="planClose" aria-label="Close">✕</button></div>
     <div class="modal-body" id="planBody"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="changelogBg">
+  <div class="modal">
+    <div class="modal-head"><h3>🗒 What's new</h3><button class="icon-btn" id="changelogClose" aria-label="Close">✕</button></div>
+    <div class="modal-body" id="changelogBody"></div>
   </div>
 </div>
 
@@ -1906,6 +1917,59 @@ function firstRunCheck(){
   }
 }
 render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
+/* ---- Changelog ---- */
+const APP_VERSION="1.13.0";
+const CHANGELOG=[
+  {v:"1.13.0",d:"17 Jun 2026",items:[
+    "New: this in-app changelog (tap 🗒 at the top) — every version and what changed.",
+    "Fixed the macro rings overflowing off the right edge on narrow phones."]},
+  {v:"1.12.0",d:"17 Jun 2026",items:[
+    "Fixed the black bar that flashed at the bottom while scrolling on mobile.",
+    "Restored pull-to-refresh on phones.",
+    "Clearer “Export JSON” / “Import JSON” buttons and a tidier goal-weight + weeks row."]},
+  {v:"1.11.0",d:"17 Jun 2026",items:[
+    "Weight in kg, stone or pounds — your choice, independent of height/water units (stone shown as a decimal).",
+    "Set a goal weight + a timeframe in weeks and your daily calories are worked out automatically.",
+    "New goal-weight card on Today showing progress, ETA and target calories.",
+    "First-time faster? A new explainer in the fasting card walks you through intermittent fasting."]},
+  {v:"1.10.0",d:"17 Jun 2026",items:[
+    "Install Mycelia to your home screen / desktop as an offline-capable app with its own icon.",
+    "The installed app now auto-updates to the latest version when you’re online.",
+    "Fixed a full-width seam/line that appeared in the background."]},
+  {v:"1.9.0",d:"17 Jun 2026",items:[
+    "Weekly meal planner with a grocery list of whole, shoppable items — copy it or download a checklist.",
+    "Copy-yesterday, a daily food-quality score (A–E), and food-log CSV export."]},
+  {v:"1.8.0",d:"17 Jun 2026",items:[
+    "Intermittent-fasting timer with 14:10 / 16:8 / 18:6 / 20:4 windows.",
+    "Optional water reminders."]},
+  {v:"1.7.0",d:"17 Jun 2026",items:[
+    "Tap any recipe for a full page: measured single-serving ingredients and a step-by-step method.",
+    "Adaptive TDEE that learns your real burn, plus a weight-trend line and goal projection.",
+    "Extra nutrition — fibre, sugar, sodium, saturated fat, net carbs; set macros by % or grams."]},
+  {v:"1.6.0",d:"16 Jun 2026",items:[
+    "Smarter recipes — search, diet filters, favourites and “surprise me” (27 in total).",
+    "Edit logged entries, save your own foods (My Foods), and earn achievement badges & streaks."]},
+  {v:"1.5.0",d:"15 Jun 2026",items:[
+    "Recipe ideas with real photos (now showing the whole dish).",
+    "US fl oz water units and a custom weight-goal calculator."]},
+  {v:"1.2.0",d:"15 Jun 2026",items:[
+    "Pine-forest theme, hydration tracker, exercise logging (calories from duration via MET), and quick re-logging of favourites & recent foods.",
+    "Fixed a white flash when over-scrolling on mobile."]},
+  {v:"1.0.0",d:"15 Jun 2026",items:[
+    "First release: bioluminescent calorie & macro tracker — food logging, Open Food Facts search + barcode, BMR/TDEE calculator, trends and weight tracking. All data stays private in your browser."]},
+];
+function renderChangelog(){
+  const body=$("#changelogBody"); if(!body) return;
+  body.innerHTML = `<div class="exfx" style="margin:0 0 14px">You're on <b>v${APP_VERSION}</b>. Newest changes first.</div>`+
+    CHANGELOG.map(r=>`<div style="margin-bottom:16px">`+
+      `<div class="section-title" style="margin-bottom:8px">v${r.v} <span style="color:var(--muted);font-weight:600;margin-left:auto">${r.d}</span></div>`+
+      `<ul class="ing-list">${r.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></div>`).join("");
+}
+const changelogBg=$("#changelogBg");
+$("#navChangelog").onclick=()=>{ renderChangelog(); changelogBg.classList.add("show"); };
+$("#changelogClose").onclick=()=>changelogBg.classList.remove("show");
+changelogBg.onclick=e=>{ if(e.target===changelogBg) changelogBg.classList.remove("show"); };
+$$(".footer-note").forEach(f=>{ if(/glowing spores/.test(f.textContent)) f.innerHTML += " · v"+APP_VERSION; });
 /* ---- Install to home screen / desktop ---- */
 (function(){
   const card=$("#installCard"), btn=$("#installBtn"), hint=$("#installHint"); if(!card) return;
