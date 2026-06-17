@@ -1477,7 +1477,12 @@ function buildGrocery(){
     r.ing.split(/;\s*/).forEach(line=>{ const p=parseIngredient(line); if(!p.item) return;
       let cat,item;
       if(GROC_WT[p.unit]){ cat="w"; item=p.item; }
-      else if(p.unit==="" && p.qty!=null){ cat="c"; item=singLast(p.item); }
+      else if(p.unit==="" && p.qty!=null){
+        const lw=p.item.toLowerCase().split(" ").pop();
+        if(lw==="slice"||lw==="slices"||lw==="leaf"||lw==="leaves"){ cat="o"; item=singLast(p.item.split(" ").slice(0,-1).join(" "))||p.item; } // slices of X / leaves of X → buy the whole X
+        else if(lw==="sheet"||lw==="sheets"){ cat="o"; item=p.item; } // nori/lasagne sheets are a real product form
+        else { cat="c"; item=singLast(p.item); }
+      }
       else { cat="o"; item=p.item; }
       const key=cat+"|"+item.toLowerCase();
       const e=map[key]||(map[key]={item:item,cat:cat,count:0,grams:0});
