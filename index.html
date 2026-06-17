@@ -550,6 +550,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
           <div class="calc-cell"><div class="cv" id="oBMR">—</div><div class="ck">BMR</div></div>
           <div class="calc-cell"><div class="cv" id="oTDEE">—</div><div class="ck">Maintenance</div></div>
         </div>
+        <div class="calc-cell" style="margin-bottom:14px"><div class="cv" id="oBMI" style="font-size:1.4rem">—</div><div class="ck" id="oBMICat" title="BMI is a rough screening measure and doesn't account for muscle mass, age or build.">BMI</div></div>
         <div class="calc-cell" style="margin-bottom:14px"><div class="cv" id="oTarget" style="font-size:2rem">—</div><div class="ck">Daily target (kcal)</div></div>
         <div class="row3" style="margin-bottom:14px">
           <div class="calc-cell"><div class="cv" id="oP" style="font-size:1.2rem;color:#5ef08a;-webkit-text-fill-color:#5ef08a">—</div><div class="ck">Protein</div></div>
@@ -845,6 +846,11 @@ function kgToDisp(kg){ if(kg==null||kg==="") return null; const u=wUnit(), dp=u=
 function dispToKg(v){ v=+v; if(!v) return null; return v/WT_F[wUnit()]; }
 function fmtWeight(kg,withUnit){ const v=kgToDisp(kg); if(v==null) return "—"; return v + (withUnit===false?"":" "+wUnit()); }
 function kcalPerWeightUnit(){ const u=wUnit(); return u==="kg"?7700 : u==="st"?48897 : 3500; } // energy in 1 unit of body weight
+/* BMI from canonical kg + height in cm; returns rounded value, category and colour. */
+function bmiInfo(kg,cm){ if(!kg||!cm) return null; const b=kg/Math.pow(cm/100,2);
+  const t = b<18.5?["Underweight","var(--amber)"] : b<25?["Healthy","var(--green)"] : b<30?["Overweight","var(--amber)"] : ["Obese","var(--danger)"];
+  return { bmi:Math.round(b*10)/10, cat:t[0], color:t[1] }; }
+function profileCm(){ const p=state.profile; if(p.height==null||p.height==="") return null; return p.units==="metric"? +p.height : +p.height*2.54; }
 
 /* ---- dates ---- */
 function todayKey(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -928,8 +934,11 @@ function renderGoalCard(){
   const statusLbl = Math.abs(diff)<0.1?"Status":(diff<0?"To lose":"To gain");
   const statusVal = Math.abs(diff)<0.1?"At goal 🎉":(toGoUnit+" "+u);
   const foot = etaLine + (etaLine&&p.calorieGoal?" · ":"") + (p.calorieGoal?("target "+p.calorieGoal.toLocaleString()+" kcal/day"):"");
+  const bi=bmiInfo(cur, profileCm());
+  const bmiRow = bi?`<div class="statrow"><span class="k">BMI</span><span class="v" style="color:${bi.color}">${bi.bmi.toFixed(1)} · ${bi.cat}</span></div>`:"";
   el.innerHTML=`<div class="section-title">🎯 Goal weight</div>`+
     `<div class="statrow"><span class="k">Current</span><span class="v">${fmtWeight(cur)}</span></div>`+
+    bmiRow+
     `<div class="statrow"><span class="k">Goal</span><span class="v">${fmtWeight(goal)}</span></div>`+
     `<div class="statrow"><span class="k">${statusLbl}</span><span class="v">${statusVal}</span></div>`+
     (foot?`<div class="exfx" style="margin:10px 0 0">${foot}</div>`:"");
@@ -1479,6 +1488,8 @@ $("#cCalc").onclick=()=>{
   const fatG = Math.round(target*0.25/9);
   const carbG = Math.max(0,Math.round((target-protG*4-fatG*9)/4));
   $("#oBMR").textContent=Math.round(bmr); $("#oTDEE").textContent=Math.round(tdee);
+  const bi=bmiInfo(kg,cm);
+  if(bi){ $("#oBMI").textContent=bi.bmi.toFixed(1); $("#oBMI").style.color=bi.color; $("#oBMI").style.webkitTextFillColor=bi.color; $("#oBMICat").textContent="BMI · "+bi.cat; }
   $("#oTarget").textContent=Math.round(target); $("#oP").textContent=protG+"g"; $("#oC").textContent=carbG+"g"; $("#oF").textContent=fatG+"g";
   $("#calcNote").textContent=note;
   $("#calcOut").classList.add("show");
@@ -2005,8 +2016,10 @@ function firstRunCheck(){
 }
 render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
 /* ---- Changelog ---- */
-const APP_VERSION="1.16.0";
+const APP_VERSION="1.17.0";
 const CHANGELOG=[
+  {v:"1.17.0",d:"17 Jun 2026",items:[
+    "Added BMI: see it in the Calc page (with a healthy / under / over category) and on your goal-weight card."]},
   {v:"1.16.0",d:"17 Jun 2026",items:[
     "Save any meal you've logged (tap 💾 on a meal) and re-log the whole thing in one tap from + → Quick → Saved meals."]},
   {v:"1.15.0",d:"17 Jun 2026",items:[
