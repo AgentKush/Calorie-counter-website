@@ -41,6 +41,37 @@
   --shadow:0 14px 40px rgba(0,0,0,0.45);
   --r:18px;
 }
+/* ---- light theme (applied via html[data-theme="light"]; "auto" resolves to this under OS light mode) ---- */
+html[data-theme="light"]{
+  background:#eef3fb;
+  --bg-0:#e8eefb; --bg-1:#f4f7fe; --bg-2:#ffffff;
+  --teal:#0ca995; --cyan:#1391cf; --magenta:#c33bd0; --purple:#7250e6;
+  --green:#1f9d52; --amber:#b07d13; --danger:#dc3a5e;
+  --text:#13233f; --muted:#48597b; --faint:#8493b2;
+  --glass:rgba(255,255,255,0.74); --glass-2:rgba(255,255,255,0.6);
+  --brd:rgba(30,70,100,0.14); --brd-strong:rgba(16,150,135,0.4);
+  --shadow:0 14px 38px rgba(40,70,120,0.13);
+}
+html[data-theme="light"] body::before{
+  background-color:#eef3fb;
+  background-image:
+    radial-gradient(1100px 700px at 12% -8%, #d6e6ff 0%, transparent 55%),
+    radial-gradient(1000px 720px at 92% 4%, #ece0ff 0%, transparent 52%),
+    radial-gradient(900px 900px at 50% 118%, #d4f2ea 0%, transparent 55%),
+    linear-gradient(170deg,#f4f7fe 0%,#e8eefb 60%,#e1e9f6 100%);
+}
+html[data-theme="light"] .forest,
+html[data-theme="light"] .glow-fungi,
+html[data-theme="light"] #spores{ display:none; }
+html[data-theme="light"] .calc-cell .cv{ background:none; -webkit-text-fill-color:var(--teal); color:var(--teal); }
+/* ---- accessibility ---- */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--teal); outline-offset:2px; border-radius:6px;
+}
+@media (prefers-reduced-motion: reduce){
+  #spores{ display:none; }
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
 html{background:#05080f; overflow-x:hidden;}
@@ -615,6 +646,9 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
         <div class="field"><label>Weight unit</label>
           <div class="segmented" id="setWeightUnit"><button data-v="kg" class="on">kg</button><button data-v="st">stone</button><button data-v="lb">lb</button></div>
         </div>
+        <div class="field"><label>Theme</label>
+          <div class="segmented" id="setTheme"><button data-v="dark" class="on">Dark</button><button data-v="light">Light</button><button data-v="auto">Auto</button></div>
+        </div>
         <div class="field"><label>Background animation</label>
           <div class="segmented" id="setAnim"><button data-v="on" class="on">On</button><button data-v="off">Off</button></div>
         </div>
@@ -820,7 +854,7 @@ const defaultState = ()=>({
   schemaV:2,
   profile:{ name:"", sex:"male", age:null, height:null, weight:null, weightKg:null, activity:1.55, units:"metric", weightUnit:"kg",
             calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain", goalWeight:null, goalWeightKg:null, goalWeeks:null },
-  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], mealTemplates:[], favRecipes:[], plan:{}, fast:{start:null,target:16}, fastHistory:[], prefs:{ animations:true, waterRemind:false }
+  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], mealTemplates:[], favRecipes:[], plan:{}, fast:{start:null,target:16}, fastHistory:[], prefs:{ animations:true, waterRemind:false, theme:"dark" }
 });
 let state = load();
 let curDate = todayKey();
@@ -1874,7 +1908,9 @@ function streak(){ let s=0,k=todayKey(); if(!dayEntries(k).length && dayEntries(
   while(dayEntries(k).length){ s++; k=shiftKey(k,-1); } return s; }
 function chartGrad(ctx,c1,c2){ const g=ctx.createLinearGradient(0,0,0,230); g.addColorStop(0,c1); g.addColorStop(1,c2); return g; }
 const chartFont={color:"#8aa0c6",font:{family:"'Plus Jakarta Sans',sans-serif",size:11}};
+function syncChartFont(){ const c=getComputedStyle(document.documentElement).getPropertyValue("--muted").trim(); if(c) chartFont.color=c; }
 function drawCal(labels,data,goal){
+  syncChartFont();
   const ctx=$("#calChart").getContext("2d");
   if(charts.cal) charts.cal.destroy();
   const goalLine={ id:"goalLine", afterDatasetsDraw(ch){ if(!goal) return; const y=ch.scales.y.getPixelForValue(goal); if(isNaN(y))return;
@@ -1893,6 +1929,7 @@ function drawCal(labels,data,goal){
   });
 }
 function drawWeight(){
+  syncChartFont();
   const ctx=$("#wChart").getContext("2d");
   if(charts.w) charts.w.destroy();
   const ws=state.weights.slice().sort((a,b)=>a.date<b.date?-1:1).slice(-30);
@@ -1948,6 +1985,7 @@ function fillSettings(){
   $$("#setUnits button").forEach(b=>b.classList.toggle("on",b.dataset.v===p.units));
   $$("#setWeightUnit button").forEach(b=>b.classList.toggle("on",b.dataset.v===wUnit()));
   $$("#setAnim button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.animations?"on":"off")));
+  $$("#setTheme button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.theme||"dark")));
   $$("#setWaterRemind button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.waterRemind?"on":"off")));
 }
 let waterTimer=null;
@@ -2023,6 +2061,14 @@ $$("#setUnits button").forEach(b=>b.onclick=()=>{ state.profile.units=b.dataset.
   $("#cHLbl").textContent="Height ("+(b.dataset.v==="metric"?"cm":"in")+")"; save(); fillSettings(); renderToday(); });
 $$("#setWeightUnit button").forEach(b=>b.onclick=()=>{ state.profile.weightUnit=b.dataset.v; $$("#setWeightUnit button").forEach(x=>x.classList.toggle("on",x===b)); save(); fillSettings(); renderTrends(); renderToday(); });
 $$("#setAnim button").forEach(b=>b.onclick=()=>{ state.prefs.animations=b.dataset.v==="on"; $$("#setAnim button").forEach(x=>x.classList.toggle("on",x===b)); save(); toggleSpores(); });
+$$("#setTheme button").forEach(b=>b.onclick=()=>{ state.prefs.theme=b.dataset.v; $$("#setTheme button").forEach(x=>x.classList.toggle("on",x===b)); save(); applyTheme(); });
+function resolveTheme(){ const t=state.prefs.theme||"dark"; return t==="auto" ? (matchMedia("(prefers-color-scheme: light)").matches?"light":"dark") : t; }
+function applyTheme(){ const r=resolveTheme(); document.documentElement.dataset.theme=r;
+  const m=document.querySelector('meta[name="theme-color"]'); if(m) m.content = r==="light"?"#eef3fb":"#070b16";
+  toggleSpores();
+  if($("#view-trends").classList.contains("active")) renderTrends();
+}
+try{ matchMedia("(prefers-color-scheme: light)").addEventListener("change",()=>{ if((state.prefs.theme||"dark")==="auto") applyTheme(); }); }catch(e){}
 
 $("#exportBtn").onclick=()=>{
   const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
@@ -2061,6 +2107,8 @@ function toggleSpores(){ if(state.prefs.animations) startSpores(); else stopSpor
 function stopSpores(){ if(sporeAnim) cancelAnimationFrame(sporeAnim), sporeAnim=null; const c=$("#spores"); c.getContext("2d").clearRect(0,0,c.width,c.height); }
 function startSpores(){
   if(sporeAnim) return;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;   // respect OS reduced-motion
+  if(resolveTheme()==="light") return;                                  // spores are hidden in light theme
   const canvas=$("#spores"), ctx=canvas.getContext("2d"); let W,H,parts;
   const COLORS=["#2ee6c5","#34d9ff","#a78bfa","#e85bf0","#5ef08a"];
   function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight;
@@ -2089,10 +2137,13 @@ function firstRunCheck(){
     setTimeout(openOnboarding,400);
   }
 }
-render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
+applyTheme(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
 /* ---- Changelog ---- */
-const APP_VERSION="1.18.0";
+const APP_VERSION="1.19.0";
 const CHANGELOG=[
+  {v:"1.19.0",d:"17 Jun 2026",items:[
+    "New light theme — choose Dark, Light or Auto (follows your device) in Settings → Preferences.",
+    "Accessibility: clearer keyboard focus outlines and respect for your system's reduced-motion setting."]},
   {v:"1.18.0",d:"17 Jun 2026",items:[
     "New “This week” review on Trends — days logged, average calories & protein, goal adherence, weight change and fasts at a glance.",
     "Fasting history: finished fasts are now saved, with a day-streak, weekly count, longest fast and a recent log on the fasting card (plus a Faster badge)."]},
