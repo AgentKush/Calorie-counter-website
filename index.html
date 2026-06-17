@@ -68,6 +68,10 @@ html[data-theme="light"] .tabbar{ background:rgba(255,255,255,0.88); box-shadow:
 html[data-theme="light"] .modal{ background:linear-gradient(180deg,#ffffff,#f3f6fd); }
 html[data-theme="light"] .modal-bg{ background:rgba(22,38,64,0.42); }
 html[data-theme="light"] .glass{ background:rgba(20,45,80,0.06); box-shadow:inset 0 0 12px rgba(40,70,120,0.10); }
+/* keep primary buttons & FAB bright/airy in light mode (the darkened accent vars are for text contrast, too heavy for big fills) */
+html[data-theme="light"] .btn.primary{ background:linear-gradient(150deg,#2ee6c5,#3ec8ff 50%,#b39bff); color:#06231d; box-shadow:0 8px 22px rgba(40,190,200,0.30); }
+html[data-theme="light"] .fab{ background:linear-gradient(150deg,#2ee6c5,#3ec8ff 45%,#b39bff); color:#06231d; box-shadow:0 10px 26px rgba(40,190,200,0.40),0 0 0 1px rgba(255,255,255,0.5) inset; }
+html[data-theme="light"] .btn.primary:hover{ box-shadow:0 12px 28px rgba(40,190,200,0.42); }
 html[data-theme="light"] select{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2348597b' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); }
 /* ---- accessibility ---- */
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{
