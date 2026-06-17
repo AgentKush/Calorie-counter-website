@@ -1921,40 +1921,62 @@ render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
 const APP_VERSION="1.13.0";
 const CHANGELOG=[
   {v:"1.13.0",d:"17 Jun 2026",items:[
-    "New: this in-app changelog (tap 🗒 at the top) — every version and what changed.",
+    "New: this in-app changelog (tap 🗒 at the top).",
     "Fixed the macro rings overflowing off the right edge on narrow phones."]},
   {v:"1.12.0",d:"17 Jun 2026",items:[
     "Fixed the black bar that flashed at the bottom while scrolling on mobile.",
-    "Restored pull-to-refresh on phones.",
     "Clearer “Export JSON” / “Import JSON” buttons and a tidier goal-weight + weeks row."]},
+  {v:"1.11.2",d:"17 Jun 2026",items:[
+    "Restored pull-to-refresh on phones."]},
+  {v:"1.11.1",d:"17 Jun 2026",items:[
+    "Added a first-timer explainer (and an eating-window readout) to the fasting card."]},
   {v:"1.11.0",d:"17 Jun 2026",items:[
-    "Weight in kg, stone or pounds — your choice, independent of height/water units (stone shown as a decimal).",
+    "Weight in kg, stone or pounds — your choice, independent of height/water units (stone as a decimal).",
     "Set a goal weight + a timeframe in weeks and your daily calories are worked out automatically.",
-    "New goal-weight card on Today showing progress, ETA and target calories.",
-    "First-time faster? A new explainer in the fasting card walks you through intermittent fasting."]},
+    "New goal-weight card on Today showing progress, ETA and target calories."]},
+  {v:"1.10.2",d:"17 Jun 2026",items:[
+    "Background seam — final fix (a solid body background was painting over the wash)."]},
+  {v:"1.10.1",d:"17 Jun 2026",items:[
+    "Fixed a full-width line in the background (the body was acting as a scroll container)."]},
   {v:"1.10.0",d:"17 Jun 2026",items:[
     "Install Mycelia to your home screen / desktop as an offline-capable app with its own icon.",
-    "The installed app now auto-updates to the latest version when you’re online.",
-    "Fixed a full-width seam/line that appeared in the background."]},
+    "The installed app now auto-updates to the latest version when you’re online."]},
+  {v:"1.9.3",d:"17 Jun 2026",items:[
+    "First attempt at the mobile bottom-strip flicker (dynamic viewport height)."]},
+  {v:"1.9.2",d:"17 Jun 2026",items:[
+    "Grocery list: counted bits like “tomato slices” now become whole items (e.g. Tomatoes)."]},
+  {v:"1.9.1",d:"17 Jun 2026",items:[
+    "Grocery list now lists whole, shoppable items and copies to clipboard or downloads as a plain checklist (no more CSV)."]},
   {v:"1.9.0",d:"17 Jun 2026",items:[
-    "Weekly meal planner with a grocery list of whole, shoppable items — copy it or download a checklist.",
+    "Weekly meal planner with a grocery list.",
     "Copy-yesterday, a daily food-quality score (A–E), and food-log CSV export."]},
   {v:"1.8.0",d:"17 Jun 2026",items:[
-    "Intermittent-fasting timer with 14:10 / 16:8 / 18:6 / 20:4 windows.",
-    "Optional water reminders."]},
+    "Intermittent-fasting timer (14:10 / 16:8 / 18:6 / 20:4) and optional water reminders.",
+    "Installable + offline support (PWA)."]},
+  {v:"1.7.2",d:"17 Jun 2026",items:[
+    "Fixed the top background overlay so the wash scrolls naturally."]},
+  {v:"1.7.1",d:"17 Jun 2026",items:[
+    "More detailed recipe methods; fixed modal scrolling on mobile."]},
   {v:"1.7.0",d:"17 Jun 2026",items:[
-    "Tap any recipe for a full page: measured single-serving ingredients and a step-by-step method.",
+    "Tap any recipe for a full page: measured single-serving ingredients and a step-by-step method."]},
+  {v:"1.6.0",d:"16 Jun 2026",items:[
     "Adaptive TDEE that learns your real burn, plus a weight-trend line and goal projection.",
     "Extra nutrition — fibre, sugar, sodium, saturated fat, net carbs; set macros by % or grams."]},
-  {v:"1.6.0",d:"16 Jun 2026",items:[
+  {v:"1.5.0",d:"16 Jun 2026",items:[
     "Smarter recipes — search, diet filters, favourites and “surprise me” (27 in total).",
     "Edit logged entries, save your own foods (My Foods), and earn achievement badges & streaks."]},
-  {v:"1.5.0",d:"15 Jun 2026",items:[
-    "Recipe ideas with real photos (now showing the whole dish).",
-    "US fl oz water units and a custom weight-goal calculator."]},
-  {v:"1.2.0",d:"15 Jun 2026",items:[
-    "Pine-forest theme, hydration tracker, exercise logging (calories from duration via MET), and quick re-logging of favourites & recent foods.",
+  {v:"1.4.1",d:"15 Jun 2026",items:[
+    "Recipe photos now show the whole dish."]},
+  {v:"1.4.0",d:"15 Jun 2026",items:[
+    "Expanded to 21 recipes with real photos."]},
+  {v:"1.3.0",d:"15 Jun 2026",items:[
+    "US fl oz water units, recipe ideas, and a custom weight-goal calculator."]},
+  {v:"1.2.1",d:"15 Jun 2026",items:[
     "Fixed a white flash when over-scrolling on mobile."]},
+  {v:"1.2.0",d:"15 Jun 2026",items:[
+    "Pine-forest redesign; exercise calories from duration (MET-based)."]},
+  {v:"1.1.0",d:"15 Jun 2026",items:[
+    "Forest theme, hydration tracker, exercise logging, and quick re-logging of favourites & recent foods."]},
   {v:"1.0.0",d:"15 Jun 2026",items:[
     "First release: bioluminescent calorie & macro tracker — food logging, Open Food Facts search + barcode, BMR/TDEE calculator, trends and weight tracking. All data stays private in your browser."]},
 ];
