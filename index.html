@@ -333,6 +333,16 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
 .recipe .rec-img{position:relative;width:100%;height:200px;overflow:hidden;background:#0a1f2b;}
 .recipe .rec-img .bg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;filter:blur(22px) brightness(.5);transform:scale(1.2);}
 .recipe .rec-img .ph{position:absolute;inset:0;z-index:0;display:grid;place-items:center;font-size:3rem;opacity:.7;}
+.recipe .rec-img.cust{display:grid;place-items:center;background:linear-gradient(150deg,#1aa897,#6a52d8);}
+.recipe .rec-img.cust .cust-emoji{font-size:3rem;}
+.rec-cust-badge{position:absolute;top:10px;left:10px;z-index:3;background:rgba(46,230,197,.92);color:#04121a;font-size:.6rem;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:3px 8px;border-radius:8px;}
+.rec-del{position:absolute;bottom:10px;left:10px;z-index:3;background:rgba(0,0,0,.5);border:none;color:#fff;width:30px;height:30px;border-radius:9px;cursor:pointer;font-size:.9rem;}
+.rd-scale{display:flex;align-items:center;justify-content:space-between;margin:12px 0;font-size:.82rem;color:var(--muted);font-weight:600;}
+.rd-scale .step{display:flex;align-items:center;gap:12px;}
+.rd-scale .step button{width:34px;height:34px;border-radius:10px;border:1px solid var(--brd);background:var(--field);color:var(--teal);font-size:1.2rem;cursor:pointer;}
+.rd-scale .step b{min-width:22px;text-align:center;color:var(--text);font-size:1rem;}
+.rd-img-ph{display:grid;place-items:center;font-size:3.4rem;background:linear-gradient(150deg,#1aa897,#6a52d8);height:150px;border-radius:14px;margin-bottom:14px;}
+textarea.input{resize:vertical;min-height:64px;line-height:1.4;}
 .recipe .rec-img img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block;}
 .recipe .rec-img .rec-cal{position:absolute;z-index:2;right:10px;bottom:10px;background:rgba(6,12,22,.85);color:var(--teal);font-weight:800;font-size:.84rem;padding:5px 11px;border-radius:11px;border:1px solid var(--brd);backdrop-filter:blur(4px);}
 .recipe .rec-fav{position:absolute;z-index:2;top:10px;right:10px;width:38px;height:38px;border-radius:11px;border:1px solid var(--brd);background:rgba(6,12,22,.72);color:var(--amber);font-size:1.1rem;cursor:pointer;backdrop-filter:blur(4px);}
@@ -621,6 +631,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
         <button class="btn ghost" id="recSurprise">🎲 Surprise me</button>
         <button class="btn ghost" id="recPlanner">📅 Weekly planner</button>
       </div>
+      <button class="btn ghost" id="recCreate" style="margin-top:10px">🍳 Create your own recipe</button>
     </div>
     <div id="recList" class="stack" style="margin-top:16px"></div>
   </section>
@@ -847,6 +858,29 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
   </div>
 </div>
 
+<div class="modal-bg" id="recBuildBg">
+  <div class="modal">
+    <div class="modal-head"><h3>🍳 Create a recipe</h3><button class="icon-btn" id="recBuildClose" aria-label="Close">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Recipe name</label><input class="input" id="rbName" placeholder="e.g. My protein bowl"></div>
+      <div class="row2">
+        <div class="field"><label>Serving label</label><input class="input" id="rbServ" placeholder="1 bowl"></div>
+        <div class="field"><label>Goal category</label>
+          <div class="segmented" id="rbGoal"><button data-g="lose">Lose</button><button data-g="maintain" class="on">Maintain</button><button data-g="gain">Gain</button></div>
+        </div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Protein g</label><input class="input" id="rbP" type="number" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label>Carbs g</label><input class="input" id="rbC" type="number" inputmode="decimal" placeholder="0"></div>
+        <div class="field"><label>Fat g</label><input class="input" id="rbF" type="number" inputmode="decimal" placeholder="0"></div>
+      </div>
+      <div class="calc-cell" style="margin-bottom:14px"><div class="cv" id="rbKcal" style="font-size:1.5rem">0</div><div class="ck">kcal / serving (auto from macros)</div></div>
+      <div class="field"><label>Ingredients (optional — one per line)</label><textarea class="input" id="rbIng" rows="3" placeholder="200g chicken breast&#10;1 cup cooked rice&#10;1 tbsp olive oil"></textarea></div>
+      <button class="btn primary" id="rbSave">Save recipe</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -863,7 +897,7 @@ const defaultState = ()=>({
   schemaV:2,
   profile:{ name:"", sex:"male", age:null, height:null, weight:null, weightKg:null, activity:1.55, units:"metric", weightUnit:"kg",
             calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain", goalWeight:null, goalWeightKg:null, goalWeeks:null },
-  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], mealTemplates:[], favRecipes:[], plan:{}, fast:{start:null,target:16}, fastHistory:[], prefs:{ animations:true, waterRemind:false, theme:"dark" }
+  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], mealTemplates:[], favRecipes:[], myRecipes:[], plan:{}, fast:{start:null,target:16}, fastHistory:[], prefs:{ animations:true, waterRemind:false, theme:"dark" }
 });
 let state = load();
 let curDate = todayKey();
@@ -1624,6 +1658,7 @@ const RECIPES=[
 ];
 let recSel=null, recDiet="all", recQuery="";
 function recipeItem(r){ return { name:r.name, unit:"serving", baseQty:1, serv:r.serv, per:{ kcal:r.kcal, protein:r.p, carbs:r.c, fat:r.f } }; }
+function allRecipes(){ return [...RECIPES, ...(state.myRecipes||[])]; }
 function isFavRecipe(r){ return state.favRecipes.includes(r.name); }
 function toggleFavRecipe(name){ state.favRecipes = state.favRecipes.includes(name) ? state.favRecipes.filter(n=>n!==name) : [name,...state.favRecipes]; save(); renderRecipes(); }
 function recipeShown(r){
@@ -1642,22 +1677,27 @@ function renderRecipes(){
   $$("#recGoal button").forEach(b=>b.classList.toggle("on",b.dataset.g===g));
   $$("#recDiet button").forEach(b=>b.classList.toggle("on",b.dataset.d===recDiet));
   const list=$("#recList"); list.innerHTML="";
-  const items=RECIPES.filter(recipeShown);
-  if(!items.length){ list.innerHTML='<div class="card"><div class="rec-body"><div class="empty">No recipes match — clear the search or filters.</div></div></div>'; return; }
+  const items=allRecipes().filter(recipeShown);
+  if(!items.length){ list.innerHTML='<div class="card"><div class="rec-body"><div class="empty">No recipes match — clear the search or filters, or create your own.</div></div></div>'; return; }
   items.forEach(r=>{
     const card=document.createElement("div"); card.className="card recipe";
     const emoji = r.goal==="lose"?"🥗":r.goal==="gain"?"🍝":"🍽️";
     const fav=isFavRecipe(r);
-    card.innerHTML=`<div class="rec-img"><div class="bg" style="background-image:url('${r.img}')"></div><span class="ph">${emoji}</span><img src="${r.img}" alt="${esc(r.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"><button class="rec-fav${fav?"":" off"}" aria-label="Save recipe">${fav?"★":"☆"}</button><span class="rec-cal">${r.kcal} kcal</span></div>
-      <div class="rec-body">
+    const imgBlock = r.custom
+      ? `<div class="rec-img cust"><span class="cust-emoji">🍳</span><span class="rec-cust-badge">Yours</span><button class="rec-del" aria-label="Delete recipe">🗑</button><button class="rec-fav${fav?"":" off"}" aria-label="Save recipe">${fav?"★":"☆"}</button><span class="rec-cal">${r.kcal} kcal</span></div>`
+      : `<div class="rec-img"><div class="bg" style="background-image:url('${r.img}')"></div><span class="ph">${emoji}</span><img src="${r.img}" alt="${esc(r.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"><button class="rec-fav${fav?"":" off"}" aria-label="Save recipe">${fav?"★":"☆"}</button><span class="rec-cal">${r.kcal} kcal</span></div>`;
+    card.innerHTML=imgBlock+
+      `<div class="rec-body">
         <div class="rec-name">${esc(r.name)}</div>
         <div class="rec-macros"><span class="mp p">P ${r.p}g</span><span class="mp c">C ${r.c}g</span><span class="mp f">F ${r.f}g</span></div>
-        <div class="rec-why">${esc(r.why)}</div>
-        <div class="rec-ing"><b>Ingredients:</b> ${esc(r.ing)}</div>
+        ${r.why?`<div class="rec-why">${esc(r.why)}</div>`:""}
+        ${r.ing?`<div class="rec-ing"><b>Ingredients:</b> ${esc(r.ing)}</div>`:""}
         <button class="btn ghost rec-log">+ Log it (${esc(r.serv)})</button>
       </div>`;
     card.querySelector(".rec-log").onclick=(e)=>{ e.stopPropagation(); pendingMeal="Lunch"; openQty(recipeItem(r)); };
     card.querySelector(".rec-fav").onclick=(e)=>{ e.stopPropagation(); toggleFavRecipe(r.name); };
+    const del=card.querySelector(".rec-del");
+    if(del) del.onclick=(e)=>{ e.stopPropagation(); if(confirm('Delete "'+r.name+'"?')){ state.myRecipes=state.myRecipes.filter(x=>x.name!==r.name); save(); renderRecipes(); toast("Recipe deleted"); } };
     card.style.cursor="pointer"; card.onclick=()=>openRecipeDetail(r);
     list.appendChild(card);
   });
@@ -1670,33 +1710,73 @@ $("#recSurprise").onclick=()=>{
   const idx=(Math.random()*items.length)|0; const card=$("#recList").children[idx];
   if(card){ card.scrollIntoView({behavior:"smooth",block:"center"}); card.classList.add("flash"); setTimeout(()=>card.classList.remove("flash"),1600); }
 };
+/* ---- build your own recipe ---- */
+const recBuildBg=$("#recBuildBg");
+let rbGoal="maintain";
+function rbUpdateKcal(){ const p=+$("#rbP").value||0,c=+$("#rbC").value||0,f=+$("#rbF").value||0; $("#rbKcal").textContent=Math.round(p*4+c*4+f*9).toLocaleString(); }
+$("#recCreate").onclick=()=>{ ["rbName","rbServ","rbP","rbC","rbF","rbIng"].forEach(id=>$("#"+id).value=""); rbGoal="maintain"; $$("#rbGoal button").forEach(b=>b.classList.toggle("on",b.dataset.g==="maintain")); rbUpdateKcal(); recBuildBg.classList.add("show"); setTimeout(()=>$("#rbName").focus(),250); };
+$("#recBuildClose").onclick=()=>recBuildBg.classList.remove("show");
+recBuildBg.onclick=e=>{ if(e.target===recBuildBg) recBuildBg.classList.remove("show"); };
+$$("#rbGoal button").forEach(b=>b.onclick=()=>{ rbGoal=b.dataset.g; $$("#rbGoal button").forEach(x=>x.classList.toggle("on",x===b)); });
+["rbP","rbC","rbF"].forEach(id=>$("#"+id).addEventListener("input",rbUpdateKcal));
+$("#rbSave").onclick=()=>{
+  const name=$("#rbName").value.trim(); if(!name){ toast("Give your recipe a name"); return; }
+  const p=+$("#rbP").value||0, c=+$("#rbC").value||0, f=+$("#rbF").value||0;
+  if(p+c+f<=0){ toast("Add at least one macro (protein, carbs or fat)"); return; }
+  if(!Array.isArray(state.myRecipes)) state.myRecipes=[];
+  if(allRecipes().some(r=>r.name.toLowerCase()===name.toLowerCase())){ toast("A recipe with that name already exists"); return; }
+  const ing=$("#rbIng").value.split(/\n+/).map(s=>s.trim()).filter(Boolean).join("; ");
+  state.myRecipes.unshift({ name, goal:rbGoal, serv:$("#rbServ").value.trim()||"1 serving", p, c, f, kcal:Math.round(p*4+c*4+f*9), ing, why:"Your own recipe", custom:true });
+  if(state.myRecipes.length>60) state.myRecipes=state.myRecipes.slice(0,60);
+  save(); recBuildBg.classList.remove("show"); recSel=rbGoal; if(recDiet==="fav") recDiet="all"; renderRecipes(); toast('Saved "'+name+'"');
+};
 const recipeBg=$("#recipeBg");
 $("#rdClose").onclick=()=>recipeBg.classList.remove("show");
 recipeBg.onclick=e=>{ if(e.target===recipeBg) recipeBg.classList.remove("show"); };
+let rdServings=1;
 function openRecipeDetail(r){
+  rdServings=1;
   $("#rdTitle").textContent=r.name;
-  const tags=[]; if(r.veg)tags.push("Vegetarian"); if(r.seafood)tags.push("Seafood"); if(r.p>=30)tags.push("High-protein");
-  const ings=r.ing.split(/;\s*/).map(s=>`<li>${esc(s)}</li>`).join("");
+  const tags=[]; if(r.veg)tags.push("Vegetarian"); if(r.seafood)tags.push("Seafood"); if(r.p>=30)tags.push("High-protein"); if(r.custom)tags.push("Yours");
+  const ings=(r.ing||"").split(/;\s*|\n/).map(s=>s.trim()).filter(Boolean).map(s=>`<li>${esc(s)}</li>`).join("");
   const steps=(r.steps||[]).map(s=>`<li>${esc(s)}</li>`).join("");
-  $("#rdBody").innerHTML=`<div class="rd-img"><div class="bg" style="background-image:url('${r.img}')"></div><img src="${r.img}" alt="${esc(r.name)}" referrerpolicy="no-referrer" onerror="this.style.display='none'"></div>
-    <div class="rd-cal">${r.kcal} kcal · ${esc(r.serv)}</div>
-    <div class="rd-macros"><span class="mp p">P ${r.p}g</span><span class="mp c">C ${r.c}g</span><span class="mp f">F ${r.f}g</span></div>
-    <div class="rd-why">${esc(r.why)}${tags.length?" · "+tags.join(" · "):""}</div>
-    <h4>Ingredients · 1 serving</h4><ul class="ing-list">${ings}</ul>
-    <h4>Method</h4><ol class="step-list">${steps}</ol>
-    <button class="btn primary" id="rdLog">+ Log it (${esc(r.serv)})</button>
-    <div class="section-title" style="margin-top:14px">📅 Add to weekly plan</div>
-    <div class="seg-range" id="rdPlan" style="flex-wrap:wrap"></div>`;
-  $("#rdLog").onclick=()=>{ pendingMeal="Lunch"; recipeBg.classList.remove("show"); openQty(recipeItem(r)); };
-  $("#rdPlan").innerHTML=DAYS.map(d=>`<button data-d="${d}">${d}</button>`).join("");
-  $$("#rdPlan button").forEach(b=>b.onclick=()=>{ addToPlan(b.dataset.d, r.name); b.classList.add("on"); b.textContent="✓ "+b.dataset.d; setTimeout(()=>{ b.classList.remove("on"); b.textContent=b.dataset.d; },1100); });
+  const imgHtml = r.custom
+    ? `<div class="rd-img-ph">🍳</div>`
+    : `<div class="rd-img"><div class="bg" style="background-image:url('${r.img}')"></div><img src="${r.img}" alt="${esc(r.name)}" referrerpolicy="no-referrer" onerror="this.style.display='none'"></div>`;
+  $("#rdBody").innerHTML=imgHtml+
+    `<div class="rd-scale"><span>Servings</span><div class="step"><button id="rdMinus" aria-label="Fewer servings">−</button><b id="rdServN">1</b><button id="rdPlus" aria-label="More servings">+</button></div></div>
+    <div class="rd-cal" id="rdCal"></div>
+    <div class="rd-macros" id="rdMacros"></div>
+    ${(r.why||tags.length)?`<div class="rd-why">${esc(r.why||"")}${(r.why&&tags.length)?" · ":""}${tags.join(" · ")}</div>`:""}
+    <h4 id="rdIngH">Ingredients</h4>${ings?`<ul class="ing-list">${ings}</ul>`:`<p class="welcome">No ingredients listed.</p>`}
+    ${steps?`<h4>Method</h4><ol class="step-list">${steps}</ol>`:""}
+    <button class="btn primary" id="rdLog">+ Log it</button>
+    ${r.custom?`<button class="btn danger" id="rdDelete" style="margin-top:10px">Delete this recipe</button>`
+      :`<div class="section-title" style="margin-top:14px">📅 Add to weekly plan</div><div class="seg-range" id="rdPlan" style="flex-wrap:wrap"></div>`}`;
+  function rdRender(){
+    $("#rdServN").textContent=rdServings;
+    $("#rdCal").textContent=Math.round(r.kcal*rdServings).toLocaleString()+" kcal · "+rdServings+" × "+r.serv;
+    $("#rdMacros").innerHTML=`<span class="mp p">P ${Math.round(r.p*rdServings)}g</span><span class="mp c">C ${Math.round(r.c*rdServings)}g</span><span class="mp f">F ${Math.round(r.f*rdServings)}g</span>`;
+    $("#rdIngH").textContent = rdServings===1 ? "Ingredients · 1 serving" : "Ingredients · per serving (×"+rdServings+")";
+    $("#rdLog").textContent="+ Log it ("+rdServings+" × "+r.serv+")";
+  }
+  rdRender();
+  $("#rdMinus").onclick=()=>{ if(rdServings>1){ rdServings--; rdRender(); } };
+  $("#rdPlus").onclick=()=>{ if(rdServings<20){ rdServings++; rdRender(); } };
+  $("#rdLog").onclick=()=>{ pendingMeal="Lunch"; recipeBg.classList.remove("show"); openQty(recipeItem(r), null, rdServings); };
+  if(r.custom){
+    $("#rdDelete").onclick=()=>{ if(confirm('Delete "'+r.name+'"?')){ state.myRecipes=state.myRecipes.filter(x=>x.name!==r.name); save(); recipeBg.classList.remove("show"); renderRecipes(); toast("Recipe deleted"); } };
+  } else {
+    $("#rdPlan").innerHTML=DAYS.map(d=>`<button data-d="${d}">${d}</button>`).join("");
+    $$("#rdPlan button").forEach(b=>b.onclick=()=>{ addToPlan(b.dataset.d, r.name); b.classList.add("on"); b.textContent="✓ "+b.dataset.d; setTimeout(()=>{ b.classList.remove("on"); b.textContent=b.dataset.d; },1100); });
+  }
   recipeBg.classList.add("show");
 }
 
 /* ============ weekly planner + grocery ============ */
 const DAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 const planBg=$("#planBg");
-function recipeByName(name){ return RECIPES.find(r=>r.name===name); }
+function recipeByName(name){ return allRecipes().find(r=>r.name===name); }
 function addToPlan(day,name){ if(!state.plan) state.plan={}; if(!state.plan[day]) state.plan[day]=[]; if(!state.plan[day].includes(name)) state.plan[day].push(name); save(); toast(name+" → "+day); }
 function removeFromPlan(day,i){ state.plan[day].splice(i,1); if(!state.plan[day].length) delete state.plan[day]; save(); renderPlanner(); }
 function renderPlanner(){
@@ -2148,8 +2228,11 @@ function firstRunCheck(){
 }
 applyTheme(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
 /* ---- Changelog ---- */
-const APP_VERSION="1.19.0";
+const APP_VERSION="1.20.0";
 const CHANGELOG=[
+  {v:"1.20.0",d:"17 Jun 2026",items:[
+    "Recipes: a servings stepper on each recipe scales the calories, macros and what gets logged.",
+    "Build your own recipe (🍳 Create your own recipe) — set macros, calories auto-calculate, and it's saved to your recipe list to log or plan."]},
   {v:"1.19.0",d:"17 Jun 2026",items:[
     "New light theme — choose Dark, Light or Auto (follows your device) in Settings → Preferences.",
     "Accessibility: clearer keyboard focus outlines and respect for your system's reduced-motion setting."]},
