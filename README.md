@@ -14,6 +14,10 @@ A bioluminescent mushroom-forest themed calorie, macro, water and exercise track
 - **Meal logging** — Breakfast, Lunch, Dinner and Snacks, each with its own running total; edit or remove any entry.
 - **💧 Hydration** — a glowing fill-up glass with −250 / +250 ml buttons, a cups read-out, and a goal you set in Settings (default 2000 ml).
 - **🔥 Exercise** — log workouts; the calories burned are added back to your daily budget.
+- **🥗 Food-quality score** — an A–E grade for the day's food, from protein, fibre, sugar, saturated fat and how close you are to your calorie goal.
+- **⧉ Copy yesterday** — clone everything you logged the previous day into today with one tap.
+- **⏱️ Fasting timer** — start a fast, pick a window (12–20 h), and watch a live progress ring with elapsed / remaining time.
+- **Extra nutrition** — net carbs, fibre, sugar, saturated fat and sodium chips alongside the macro rings.
 - Day switcher (previous / next / tap for today) — every section is per-day.
 
 ### Adding food
@@ -34,11 +38,16 @@ Mifflin–St Jeor BMR with an activity multiplier and a goal preset (−20 % …
 ### Recipe ideas
 A **Recipes** tab suggests 27 meals matched to your goal — fat loss, maintain, or muscle gain (it defaults to the goal you set in the calculator). You can **search** by name or ingredient, filter by **diet** (vegetarian / high-protein / seafood), mark **favourites** (★ Saved), and hit **🎲 Surprise me** for a random pick. Each card shows a real photo, per-serving calories and macros, and a one-tap **Log it** — and tapping a card opens a full **recipe page** with measured single-serving ingredients (cups/tbsp/oz/g) and step-by-step method. Photos are hot-linked from TheMealDB and Wikimedia Commons (with an emoji-tile fallback if one ever fails to load), and recipe calories are derived from their macros so logging one keeps your day's totals consistent.
 
+A **📅 Weekly planner** lets you slot recipes into Mon–Sun (from the recipe page or the planner view), shows each day's planned calories and a weekly average, and generates a deduplicated **🛒 grocery list** you can download as CSV.
+
 ### Trends
 7 / 14 / 30-day calorie bar chart with a goal line, a weight line chart, and summary stats: average intake, day streak, days logged, and weight change. An **Achievements** grid awards glowing badges as you build streaks and hit goals (logging, protein/calorie/water goals, workouts, weigh-ins, consistency).
 
 ### Settings
-Manual calorie + macro goals, water goal, metric/imperial units, background-animation toggle, and full **export / import / reset** of your data as JSON. Switching to **Imperial** shows weight in lb, height in inches, and the water tracker in **US fl oz / cups** (Metric uses kg, cm and ml).
+Manual calorie + macro goals (by grams or by %), goal weight, water goal, metric/imperial units, background-animation toggle, optional **water reminders** (while the app is open/installed), and full **export / import / reset** of your data as JSON — plus a **food-log CSV export**. Switching to **Imperial** shows weight in lb, height in inches, and the water tracker in **US fl oz / cups** (Metric uses kg, cm and ml).
+
+### Installable & offline (PWA)
+Mycelia ships a web-app manifest and a service worker, so you can **install it** to your home screen / desktop and it keeps working **offline** (the app shell and Chart.js are cached; Open Food Facts search still needs a connection).
 
 ### Look & feel
 Layered pine-forest silhouettes, glowing bioluminescent mushrooms, and a drifting spore particle field — mobile-first and responsive, with a reduced-motion fallback.
