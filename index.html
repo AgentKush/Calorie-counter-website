@@ -402,6 +402,8 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
       <div class="nutri-extra" id="nutriExtra"></div>
     </div>
 
+    <div class="card" id="goalCard" style="margin-top:16px;display:none"></div>
+
     <div class="card" id="waterCard" style="margin-top:16px">
       <div class="section-title">💧 Hydration</div>
       <div class="water-wrap">
@@ -562,13 +564,20 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
           <div class="field"><label id="gFLbl">Fat (g)</label><input class="input" id="gF" type="number" inputmode="numeric"></div>
         </div>
         <div class="field"><label id="gWaterLbl">Daily water goal (ml)</label><input class="input" id="gWater" type="number" inputmode="numeric"></div>
-        <div class="field"><label id="gWeightLbl">Goal weight (kg) — optional</label><input class="input" id="gWeight" type="number" inputmode="decimal" placeholder="e.g. 75"></div>
+        <div class="row2">
+          <div class="field"><label id="gWeightLbl">Goal weight (kg) — optional</label><input class="input" id="gWeight" type="number" inputmode="decimal" placeholder="e.g. 75"></div>
+          <div class="field"><label>Reach it in (weeks)</label><input class="input" id="gWeeks" type="number" inputmode="numeric" placeholder="e.g. 12"></div>
+        </div>
+        <small class="note" id="goalNote" style="display:block;margin:-4px 0 12px">Add a goal weight + weeks and I'll set your daily calories automatically (needs your age, height & current weight — set those in Calc).</small>
         <button class="btn primary" id="saveGoals">Save goals</button>
       </div>
       <div class="card">
         <div class="section-title">⚙️ Preferences</div>
-        <div class="field"><label>Units</label>
-          <div class="segmented" id="setUnits"><button data-v="metric" class="on">Metric (kg, cm)</button><button data-v="imperial">Imperial (lb, in)</button></div>
+        <div class="field"><label>Height &amp; water units</label>
+          <div class="segmented" id="setUnits"><button data-v="metric" class="on">Metric (cm, ml)</button><button data-v="imperial">Imperial (in, fl oz)</button></div>
+        </div>
+        <div class="field"><label>Weight unit</label>
+          <div class="segmented" id="setWeightUnit"><button data-v="kg" class="on">kg</button><button data-v="st">stone</button><button data-v="lb">lb</button></div>
         </div>
         <div class="field"><label>Background animation</label>
           <div class="segmented" id="setAnim"><button data-v="on" class="on">On</button><button data-v="off">Off</button></div>
@@ -742,8 +751,9 @@ const round=(n,d=0)=>{const m=10**d;return Math.round((+n||0)*m)/m;};
 
 /* ---- state ---- */
 const defaultState = ()=>({
-  profile:{ name:"", sex:"male", age:null, height:null, weight:null, activity:1.55, units:"metric",
-            calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain", goalWeight:null },
+  schemaV:2,
+  profile:{ name:"", sex:"male", age:null, height:null, weight:null, weightKg:null, activity:1.55, units:"metric", weightUnit:"kg",
+            calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain", goalWeight:null, goalWeightKg:null, goalWeeks:null },
   log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], favRecipes:[], plan:{}, fast:{start:null,target:16}, prefs:{ animations:true, waterRemind:false }
 });
 let state = load();
@@ -754,10 +764,26 @@ let charts = { cal:null, w:null };
 let chartRange = 7;
 
 function load(){
-  try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d&&d.profile){ const base=defaultState(); return {...base,...d,profile:{...base.profile,...d.profile},prefs:{...base.prefs,...(d.prefs||{})}}; } }catch(e){}
+  try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d&&d.profile){ const base=defaultState(); const s={...base,...d,profile:{...base.profile,...d.profile},prefs:{...base.prefs,...(d.prefs||{})}}; if(!(d.schemaV>=2)) migrateWeights(s); return s; } }catch(e){}
   return defaultState();
 }
+/* v1 stored weight in display units tied to metric/imperial; v2 stores canonical kg + a separate weightUnit. */
+function migrateWeights(s){
+  const p=s.profile; const imp = p.units==="imperial";
+  p.weightUnit = imp ? "lb" : "kg";
+  p.weightKg = (p.weight!=null && p.weight!=="") ? (imp ? +p.weight*0.453592 : +p.weight) : null;
+  p.goalWeightKg = (p.goalWeight!=null && p.goalWeight!=="") ? (imp ? +p.goalWeight*0.453592 : +p.goalWeight) : null;
+  if(Array.isArray(s.weights)) s.weights = s.weights.map(w=>({date:w.date, kg: imp ? +w.kg*0.453592 : +w.kg}));
+  s.schemaV=2;
+}
 function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+/* ---- weight units (kg / lb / st), independent of the metric/imperial height-water setting ---- */
+const WT_F = { kg:1, lb:2.2046226218, st:0.1574730444 };  // kg → unit multiplier
+function wUnit(){ return state.profile.weightUnit || "kg"; }
+function kgToDisp(kg){ if(kg==null||kg==="") return null; const u=wUnit(), dp=u==="st"?2:1, m=Math.pow(10,dp); return Math.round(kg*WT_F[u]*m)/m; }
+function dispToKg(v){ v=+v; if(!v) return null; return v/WT_F[wUnit()]; }
+function fmtWeight(kg,withUnit){ const v=kgToDisp(kg); if(v==null) return "—"; return v + (withUnit===false?"":" "+wUnit()); }
+function kcalPerWeightUnit(){ const u=wUnit(); return u==="kg"?7700 : u==="st"?48897 : 3500; } // energy in 1 unit of body weight
 
 /* ---- dates ---- */
 function todayKey(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -818,6 +844,34 @@ function renderToday(){
   renderExercise();
   renderWater();
   renderFast();
+  renderGoalCard();
+}
+function renderGoalCard(){
+  const el=$("#goalCard"); if(!el) return;
+  const p=state.profile, cur=p.weightKg, goal=p.goalWeightKg, u=wUnit();
+  if(goal==null){ el.style.display="none"; return; }
+  el.style.display="";
+  if(cur==null){
+    el.innerHTML=`<div class="section-title">🎯 Goal weight</div>`+
+      `<div class="statrow"><span class="k">Target</span><span class="v">${fmtWeight(goal)}</span></div>`+
+      `<div class="exfx" style="margin:10px 0 0">Log your current weight in Trends to track progress.</div>`;
+    return;
+  }
+  const diff=goal-cur;
+  const toGoUnit=Math.round(Math.abs(diff)*WT_F[u]*10)/10;
+  const r=weeklyRate();
+  let etaLine="";
+  if(Math.abs(diff)<0.1) etaLine="At your goal 🎉";
+  else if(r && ((diff<0&&r.rate<-0.02)||(diff>0&&r.rate>0.02))){ const wk=Math.abs(diff/r.rate); etaLine="~"+Math.round(wk)+" wk at your current trend"; }
+  else if(p.goalWeeks) etaLine="Target: "+p.goalWeeks+" wk";
+  const statusLbl = Math.abs(diff)<0.1?"Status":(diff<0?"To lose":"To gain");
+  const statusVal = Math.abs(diff)<0.1?"At goal 🎉":(toGoUnit+" "+u);
+  const foot = etaLine + (etaLine&&p.calorieGoal?" · ":"") + (p.calorieGoal?("target "+p.calorieGoal.toLocaleString()+" kcal/day"):"");
+  el.innerHTML=`<div class="section-title">🎯 Goal weight</div>`+
+    `<div class="statrow"><span class="k">Current</span><span class="v">${fmtWeight(cur)}</span></div>`+
+    `<div class="statrow"><span class="k">Goal</span><span class="v">${fmtWeight(goal)}</span></div>`+
+    `<div class="statrow"><span class="k">${statusLbl}</span><span class="v">${statusVal}</span></div>`+
+    (foot?`<div class="exfx" style="margin:10px 0 0">${foot}</div>`:"");
 }
 
 const MEALS=[["Breakfast","🌅"],["Lunch","☀️"],["Dinner","🌙"],["Snacks","🍪"]];
@@ -909,7 +963,7 @@ function toggleFav(it){
 
 /* ---- exercise ---- */
 function dayExercise(k){ return state.exercise[k]||[]; }
-function userKg(){ const w=+state.profile.weight||0; if(!w) return 0; return state.profile.units==="imperial" ? w*0.453592 : w; }
+function userKg(){ return +state.profile.weightKg||0; }
 function fmtMin(m){ m=+m||0; if(!m) return ""; if(m>=60){ const h=m/60; return (Number.isInteger(h)? h : Math.round(h*10)/10)+" h"; } return m+" min"; }
 function addExercise(name,kcal,min){
   if(!state.exercise[curDate]) state.exercise[curDate]=[];
@@ -1290,7 +1344,7 @@ $("#cCalc").onclick=()=>{
   if(!age||!h||!w){ toast("Fill age, height and weight"); return; }
   const metric = state.profile.units==="metric";
   const cm = metric? h : h*2.54;
-  const kg = metric? w : w*0.453592;
+  const kg = dispToKg(w);                              // cWeight is in the chosen weight unit (kg/lb/st)
   const bmr = 10*kg + 6.25*cm - 5*age + (calcSex==="male"?5:-161);
   const tdee = bmr*act;
   const goalVal = $("#cGoal").value;
@@ -1299,16 +1353,15 @@ $("#cCalc").onclick=()=>{
     const amt=+$("#cAmt").value||0, weeks=+$("#cWeeks").value||0;
     if(amt<=0||weeks<=0){ toast("Enter an amount and number of weeks"); return; }
     dir = customDir;                                   // "gain" | "lose"
-    const unit = metric?"kg":"lb";
-    const kcalPerUnit = metric?7700:3500;              // energy in 1 kg / 1 lb of body weight
-    const weeklyRate = amt/weeks;                      // units per week
-    const dailyAdj = weeklyRate*kcalPerUnit/7;         // kcal/day surplus or deficit
+    const unit = wUnit();
+    const weeklyRateKg = (amt/WT_F[unit])/weeks;       // kg per week
+    const dailyAdj = weeklyRateKg*7700/7;              // kcal/day surplus or deficit
     target = tdee + (dir==="lose" ? -dailyAdj : dailyAdj);
     let floored=false;
     if(target<1200){ target=1200; floored=true; }
-    const rateTxt = (Math.round(weeklyRate*100)/100)+" "+unit+"/wk";
+    const rateTxt = (Math.round(amt/weeks*100)/100)+" "+unit+"/wk";
     note = (dir==="lose"?"−":"+")+Math.round(dailyAdj)+" kcal/day · "+rateTxt+" · "+amt+" "+unit+" in "+weeks+" wk";
-    const fast = weeklyRate > 0.0125*(metric?kg:w) || (metric ? weeklyRate>1 : weeklyRate>2);
+    const fast = weeklyRateKg > 0.0125*kg || weeklyRateKg>1;
     if(floored) note += " — floored at 1200 kcal for safety";
     else if(fast) note += " — aggressive pace; a slower rate is safer & easier to sustain";
   } else {
@@ -1323,7 +1376,7 @@ $("#cCalc").onclick=()=>{
   $("#oTarget").textContent=Math.round(target); $("#oP").textContent=protG+"g"; $("#oC").textContent=carbG+"g"; $("#oF").textContent=fatG+"g";
   $("#calcNote").textContent=note;
   $("#calcOut").classList.add("show");
-  $("#calcOut").dataset.payload=JSON.stringify({cal:Math.round(target),p:protG,c:carbG,f:fatG,sex:calcSex,age,height:h,weight:w,activity:act,goalDir:dir});
+  $("#calcOut").dataset.payload=JSON.stringify({cal:Math.round(target),p:protG,c:carbG,f:fatG,sex:calcSex,age,height:h,weightKg:kg,activity:act,goalDir:dir});
 };
 let customDir="gain";
 $$("#cDir button").forEach(b=>b.onclick=()=>{ customDir=b.dataset.d; $$("#cDir button").forEach(x=>x.classList.toggle("on",x===b)); });
@@ -1331,7 +1384,7 @@ $("#cGoal").addEventListener("change",()=>{ $("#customGoal").style.display = $("
 $("#cApply").onclick=()=>{
   const d=JSON.parse($("#calcOut").dataset.payload||"{}"); if(!d.cal) return;
   Object.assign(state.profile,{ calorieGoal:d.cal, proteinGoal:d.p, carbGoal:d.c, fatGoal:d.f,
-    sex:d.sex, age:d.age, height:d.height, weight:d.weight, activity:d.activity, goalDir:d.goalDir||"maintain" });
+    sex:d.sex, age:d.age, height:d.height, weightKg:d.weightKg, activity:d.activity, goalDir:d.goalDir||"maintain" });
   recSel=d.goalDir||"maintain";
   save(); render(); toast("Goals applied ✨"); showView("today");
 };
@@ -1546,7 +1599,7 @@ function renderTrends(){
   $("#stLogged").textContent=Object.keys(state.log).length;
   $("#stStreak").textContent=streak();
   const ws=state.weights.slice().sort((a,b)=>a.date<b.date?-1:1);
-  if(ws.length>=2){ const diff=ws[ws.length-1].kg-ws[0].kg; $("#stWeight").textContent=(diff>0?"+":"")+round(diff,1)+" "+(state.profile.units==="metric"?"kg":"lb"); }
+  if(ws.length>=2){ const diffKg=ws[ws.length-1].kg-ws[0].kg; const d=Math.round(diffKg*WT_F[wUnit()]*10)/10; $("#stWeight").textContent=(d>0?"+":"")+d+" "+wUnit(); }
   else $("#stWeight").textContent="—";
   renderInsights();
   renderBadges();
@@ -1557,8 +1610,7 @@ function adaptiveTDEE(){
   const win=ws.filter(w=>w.date>=shiftKey(todayKey(),-28)); const use=win.length>=2?win:ws.slice(-2);
   const first=use[0], last=use[use.length-1];
   const days=Math.round((keyToDate(last.date)-keyToDate(first.date))/86400000); if(days<7) return null;
-  const toKg=v=> state.profile.units==="imperial"? v*0.453592 : v;
-  const kgChange=toKg(last.kg)-toKg(first.kg);
+  const kgChange=last.kg-first.kg;   // weights stored canonically in kg
   let sum=0,n=0,k=first.date;
   while(k<=last.date){ const c=dayTotals(k).kcal; if(c>0){ sum+=c; n++; } k=shiftKey(k,1); }
   if(n<5) return null;
@@ -1574,24 +1626,26 @@ function weeklyRate(){
   return { rate:(last.kg-first.kg)/days*7, cur:last.kg };
 }
 function renderInsights(){
-  const box=$("#insights"); const a=adaptiveTDEE(); const unit=state.profile.units==="imperial"?"lb":"kg"; let html="";
+  const box=$("#insights"); const a=adaptiveTDEE(); const unit=wUnit(); let html="";
   if(a){
+    const chg=Math.round(a.kgChange*WT_F[unit]*10)/10;
     html+=`<div class="calc-grid"><div class="calc-cell"><div class="cv">${a.tdee.toLocaleString()}</div><div class="ck">Est. daily burn</div></div>`+
           `<div class="calc-cell"><div class="cv" style="font-size:1.4rem">${a.loggedDays}</div><div class="ck">days of data</div></div></div>`;
-    html+=`<div class="exfx" style="margin:0 0 12px">From your weight change (${a.kgChange>0?"+":""}${a.kgChange} ${unit}) vs. logged intake over ${a.days} days — this learns your real metabolism, not just a formula.</div>`;
+    html+=`<div class="exfx" style="margin:0 0 12px">From your weight change (${chg>0?"+":""}${chg} ${unit}) vs. logged intake over ${a.days} days — this learns your real metabolism, not just a formula.</div>`;
   } else {
     html+=`<div class="exfx" style="margin:0 0 12px">Log food and weigh in for ~2 weeks and I'll estimate your <b>real</b> daily burn from how your weight actually responds.</div>`;
   }
-  const gw=state.profile.goalWeight, r=weeklyRate();
-  if(gw!=null && r){
-    const toGo=gw-r.cur;
+  const gwKg=state.profile.goalWeightKg, r=weeklyRate();   // r.cur, r.rate are in kg
+  if(gwKg!=null && r){
+    const toGo=gwKg-r.cur;
     if(Math.abs(toGo)<0.2){ html+=`<div class="statrow"><span class="k">🎯 Goal weight</span><span class="v">Reached! 🎉</span></div>`; }
     else if((toGo<0&&r.rate<-0.02)||(toGo>0&&r.rate>0.02)){
       const weeks=Math.abs(toGo/r.rate), eta=new Date(Date.now()+weeks*604800000);
-      html+=`<div class="statrow"><span class="k">🎯 To ${gw} ${unit}</span><span class="v">~${Math.round(weeks)} wk · ${eta.toLocaleDateString(undefined,{month:"short",year:"numeric"})}</span></div>`+
-            `<div class="exfx" style="margin-top:8px">At your current trend of ${r.rate>0?"+":""}${Math.round(r.rate*10)/10} ${unit}/wk.</div>`;
-    } else { html+=`<div class="statrow"><span class="k">🎯 Goal ${gw} ${unit}</span><span class="v">not trending there yet</span></div>`; }
-  } else if(gw==null){ html+=`<div class="exfx" style="margin:0">Set a <b>goal weight</b> in Settings to get a projected finish date.</div>`; }
+      const rateDisp=Math.round(r.rate*WT_F[unit]*10)/10;
+      html+=`<div class="statrow"><span class="k">🎯 To ${fmtWeight(gwKg)}</span><span class="v">~${Math.round(weeks)} wk · ${eta.toLocaleDateString(undefined,{month:"short",year:"numeric"})}</span></div>`+
+            `<div class="exfx" style="margin-top:8px">At your current trend of ${rateDisp>0?"+":""}${rateDisp} ${unit}/wk.</div>`;
+    } else { html+=`<div class="statrow"><span class="k">🎯 Goal ${fmtWeight(gwKg)}</span><span class="v">not trending there yet</span></div>`; }
+  } else if(gwKg==null){ html+=`<div class="exfx" style="margin:0">Set a <b>goal weight</b> in Settings to get a projected finish date.</div>`; }
   box.innerHTML=html;
 }
 function computeBadges(){
@@ -1654,7 +1708,7 @@ function drawWeight(){
     charts.w=new Chart(ctx,{type:"line",data:{labels:["—"],datasets:[{data:[null]}]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{ticks:chartFont,grid:{display:false}},y:{ticks:chartFont,grid:{color:"rgba(120,225,210,.08)"}}}}});
     return; }
-  const vals=ws.map(w=>w.kg); let prev=vals[0]; const ema=vals.map((v,i)=>{ prev=i===0?v:0.3*v+0.7*prev; return Math.round(prev*100)/100; });
+  const vals=ws.map(w=>kgToDisp(w.kg)); let prev=vals[0]; const ema=vals.map((v,i)=>{ prev=i===0?v:0.3*v+0.7*prev; return Math.round(prev*100)/100; });
   charts.w=new Chart(ctx,{ type:"line",
     data:{ labels:ws.map(w=>keyToDate(w.date).toLocaleDateString(undefined,{month:"numeric",day:"numeric"})),
       datasets:[
@@ -1664,30 +1718,43 @@ function drawWeight(){
         { label:"trend", data:ema, borderColor:"#2ee6c5", borderWidth:2, borderDash:[6,4], tension:.35, pointRadius:0, fill:false }
       ] },
     options:{ responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-      tooltip:{callbacks:{label:c=>c.parsed.y+" "+(state.profile.units==="metric"?"kg":"lb")}}},
+      tooltip:{callbacks:{label:c=>c.parsed.y+" "+wUnit()}}},
       scales:{x:{grid:{display:false},ticks:chartFont,border:{display:false}},
         y:{grid:{color:"rgba(120,225,210,.08)"},ticks:chartFont,border:{display:false}}} }
   });
 }
 $("#wAdd").onclick=()=>{
   const v=+$("#wInput").value; if(!v||v<=0){ toast("Enter a weight"); return; }
+  const kg=dispToKg(v);
   const i=state.weights.findIndex(w=>w.date===todayKey());
-  if(i>=0) state.weights[i].kg=v; else state.weights.push({date:todayKey(),kg:v});
-  state.profile.weight=v; save(); $("#wInput").value=""; renderTrends(); toast("Weight logged");
+  if(i>=0) state.weights[i].kg=kg; else state.weights.push({date:todayKey(),kg});
+  state.profile.weightKg=kg; save(); $("#wInput").value=""; renderTrends(); renderToday(); toast("Weight logged");
 };
 
 /* ============ settings ============ */
 let macroMode="g";
+function updateWeightLabels(){
+  const u=wUnit();
+  const gl=$("#gWeightLbl"); if(gl) gl.textContent="Goal weight ("+u+") — optional";
+  const cw=$("#cWLbl"); if(cw) cw.textContent="Weight ("+u+")";
+  const ca=$("#cAmtLbl"); if(ca) ca.textContent="Amount ("+u+")";
+  const wi=$("#wInput"); if(wi) wi.placeholder="Today's weight ("+u+")";
+}
 function fillSettings(){
-  const p=state.profile; const im=p.units==="imperial"; const wu=im?"lb":"kg";
+  const p=state.profile; const im=p.units==="imperial";
   macroMode="g"; $$("#macroMode button").forEach(b=>b.classList.toggle("on",b.dataset.m==="g"));
   $("#gPLbl").textContent="Protein (g)"; $("#gCLbl").textContent="Carbs (g)"; $("#gFLbl").textContent="Fat (g)";
   $("#gCal").value=p.calorieGoal; $("#gP").value=p.proteinGoal; $("#gC").value=p.carbGoal; $("#gF").value=p.fatGoal;
   $("#gWater").value = im ? Math.round((p.waterGoal||2000)/ML_OZ) : (p.waterGoal||2000);
   $("#gWaterLbl").textContent = "Daily water goal ("+(im?"fl oz":"ml")+")";
-  $("#gWeight").value = p.goalWeight!=null ? p.goalWeight : "";
-  $("#gWeightLbl").textContent = "Goal weight ("+wu+") — optional";
+  $("#gWeight").value = p.goalWeightKg!=null ? kgToDisp(p.goalWeightKg) : "";
+  $("#gWeeks").value = p.goalWeeks!=null ? p.goalWeeks : "";
+  if(p.age!=null) $("#cAge").value=p.age;
+  if(p.height!=null) $("#cHeight").value=p.height;
+  if(p.weightKg!=null) $("#cWeight").value=kgToDisp(p.weightKg);
+  updateWeightLabels();
   $$("#setUnits button").forEach(b=>b.classList.toggle("on",b.dataset.v===p.units));
+  $$("#setWeightUnit button").forEach(b=>b.classList.toggle("on",b.dataset.v===wUnit()));
   $$("#setAnim button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.animations?"on":"off")));
   $$("#setWaterRemind button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.waterRemind?"on":"off")));
 }
@@ -1722,16 +1789,47 @@ $$("#macroMode button").forEach(b=>b.onclick=()=>{
   }
   macroMode=mode; $$("#macroMode button").forEach(x=>x.classList.toggle("on",x===b));
 });
+/* Turn a goal weight + timeframe into a daily calorie target (you set the weeks; no assumed pace). */
+function applyGoalWeightTarget(){
+  const p=state.profile;
+  if(p.goalWeightKg==null || !p.goalWeeks || !p.weightKg || !p.age || !p.height) return {applied:false};
+  const cm = p.units==="metric"? p.height : p.height*2.54;
+  const bmr = 10*p.weightKg + 6.25*cm - 5*p.age + (p.sex==="male"?5:-161);
+  const tdee = bmr*(p.activity||1.55);
+  const diffKg = p.goalWeightKg - p.weightKg;   // + gain, − lose
+  let dir, target;
+  if(Math.abs(diffKg) < 0.1){ dir="maintain"; target=Math.round(tdee); }
+  else {
+    dir = diffKg<0?"lose":"gain";
+    const dailyAdj = Math.abs(diffKg)*7700/(p.goalWeeks*7);
+    target = tdee + (dir==="lose"? -dailyAdj : dailyAdj);
+    if(target<1200) target=1200;
+    target=Math.round(target);
+  }
+  const protG=Math.round(p.weightKg*(dir==="lose"?2.2:1.9));
+  const fatG=Math.round(target*0.25/9);
+  const carbG=Math.max(0,Math.round((target-protG*4-fatG*9)/4));
+  Object.assign(p,{ calorieGoal:target, proteinGoal:protG, carbGoal:carbG, fatGoal:fatG, goalDir:dir });
+  recSel=dir;
+  return {applied:true, cal:target, dir};
+}
 $("#saveGoals").onclick=()=>{
   const im=state.profile.units==="imperial"; const wIn=+$("#gWater").value||0; const cal=+$("#gCal").value||0;
   let gP=+$("#gP").value||0, gC=+$("#gC").value||0, gF=+$("#gF").value||0;
   if(macroMode==="pct"){ gP=Math.round(cal*gP/100/4); gC=Math.round(cal*gC/100/4); gF=Math.round(cal*gF/100/9); }
-  const gw=$("#gWeight").value.trim()===""?null:(+$("#gWeight").value||null);
-  Object.assign(state.profile,{ calorieGoal:cal, proteinGoal:gP, carbGoal:gC, fatGoal:gF, waterGoal:(im? Math.round(wIn*ML_OZ) : wIn)||2000, goalWeight:gw });
-  save(); render(); toast("Goals saved");
+  const gwRaw=$("#gWeight").value.trim();
+  const gwKg = gwRaw==="" ? null : dispToKg(+gwRaw);
+  const weeks = +$("#gWeeks").value||null;
+  Object.assign(state.profile,{ calorieGoal:cal, proteinGoal:gP, carbGoal:gC, fatGoal:gF, waterGoal:(im? Math.round(wIn*ML_OZ) : wIn)||2000, goalWeightKg:gwKg, goalWeeks:weeks });
+  const res=applyGoalWeightTarget();
+  save(); render(); fillSettings();
+  if(res.applied) toast("Calories set to "+res.cal.toLocaleString()+"/day to reach "+fmtWeight(state.profile.goalWeightKg)+" in "+weeks+" wk");
+  else if(gwKg!=null && weeks) toast("Goal saved — add age, height & current weight in Calc to auto-set calories");
+  else toast("Goals saved");
 };
 $$("#setUnits button").forEach(b=>b.onclick=()=>{ state.profile.units=b.dataset.v; $$("#setUnits button").forEach(x=>x.classList.toggle("on",x===b));
-  $("#cHLbl").textContent="Height ("+(b.dataset.v==="metric"?"cm":"in")+")"; $("#cWLbl").textContent="Weight ("+(b.dataset.v==="metric"?"kg":"lb")+")"; $("#cAmtLbl").textContent="Amount ("+(b.dataset.v==="metric"?"kg":"lb")+")"; save(); fillSettings(); renderToday(); });
+  $("#cHLbl").textContent="Height ("+(b.dataset.v==="metric"?"cm":"in")+")"; save(); fillSettings(); renderToday(); });
+$$("#setWeightUnit button").forEach(b=>b.onclick=()=>{ state.profile.weightUnit=b.dataset.v; $$("#setWeightUnit button").forEach(x=>x.classList.toggle("on",x===b)); save(); fillSettings(); renderTrends(); renderToday(); });
 $$("#setAnim button").forEach(b=>b.onclick=()=>{ state.prefs.animations=b.dataset.v==="on"; $$("#setAnim button").forEach(x=>x.classList.toggle("on",x===b)); save(); toggleSpores(); });
 
 $("#exportBtn").onclick=()=>{
