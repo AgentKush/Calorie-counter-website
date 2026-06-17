@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://agentkush.github.io/Calorie-counter-website/sitemap.xml
