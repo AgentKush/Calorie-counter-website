@@ -1,6 +1,6 @@
 /* Mycelia service worker — network-first page, cached offline shell.
    Bump CACHE on every release so installed/home-screen copies pick up the new build. */
-const CACHE = "mycelia-v7";
+const CACHE = "mycelia-v8";
 const SHELL = [
   "./",
   "./index.html",
