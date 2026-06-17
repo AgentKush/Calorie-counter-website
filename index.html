@@ -1029,13 +1029,21 @@ function renderFast(){
   if(f.start){
     const elapsed=Date.now()-f.start, targetMs=f.target*3600000, pct=clamp(elapsed/targetMs,0,1)*100, done=elapsed>=targetMs;
     box.innerHTML=`<div class="fast-timer"><div class="fast-big" id="fastClock">${fmtDur(elapsed)}</div>
-      <div class="fast-sub">${done?"🎉 "+f.target+"h goal reached — eating window open":"of a "+f.target+"h fast"}</div></div>
+      <div class="fast-sub">${done?"🎉 "+f.target+"h goal reached — your "+(24-f.target)+"h eating window is open":"of a "+f.target+"h fast · "+(24-f.target)+"h eating window after"}</div></div>
       <div class="fast-bar"><div id="fastFill" style="width:${pct}%"></div></div>
       <button class="btn ghost" id="fastStop">Stop fast</button>`;
     $("#fastStop").onclick=stopFast;
   } else {
     box.innerHTML=`<div class="fast-sub" style="text-align:center;margin-bottom:12px">Pick a window and start your fast.</div>
       <div class="fast-chips" id="fastChips">${[14,16,18,20].map(h=>`<button data-h="${h}"${h===f.target?' class="on"':''}>${h}:${24-h}</button>`).join("")}</div>
+      <div class="fast-sub" style="text-align:center;margin:8px 0 0;font-size:.72rem">Format is <b>fasting hours : eating hours</b> — e.g. 16:8 = fast 16h, eat within an 8h window.</div>
+      <details style="margin:12px 0 4px;border-top:1px solid var(--brd);padding-top:10px">
+        <summary style="cursor:pointer;color:var(--teal);font-weight:600;font-size:.82rem">ⓘ New to fasting? What is this?</summary>
+        <div class="exfx" style="margin-top:8px">Intermittent fasting (IF) means cycling between set periods of eating and not eating. It's about <i>when</i> you eat, not changing <i>what</i> you eat. While fasting, water, black coffee and plain tea are fine.</div>
+        <div class="exfx" style="margin-top:8px"><b>How to use it:</b> pick a window, tap <b>Start fasting</b> after your last meal, and the timer counts up to your fasting goal. When it's reached, your eating window opens.</div>
+        <div class="exfx" style="margin-top:8px"><b>First time?</b> Start with <b>16:8</b> — the most popular and gentlest. 18:6 and 20:4 are longer and more advanced.</div>
+        <div class="exfx" style="margin-top:8px;opacity:.85">General info, not medical advice. Check with a doctor first if you're pregnant or breastfeeding, under 18, diabetic, on medication, or have any history of disordered eating.</div>
+      </details>
       <button class="btn primary" id="fastStart">Start fasting</button>`;
     $$("#fastChips button").forEach(b=>b.onclick=()=>{ state.fast.target=+b.dataset.h; save(); renderFast(); });
     $("#fastStart").onclick=startFast;
