@@ -629,6 +629,11 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
         <a class="btn ghost" href="https://github.com/AgentKush/Calorie-counter-website/issues" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">📋 View all issues</a>
       </div>
       <div class="card">
+        <div class="section-title">☕ Support Mycelia</div>
+        <p class="welcome" style="margin-bottom:14px">Mycelia is free, private and ad-free. If it's useful to you, you can buy me a coffee — it genuinely helps keep it going. 💛</p>
+        <a class="btn primary" href="https://buymeacoffee.com/agentkush" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;color:#04121a">☕ Buy me a coffee</a>
+      </div>
+      <div class="card">
         <div class="section-title">💾 Your Data</div>
         <p class="welcome" style="margin-bottom:14px">Everything is stored privately in your browser on this device. Back it up or move it with export/import.</p>
         <div class="row2" style="margin-bottom:10px">
@@ -1946,8 +1951,12 @@ function firstRunCheck(){
 }
 render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
 /* ---- Changelog ---- */
-const APP_VERSION="1.13.0";
+const APP_VERSION="1.14.0";
 const CHANGELOG=[
+  {v:"1.14.0",d:"17 Jun 2026",items:[
+    "Report a bug or request a feature straight from Settings → Feedback & ideas.",
+    "Added a Support / Buy-me-a-coffee link for anyone who'd like to chip in. ☕",
+    "Set the site up to be found on Google and other search engines."]},
   {v:"1.13.0",d:"17 Jun 2026",items:[
     "New: this in-app changelog (tap 🗒 at the top).",
     "Fixed the macro rings overflowing off the right edge on narrow phones."]},
