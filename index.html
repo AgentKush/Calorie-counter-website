@@ -28,7 +28,7 @@ html{background:#05080f; overflow-x:hidden; overscroll-behavior:none;}
 body{
   font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   color:var(--text);
-  background-color:#05080f;
+  background-color:transparent; /* wash lives on body::before (z-index:-1); an opaque body bg would paint over it and cut a seam. html carries the base colour. */
   min-height:100vh; min-height:100dvh;
   -webkit-font-smoothing:antialiased;
 }
