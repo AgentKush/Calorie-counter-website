@@ -191,6 +191,13 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .calc-cell{background:var(--glass-2);border:1px solid rgba(120,225,210,.12);border-radius:14px;padding:14px;text-align:center;}
 .calc-cell .cv{font-size:1.6rem;font-weight:800;background:linear-gradient(180deg,#fff,var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent;}
 .calc-cell .ck{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+.onb-act{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;border-radius:12px;border:1px solid var(--brd,rgba(120,225,210,.18));background:var(--glass-2);color:var(--text,#eaf6f2);cursor:pointer;font:inherit;}
+.onb-act.on{border-color:var(--teal);background:rgba(46,230,197,.12);}
+.onb-act .k{font-weight:700;}
+.onb-act .v{margin-left:auto;font-size:.78rem;color:var(--muted);text-align:right;}
+.onb-macro{background:var(--glass-2);border:1px solid rgba(120,225,210,.12);border-radius:14px;padding:12px 6px;text-align:center;}
+.onb-macro .sv{font-size:1.2rem;font-weight:800;color:var(--teal);}
+.onb-macro .sk{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
 
 /* trends */
 .chart-card{height:300px;position:relative;}
@@ -605,6 +612,7 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
         <div class="field"><label>Background animation</label>
           <div class="segmented" id="setAnim"><button data-v="on" class="on">On</button><button data-v="off">Off</button></div>
         </div>
+        <button class="btn ghost" id="setWizard">↻ Run setup wizard</button>
       </div>
       <div class="card">
         <div class="section-title">🔔 Reminders</div>
@@ -779,6 +787,13 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
   <div class="modal">
     <div class="modal-head"><h3>🗒 What's new</h3><button class="icon-btn" id="changelogClose" aria-label="Close">✕</button></div>
     <div class="modal-body" id="changelogBody"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="onboardBg">
+  <div class="modal">
+    <div class="modal-head"><h3>🍄 Welcome to Mycelia</h3><button class="icon-btn" id="onboardClose" aria-label="Close">✕</button></div>
+    <div class="modal-body" id="onboardBody"></div>
   </div>
 </div>
 
@@ -1945,14 +1960,17 @@ function startSpores(){
 
 /* ============ boot ============ */
 function firstRunCheck(){
-  if(!Object.keys(state.log).length && state.profile.age==null){
-    setTimeout(()=>toast("Welcome 🍄 Tap + to log your first food, or open Calc to set a goal"),600);
+  if(!Object.keys(state.log).length && state.profile.age==null && !state.weights.length){
+    setTimeout(openOnboarding,400);
   }
 }
 render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
 /* ---- Changelog ---- */
-const APP_VERSION="1.14.0";
+const APP_VERSION="1.15.0";
 const CHANGELOG=[
+  {v:"1.15.0",d:"17 Jun 2026",items:[
+    "New: a quick first-run setup wizard that builds your calorie & macro targets in a few taps.",
+    "Re-open it any time from Settings → Preferences → Run setup wizard."]},
   {v:"1.14.0",d:"17 Jun 2026",items:[
     "Report a bug or request a feature straight from Settings → Feedback & ideas.",
     "Added a Support / Buy-me-a-coffee link for anyone who'd like to chip in. ☕",
@@ -2029,6 +2047,123 @@ $("#navChangelog").onclick=()=>{ renderChangelog(); changelogBg.classList.add("s
 $("#changelogClose").onclick=()=>changelogBg.classList.remove("show");
 changelogBg.onclick=e=>{ if(e.target===changelogBg) changelogBg.classList.remove("show"); };
 $$(".footer-note").forEach(f=>{ if(/glowing spores/.test(f.textContent)) f.innerHTML += " · v"+APP_VERSION; });
+
+/* ---- First-run onboarding wizard ---- */
+let onbStep=0, onb={};
+const ONB_ACTS=[["1.2","Sedentary","Little or no exercise"],["1.375","Light","Light exercise 1–3 days/wk"],["1.55","Moderate","Moderate 3–5 days/wk"],["1.725","Active","Hard exercise 6–7 days/wk"],["1.9","Very active","Athlete / physical job"]];
+function openOnboarding(){
+  const p=state.profile, savedWU=p.weightUnit||"kg";
+  onb={ units:p.units||"metric", weightUnit:savedWU, sex:p.sex||"male", activity:p.activity||1.55, goal:p.goalDir||"maintain",
+        age:p.age||null, height:p.height||null,
+        weight:(p.weightKg!=null? Math.round(p.weightKg*WT_F[savedWU]*100)/100 : null),
+        goalWeight:(p.goalWeightKg!=null? Math.round(p.goalWeightKg*WT_F[savedWU]*100)/100 : null),
+        goalWeeks:p.goalWeeks||null };
+  onbStep=0; renderOnboard(); $("#onboardBg").classList.add("show");
+}
+function closeOnboarding(){ $("#onboardBg").classList.remove("show"); }
+function onbSeg(id,val){ $$("#"+id+" button").forEach(b=>b.classList.toggle("on", b.dataset.v===String(val))); }
+function onbNavRow(nextLabel){ return `<div class="row2" style="margin-top:6px"><button class="btn ghost" id="onbBack">Back</button><button class="btn primary" id="onbNext">${nextLabel||"Next"}</button></div>`; }
+function renderOnboard(){
+  const b=$("#onboardBody"); if(!b) return;
+  const wu=onb.weightUnit, metric=onb.units==="metric";
+  const dots=`<div class="exfx" style="text-align:center;margin:-2px 0 16px;color:var(--muted)">Step ${onbStep} of 5</div>`;
+  let h="";
+  if(onbStep===0){
+    h=`<div class="welcome" style="margin:0 0 16px">Welcome to <b>Mycelia</b> 🍄<br>Let's set up your daily calorie & macro targets — takes about 30 seconds. You can change anything later in Settings.</div>
+       <button class="btn primary" id="onbNext">Get started</button>
+       <button class="btn ghost" id="onbSkip" style="margin-top:10px">Skip for now</button>`;
+  } else if(onbStep===1){
+    h=dots+`<div class="field"><label>Height &amp; water units</label><div class="segmented" id="onbUnits"><button data-v="metric"${metric?' class="on"':''}>Metric (cm, ml)</button><button data-v="imperial"${!metric?' class="on"':''}>Imperial (in, fl oz)</button></div></div>
+       <div class="field"><label>Weight unit</label><div class="segmented" id="onbWU"><button data-v="kg"${wu==="kg"?' class="on"':''}>kg</button><button data-v="st"${wu==="st"?' class="on"':''}>stone</button><button data-v="lb"${wu==="lb"?' class="on"':''}>lb</button></div></div>
+       ${onbNavRow()}`;
+  } else if(onbStep===2){
+    const hu=metric?"cm":"in";
+    h=dots+`<div class="field"><label>Sex (used for the BMR formula)</label><div class="segmented" id="onbSex"><button data-v="male"${onb.sex==="male"?' class="on"':''}>Male</button><button data-v="female"${onb.sex==="female"?' class="on"':''}>Female</button></div></div>
+       <div class="row3">
+         <div class="field"><label>Age</label><input class="input" id="onbAge" type="number" inputmode="numeric" value="${onb.age||""}" placeholder="30"></div>
+         <div class="field"><label>Height (${hu})</label><input class="input" id="onbHeight" type="number" inputmode="decimal" value="${onb.height||""}" placeholder="${metric?"175":"69"}"></div>
+         <div class="field"><label>Weight (${wu})</label><input class="input" id="onbWeight" type="number" inputmode="decimal" value="${onb.weight||""}" placeholder="${wu==="kg"?"75":wu==="st"?"11.8":"165"}"></div>
+       </div>${onbNavRow()}`;
+  } else if(onbStep===3){
+    h=dots+`<div class="field"><label>Activity level</label><div class="stack" id="onbAct">`+
+      ONB_ACTS.map(a=>`<button class="onb-act${(+a[0]===+onb.activity)?" on":""}" data-v="${a[0]}"><span class="k">${a[1]}</span><span class="v">${a[2]}</span></button>`).join("")+
+      `</div></div>${onbNavRow()}`;
+  } else if(onbStep===4){
+    h=dots+`<div class="field"><label>Your goal</label><div class="segmented" id="onbGoal"><button data-v="lose"${onb.goal==="lose"?' class="on"':''}>Lose</button><button data-v="maintain"${onb.goal==="maintain"?' class="on"':''}>Maintain</button><button data-v="gain"${onb.goal==="gain"?' class="on"':''}>Gain</button></div></div>
+       <div id="onbGoalExtra"></div>${onbNavRow("See my plan")}`;
+  } else {
+    const r=onb.result, dirLabel={lose:"Lose",maintain:"Maintain",gain:"Gain"}[r.dir];
+    h=`<div class="welcome" style="margin:0 0 14px">Here's your starting plan — fine-tune it anytime in Calc or Settings.</div>
+       <div class="calc-grid"><div class="calc-cell"><div class="cv">${r.cal.toLocaleString()}</div><div class="ck">kcal / day</div></div><div class="calc-cell"><div class="cv">${dirLabel}</div><div class="ck">goal</div></div></div>
+       <div class="row3" style="margin-top:2px"><div class="onb-macro"><div class="sv">${r.p}g</div><div class="sk">Protein</div></div><div class="onb-macro"><div class="sv">${r.c}g</div><div class="sk">Carbs</div></div><div class="onb-macro"><div class="sv">${r.f}g</div><div class="sk">Fat</div></div></div>
+       <button class="btn primary" id="onbFinish" style="margin-top:16px">Start tracking 🍄</button>
+       <button class="btn ghost" id="onbBack" style="margin-top:10px">Back</button>`;
+  }
+  b.innerHTML=h;
+  const skip=$("#onbSkip"); if(skip) skip.onclick=closeOnboarding;
+  const back=$("#onbBack"); if(back) back.onclick=()=>{ onbStep--; renderOnboard(); };
+  const next=$("#onbNext"); if(next) next.onclick=()=>{ if(onbCommit()){ onbStep++; renderOnboard(); } };
+  $$("#onbUnits button").forEach(x=>x.onclick=()=>{ onb.units=x.dataset.v; onbSeg("onbUnits",onb.units); });
+  $$("#onbWU button").forEach(x=>x.onclick=()=>{ onb.weightUnit=x.dataset.v; onbSeg("onbWU",onb.weightUnit); });
+  $$("#onbSex button").forEach(x=>x.onclick=()=>{ onb.sex=x.dataset.v; onbSeg("onbSex",onb.sex); });
+  $$("#onbAct button").forEach(x=>x.onclick=()=>{ onb.activity=+x.dataset.v; $$("#onbAct button").forEach(y=>y.classList.toggle("on",y===x)); });
+  $$("#onbGoal button").forEach(x=>x.onclick=()=>{ onb.goal=x.dataset.v; onbSeg("onbGoal",onb.goal); renderOnbGoalExtra(); });
+  if($("#onbGoalExtra")) renderOnbGoalExtra();
+  const fin=$("#onbFinish"); if(fin) fin.onclick=finishOnboarding;
+}
+function renderOnbGoalExtra(){
+  const e=$("#onbGoalExtra"); if(!e) return;
+  if(onb.goal==="maintain"){ e.innerHTML=""; return; }
+  const wu=onb.weightUnit;
+  e.innerHTML=`<div class="row2" style="align-items:end"><div class="field"><label>Goal weight (${wu})</label><input class="input" id="onbGW" type="number" inputmode="decimal" value="${onb.goalWeight||""}" placeholder="${wu==="kg"?"70":wu==="st"?"11":"154"}"></div><div class="field"><label>In (weeks)</label><input class="input" id="onbWK" type="number" inputmode="numeric" value="${onb.goalWeeks||""}" placeholder="12"></div></div><small class="note" style="display:block">Optional — for a precise target. Leave blank and I'll use a steady, sensible pace.</small>`;
+}
+function onbCommit(){
+  if(onbStep===2){
+    const age=+$("#onbAge").value, ht=+$("#onbHeight").value, w=+$("#onbWeight").value;
+    if(!age||!ht||!w){ toast("Add your age, height and weight"); return false; }
+    onb.age=age; onb.height=ht; onb.weight=w; return true;
+  }
+  if(onbStep===4){
+    if(onb.goal!=="maintain"){ onb.goalWeight=+$("#onbGW").value||null; onb.goalWeeks=+$("#onbWK").value||null; }
+    else { onb.goalWeight=null; onb.goalWeeks=null; }
+    computeOnbPlan(); return true;
+  }
+  return true;
+}
+function computeOnbPlan(){
+  const metric=onb.units==="metric";
+  const cm = metric? +onb.height : +onb.height*2.54;
+  const kg = +onb.weight/WT_F[onb.weightUnit];
+  const bmr = 10*kg + 6.25*cm - 5*(+onb.age) + (onb.sex==="male"?5:-161);
+  const tdee = bmr*(+onb.activity);
+  let dir=onb.goal, target, goalKg=null;
+  if(dir==="maintain"){ target=tdee; }
+  else if(onb.goalWeight && onb.goalWeeks){
+    goalKg=+onb.goalWeight/WT_F[onb.weightUnit];
+    const dailyAdj=Math.abs(goalKg-kg)*7700/(+onb.goalWeeks*7);
+    target = tdee + (dir==="lose"?-dailyAdj:dailyAdj);
+  } else {
+    target = tdee*(dir==="lose"?0.85:1.10);
+  }
+  if(target<1200) target=1200; target=Math.round(target);
+  const p=Math.round(kg*(dir==="lose"?2.2:1.9)), f=Math.round(target*0.25/9), c=Math.max(0,Math.round((target-p*4-f*9)/4));
+  onb.result={cal:target,p,c,f,dir,kg,goalKg};
+}
+function finishOnboarding(){
+  const r=onb.result, p=state.profile;
+  Object.assign(p,{ units:onb.units, weightUnit:onb.weightUnit, sex:onb.sex, age:+onb.age, height:+onb.height,
+    weightKg:r.kg, activity:+onb.activity, calorieGoal:r.cal, proteinGoal:r.p, carbGoal:r.c, fatGoal:r.f,
+    goalDir:r.dir, goalWeightKg:r.goalKg, goalWeeks:(onb.goalWeeks?+onb.goalWeeks:null) });
+  recSel=r.dir;
+  if(!state.weights.some(w=>w.date===todayKey()) && r.kg){ state.weights.push({date:todayKey(),kg:r.kg}); }
+  save(); closeOnboarding(); render(); fillSettings();
+  toast("All set 🍄 Your targets are ready");
+}
+const onboardBg=$("#onboardBg");
+$("#onboardClose").onclick=closeOnboarding;
+onboardBg.onclick=e=>{ if(e.target===onboardBg) closeOnboarding(); };
+{ const sw=$("#setWizard"); if(sw) sw.onclick=openOnboarding; }
+
 /* ---- Install to home screen / desktop ---- */
 (function(){
   const card=$("#installCard"), btn=$("#installBtn"), hint=$("#installHint"); if(!card) return;
