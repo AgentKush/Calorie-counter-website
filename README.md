@@ -16,7 +16,8 @@ A bioluminescent mushroom-forest themed calorie, macro, water and exercise track
 - **🔥 Exercise** — log workouts; the calories burned are added back to your daily budget.
 - **🥗 Food-quality score** — an A–E grade for the day's food, from protein, fibre, sugar, saturated fat and how close you are to your calorie goal.
 - **⧉ Copy yesterday** — clone everything you logged the previous day into today with one tap.
-- **⏱️ Fasting timer** — start a fast, pick a window (12–20 h), and watch a live progress ring with elapsed / remaining time.
+- **🎯 Goal-weight card** — once you set a goal weight, your current → goal, how much to lose/gain, an ETA and the resulting daily calorie target show right on Today.
+- **⏱️ Intermittent-fasting timer** — pick a window (14:10, 16:8, 18:6, 20:4, read as **fasting hours : eating hours**), start your fast and watch a live ring count up to the goal, with the eating window shown. A collapsible **"New to fasting?"** explainer walks first-timers through what IF is and how to use it.
 - **Extra nutrition** — net carbs, fibre, sugar, saturated fat and sodium chips alongside the macro rings.
 - Day switcher (previous / next / tap for today) — every section is per-day.
 
@@ -35,6 +36,8 @@ Pick an activity (Walk, Run, Cycle, Weights, Swim, Yoga) and a **duration** (qui
 ### BMR / TDEE calculator
 Mifflin–St Jeor BMR with an activity multiplier and a goal preset (−20 % … +20 %). One tap applies the result — calorie target **and** a protein/carb/fat split — as your daily goals. A **Custom target** option lets you enter how much you want to gain or lose and over how many weeks; it works out the daily calories from the energy in body weight (3500 kcal/lb, 7700 kcal/kg), with a 1200-kcal safety floor and a heads-up when the pace is aggressive.
 
+Or skip the maths entirely: set a **goal weight** plus a **"reach it in (weeks)"** timeframe in Settings, and Mycelia back-calculates the daily calorie target (and macros, and lose/gain direction) needed to get there from your age, height and current weight — you choose the timeframe, so there's no assumed pace.
+
 ### Recipe ideas
 A **Recipes** tab suggests 27 meals matched to your goal — fat loss, maintain, or muscle gain (it defaults to the goal you set in the calculator). You can **search** by name or ingredient, filter by **diet** (vegetarian / high-protein / seafood), mark **favourites** (★ Saved), and hit **🎲 Surprise me** for a random pick. Each card shows a real photo, per-serving calories and macros, and a one-tap **Log it** — and tapping a card opens a full **recipe page** with measured single-serving ingredients (cups/tbsp/oz/g) and step-by-step method. Photos are hot-linked from TheMealDB and Wikimedia Commons (with an emoji-tile fallback if one ever fails to load), and recipe calories are derived from their macros so logging one keeps your day's totals consistent.
 
@@ -44,7 +47,7 @@ A **📅 Weekly planner** lets you slot recipes into Mon–Sun (from the recipe 
 7 / 14 / 30-day calorie bar chart with a goal line, a weight line chart, and summary stats: average intake, day streak, days logged, and weight change. An **Achievements** grid awards glowing badges as you build streaks and hit goals (logging, protein/calorie/water goals, workouts, weigh-ins, consistency).
 
 ### Settings
-Manual calorie + macro goals (by grams or by %), goal weight, water goal, metric/imperial units, background-animation toggle, optional **water reminders** (while the app is open/installed), and full **export / import / reset** of your data as JSON — plus a **food-log CSV export**. Switching to **Imperial** shows weight in lb, height in inches, and the water tracker in **US fl oz / cups** (Metric uses kg, cm and ml).
+Manual calorie + macro goals (by grams or by %), a **goal weight + "reach it in (weeks)"** pair that auto-sets your calorie target, water goal, a dedicated **weight-unit picker (kg / stone / lb)**, a separate **height & water** Metric/Imperial toggle, a background-animation toggle, optional **water reminders** (while the app is open/installed), and full **export / import / reset** of your data as JSON — plus a **food-log CSV export**. Weight is chosen independently of height/water, so you can track in **stone** while still seeing height in cm (or any mix). Switching height/water to **Imperial** uses inches and **US fl oz / cups**.
 
 ### Installable & offline (PWA)
 Mycelia ships a web-app manifest and a service worker, so you can **install it** to your home screen / desktop and it keeps working **offline** (the app shell and Chart.js are cached; Open Food Facts search still needs a connection).
@@ -69,10 +72,11 @@ All figures are estimates (not medical advice), but the math is transparent:
 | Carbs | remaining calories ÷ 4 |
 | Exercise | **MET × bodyweight (kg) × hours** (Walk 3.5 · Run 9.8 · Cycle 7.5 · Weights 5 · Swim 7 · Yoga 3) |
 | Custom target | TDEE ± (weekly rate × 3500 kcal/lb or 7700 kcal/kg ÷ 7); floored at 1200 kcal |
+| Goal-weight target | TDEE ± (\|current − goal\| in kg × 7700 ÷ (weeks × 7)); floored at 1200 kcal |
 | Water (Imperial) | fl oz = ml ÷ 29.5735; 1 US cup = 8 fl oz |
 | Day budget | goal − food + exercise |
 
-Imperial inputs are converted automatically (in → cm × 2.54, lb → kg × 0.453592).
+Weight is stored internally in **kilograms** and shown in your chosen unit — **kg**, **stone** (decimal, e.g. 12.6 st) or **pounds** — converted only for display/input (1 st = 6.35029 kg = 14 lb). Height and water follow the separate Metric/Imperial toggle (in → cm × 2.54).
 
 > **Note on activity double-counting:** the calculator's target already includes an activity factor. If you also log exercise (which adds calories back), activity is counted twice. If you plan to log workouts, choose a lower activity level (e.g. Sedentary) in the calculator.
 
