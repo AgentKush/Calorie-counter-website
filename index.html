@@ -7,6 +7,8 @@
 <meta name="description" content="Mycelia — a bioluminescent calorie & macro tracker with food search, BMR/TDEE calculator, trends and weight tracking.">
 <title>Mycelia · Calorie Counter</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='35%25'%3E%3Cstop offset='0' stop-color='%237af9e0'/%3E%3Cstop offset='1' stop-color='%23a855f7'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpath d='M16 4C9 4 4 9 4 14c0 2 1 3 3 3h18c2 0 3-1 3-3C28 9 23 4 16 4z' fill='url(%23g)'/%3E%3Crect x='13' y='16' width='6' height='12' rx='3' fill='%23caa7ff'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root{
@@ -235,6 +237,14 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
 .wbtn{flex:1;border:1px solid var(--brd);background:var(--glass-2);color:var(--text);border-radius:12px;padding:11px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;}
 .wbtn:hover{border-color:var(--brd-strong);}
 .wbtn.add{background:linear-gradient(150deg,rgba(46,230,197,.22),rgba(52,217,255,.18));color:var(--teal);}
+.fast-timer{text-align:center;}
+.fast-big{font-size:2.2rem;font-weight:800;background:linear-gradient(180deg,#fff,var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;}
+.fast-sub{font-size:.82rem;color:var(--muted);margin-top:5px;}
+.fast-bar{height:10px;border-radius:6px;background:rgba(120,225,210,.12);overflow:hidden;margin:14px 0;}
+.fast-bar>div{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--teal),var(--cyan),var(--purple));transition:width .5s;}
+.fast-chips{display:flex;gap:6px;margin-bottom:12px;}
+.fast-chips button{flex:1;background:var(--glass-2);border:1px solid var(--brd);color:var(--muted);border-radius:11px;padding:9px 4px;cursor:pointer;font-size:.82rem;font-weight:600;font-family:inherit;}
+.fast-chips button.on{color:var(--text);border-color:var(--brd-strong);background:rgba(46,230,197,.12);}
 /* quick add */
 .qrow{display:flex;gap:8px;align-items:stretch;margin-bottom:8px;}
 .qrow .res{flex:1;margin:0;}
@@ -398,6 +408,11 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
       </div>
     </div>
 
+    <div class="card" id="fastCard" style="margin-top:16px">
+      <div class="section-title">⏳ Intermittent Fasting</div>
+      <div id="fastBody"></div>
+    </div>
+
     <div class="card" style="margin-top:16px">
       <div class="section-title">🍄 Food Log</div>
       <div id="meals"></div>
@@ -551,6 +566,13 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
         </div>
       </div>
       <div class="card">
+        <div class="section-title">🔔 Reminders</div>
+        <div class="field"><label>Water reminder</label>
+          <div class="segmented" id="setWaterRemind"><button data-v="off" class="on">Off</button><button data-v="on">Every 2h</button></div>
+        </div>
+        <small class="note">Reminds you to hydrate every 2 hours while the app is open or installed to your home screen. You'll be asked to allow notifications.</small>
+      </div>
+      <div class="card">
         <div class="section-title">💾 Your Data</div>
         <p class="welcome" style="margin-bottom:14px">Everything is stored privately in your browser on this device. Back it up or move it with export/import.</p>
         <div class="row2" style="margin-bottom:10px">
@@ -698,7 +720,7 @@ const round=(n,d=0)=>{const m=10**d;return Math.round((+n||0)*m)/m;};
 const defaultState = ()=>({
   profile:{ name:"", sex:"male", age:null, height:null, weight:null, activity:1.55, units:"metric",
             calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain", goalWeight:null },
-  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], favRecipes:[], prefs:{ animations:true }
+  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], favRecipes:[], fast:{start:null,target:16}, prefs:{ animations:true, waterRemind:false }
 });
 let state = load();
 let curDate = todayKey();
@@ -771,6 +793,7 @@ function renderToday(){
   renderMeals();
   renderExercise();
   renderWater();
+  renderFast();
 }
 
 const MEALS=[["Breakfast","🌅"],["Lunch","☀️"],["Dinner","🌙"],["Snacks","🍪"]];
@@ -900,6 +923,31 @@ function addWater(dir){
   if(v<1) delete state.water[curDate]; else state.water[curDate]=v;
   save(); renderWater();
 }
+
+/* ---- intermittent fasting ---- */
+function fmtDur(ms){ const s=Math.max(0,Math.floor(ms/1000)); const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return h+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0"); }
+function renderFast(){
+  const box=$("#fastBody"); const f=state.fast;
+  if(f.start){
+    const elapsed=Date.now()-f.start, targetMs=f.target*3600000, pct=clamp(elapsed/targetMs,0,1)*100, done=elapsed>=targetMs;
+    box.innerHTML=`<div class="fast-timer"><div class="fast-big" id="fastClock">${fmtDur(elapsed)}</div>
+      <div class="fast-sub">${done?"🎉 "+f.target+"h goal reached — eating window open":"of a "+f.target+"h fast"}</div></div>
+      <div class="fast-bar"><div id="fastFill" style="width:${pct}%"></div></div>
+      <button class="btn ghost" id="fastStop">Stop fast</button>`;
+    $("#fastStop").onclick=stopFast;
+  } else {
+    box.innerHTML=`<div class="fast-sub" style="text-align:center;margin-bottom:12px">Pick a window and start your fast.</div>
+      <div class="fast-chips" id="fastChips">${[14,16,18,20].map(h=>`<button data-h="${h}"${h===f.target?' class="on"':''}>${h}:${24-h}</button>`).join("")}</div>
+      <button class="btn primary" id="fastStart">Start fasting</button>`;
+    $$("#fastChips button").forEach(b=>b.onclick=()=>{ state.fast.target=+b.dataset.h; save(); renderFast(); });
+    $("#fastStart").onclick=startFast;
+  }
+}
+function startFast(){ state.fast.start=Date.now(); save(); renderFast(); toast("Fast started ⏳"); }
+function stopFast(){ const el=Date.now()-state.fast.start; state.fast.start=null; save(); renderFast(); toast("Fast ended · "+fmtDur(el)); }
+setInterval(()=>{ if(state.fast&&state.fast.start && $("#view-today").classList.contains("active")){
+  const el=Date.now()-state.fast.start, c=$("#fastClock"), fill=$("#fastFill");
+  if(c) c.textContent=fmtDur(el); if(fill) fill.style.width=clamp(el/(state.fast.target*3600000),0,1)*100+"%"; } },1000);
 
 /* ============ views / nav ============ */
 function showView(v){
@@ -1502,7 +1550,25 @@ function fillSettings(){
   $("#gWeightLbl").textContent = "Goal weight ("+wu+") — optional";
   $$("#setUnits button").forEach(b=>b.classList.toggle("on",b.dataset.v===p.units));
   $$("#setAnim button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.animations?"on":"off")));
+  $$("#setWaterRemind button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.waterRemind?"on":"off")));
 }
+let waterTimer=null;
+function applyWaterReminder(){
+  if(waterTimer){ clearInterval(waterTimer); waterTimer=null; }
+  if(state.prefs.waterRemind && "Notification" in window && Notification.permission==="granted"){
+    waterTimer=setInterval(()=>{ try{ new Notification("Mycelia 💧",{body:"Time to drink some water.",icon:"icon.svg"}); }catch(e){} }, 2*3600000);
+  }
+}
+$$("#setWaterRemind button").forEach(b=>b.onclick=async()=>{
+  if(b.dataset.v==="on"){
+    if(!("Notification" in window)){ toast("Notifications aren't supported here"); return; }
+    let perm=Notification.permission;
+    if(perm==="default") perm=await Notification.requestPermission();
+    if(perm!=="granted"){ toast("Allow notifications to enable reminders"); return; }
+    state.prefs.waterRemind=true;
+  } else { state.prefs.waterRemind=false; }
+  $$("#setWaterRemind button").forEach(x=>x.classList.toggle("on",x===b)); save(); applyWaterReminder();
+});
 $$("#macroMode button").forEach(b=>b.onclick=()=>{
   const mode=b.dataset.m; if(mode===macroMode) return;
   const cal=+$("#gCal").value||0;
@@ -1581,7 +1647,8 @@ function firstRunCheck(){
     setTimeout(()=>toast("Welcome 🍄 Tap + to log your first food, or open Calc to set a goal"),600);
   }
 }
-render(); toggleSpores(); firstRunCheck();
+render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
+if("serviceWorker" in navigator){ addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
 </script>
 </body>
 </html>
