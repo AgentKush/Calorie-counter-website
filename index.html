@@ -401,42 +401,38 @@ html[data-text="lg"]{zoom:1.12;}
 <body>
 <svg class="forest" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
   <defs>
-    <linearGradient id="pineN" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c5462"/><stop offset="1" stop-color="#05131d"/></linearGradient>
-    <linearGradient id="pineF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d323d"/><stop offset="1" stop-color="#071821"/></linearGradient>
-    <radialGradient id="haze2" cx="50%" cy="0%" r="75%"><stop offset="0" stop-color="rgba(58,196,184,.12)"/><stop offset="0.6" stop-color="rgba(90,120,225,.04)"/><stop offset="1" stop-color="transparent"/></radialGradient>
+    <radialGradient id="moonH" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="rgba(189,238,230,.40)"/><stop offset="0.5" stop-color="rgba(95,180,184,.09)"/><stop offset="1" stop-color="rgba(95,180,184,0)"/></radialGradient>
+    <radialGradient id="moonB" cx="42%" cy="38%" r="70%"><stop offset="0" stop-color="#eef9f4"/><stop offset="1" stop-color="#c4e2da"/></radialGradient>
+    <linearGradient id="aur" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(46,230,197,0)"/><stop offset="0.4" stop-color="rgba(46,230,197,.13)"/><stop offset="0.65" stop-color="rgba(167,139,250,.11)"/><stop offset="1" stop-color="rgba(167,139,250,0)"/></linearGradient>
+    <linearGradient id="mistF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(159,217,210,.15)"/><stop offset="1" stop-color="rgba(159,217,210,0)"/></linearGradient>
+    <g id="fir2"><path d="M0,-260 L34,-140 L18,-146 L52,-50 L30,-60 L62,0 L-62,0 L-30,-60 L-52,-50 L-18,-146 L-34,-140 Z"/></g>
   </defs>
-  <rect width="1200" height="800" fill="url(#haze2)"/>
-  <g fill="url(#pineF)" opacity="0.4">
-    <path d="M80 470 L56 556 L69 549 L34 652 L56 642 L0 800 L160 800 L104 642 L126 652 L91 549 L104 556 Z"/>
-    <path d="M300 500 L279 578 L290 572 L259 665 L279 656 L230 800 L370 800 L321 656 L341 665 L310 572 L321 578 Z"/>
-    <path d="M520 460 L497 548 L509 542 L475 647 L497 637 L442 800 L598 800 L543 637 L565 647 L531 542 L543 548 Z"/>
-    <path d="M720 500 L698 578 L710 572 L678 665 L698 656 L648 800 L792 800 L742 656 L762 665 L730 572 L742 578 Z"/>
-    <path d="M940 470 L916 556 L929 549 L894 652 L916 642 L860 800 L1020 800 L964 642 L986 652 L951 549 L964 556 Z"/>
-    <path d="M1150 480 L1127 563 L1139 557 L1104 656 L1127 646 L1072 800 L1228 800 L1173 646 L1195 656 L1161 557 L1173 563 Z"/>
+  <circle cx="980" cy="190" r="195" fill="url(#moonH)"/>
+  <circle cx="980" cy="190" r="56" fill="url(#moonB)"/>
+  <circle cx="962" cy="176" r="11" fill="#bcdfd6" opacity="0.4"/><circle cx="1000" cy="206" r="7" fill="#bcdfd6" opacity="0.35"/><circle cx="992" cy="172" r="5" fill="#bcdfd6" opacity="0.35"/>
+  <rect x="0" y="300" width="1200" height="250" fill="url(#aur)" opacity="0.7"/>
+  <g fill="#123640" opacity="0.5">
+    <use href="#fir2" transform="translate(60,478) scale(0.66)"/><use href="#fir2" transform="translate(165,478) scale(0.78)"/><use href="#fir2" transform="translate(275,478) scale(0.62)"/><use href="#fir2" transform="translate(385,478) scale(0.8)"/><use href="#fir2" transform="translate(495,478) scale(0.66)"/><use href="#fir2" transform="translate(605,478) scale(0.82)"/><use href="#fir2" transform="translate(715,478) scale(0.64)"/><use href="#fir2" transform="translate(825,478) scale(0.8)"/><use href="#fir2" transform="translate(935,478) scale(0.66)"/><use href="#fir2" transform="translate(1045,478) scale(0.78)"/><use href="#fir2" transform="translate(1150,478) scale(0.62)"/>
   </g>
-  <g fill="url(#pineN)" stroke="rgba(120,245,215,.16)" stroke-width="1.5" opacity="0.95">
-    <path d="M180 280 L143 415 L163 405 L108 566 L143 550 L55 800 L305 800 L218 550 L253 566 L198 405 L218 415 Z"/>
-    <path d="M380 330 L347 452 L365 443 L316 589 L347 574 L270 800 L490 800 L413 574 L444 589 L395 443 L413 452 Z"/>
-    <path d="M600 180 L555 341 L579 329 L513 521 L555 502 L450 800 L750 800 L645 502 L687 521 L621 329 L645 341 Z"/>
-    <path d="M820 300 L785 430 L803 420 L752 575 L785 560 L702 800 L938 800 L855 560 L888 575 L836 420 L855 430 Z"/>
-    <path d="M1020 240 L980 386 L1001 374 L942 548 L980 531 L885 800 L1155 800 L1061 531 L1098 548 L1039 374 L1061 386 Z"/>
+  <rect x="0" y="446" width="1200" height="80" fill="url(#mistF)"/>
+  <g fill="#0a2230" stroke="rgba(120,245,215,.07)" stroke-width="1" opacity="0.88">
+    <use href="#fir2" transform="translate(10,624) scale(1.0)"/><use href="#fir2" transform="translate(140,624) scale(1.22)"/><use href="#fir2" transform="translate(275,624) scale(0.98)"/><use href="#fir2" transform="translate(410,624) scale(1.18)"/><use href="#fir2" transform="translate(545,624) scale(1.05)"/><use href="#fir2" transform="translate(680,624) scale(1.22)"/><use href="#fir2" transform="translate(815,624) scale(1.0)"/><use href="#fir2" transform="translate(950,624) scale(1.18)"/><use href="#fir2" transform="translate(1085,624) scale(1.04)"/><use href="#fir2" transform="translate(1185,624) scale(1.15)"/>
+  </g>
+  <rect x="0" y="590" width="1200" height="70" fill="url(#mistF)" opacity="0.8"/>
+  <g fill="#04101a" stroke="rgba(120,245,215,.10)" stroke-width="1.2">
+    <use href="#fir2" transform="translate(30,842) scale(1.7)"/><use href="#fir2" transform="translate(165,842) scale(1.55)"/><use href="#fir2" transform="translate(300,842) scale(1.8)"/><use href="#fir2" transform="translate(905,842) scale(1.75)"/><use href="#fir2" transform="translate(1045,842) scale(1.6)"/><use href="#fir2" transform="translate(1180,842) scale(1.85)"/>
   </g>
 </svg>
 <canvas id="spores"></canvas>
-<svg class="glow-fungi" viewBox="0 0 1200 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+<svg class="glow-fungi" viewBox="0 0 1200 170" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
   <defs>
-    <radialGradient id="mg1" cx="50%" cy="30%"><stop offset="0" stop-color="#7af9e0"/><stop offset="1" stop-color="#1c9c8c"/></radialGradient>
-    <radialGradient id="mg2" cx="50%" cy="30%"><stop offset="0" stop-color="#f6a6ff"/><stop offset="1" stop-color="#a23bd6"/></radialGradient>
-    <radialGradient id="mg3" cx="50%" cy="30%"><stop offset="0" stop-color="#8fdcff"/><stop offset="1" stop-color="#2f7fd6"/></radialGradient>
+    <radialGradient id="ug" cx="50%" cy="100%" r="60%"><stop offset="0" stop-color="rgba(46,230,197,.30)"/><stop offset="1" stop-color="rgba(46,230,197,0)"/></radialGradient>
+    <radialGradient id="mcA" cx="50%" cy="26%" r="80%"><stop offset="0" stop-color="#e8fffa"/><stop offset="0.5" stop-color="#2ee6c5"/><stop offset="1" stop-color="#0c6f63"/></radialGradient>
+    <radialGradient id="mcB" cx="50%" cy="26%" r="80%"><stop offset="0" stop-color="#f1e9ff"/><stop offset="0.5" stop-color="#a78bfa"/><stop offset="1" stop-color="#4a338f"/></radialGradient>
+    <radialGradient id="mcC" cx="50%" cy="26%" r="80%"><stop offset="0" stop-color="#e6f6ff"/><stop offset="0.5" stop-color="#34d9ff"/><stop offset="1" stop-color="#15597f"/></radialGradient>
+    <radialGradient id="mcD" cx="50%" cy="26%" r="80%"><stop offset="0" stop-color="#ffe9fb"/><stop offset="0.5" stop-color="#e85bf0"/><stop offset="1" stop-color="#7a1f86"/></radialGradient>
   </defs>
-  <g opacity="0.9">
-    <rect x="148" y="92" width="9" height="60" rx="4" fill="#bfe9df" opacity="0.5"/><ellipse cx="152" cy="92" rx="34" ry="20" fill="url(#mg1)"/>
-    <rect x="305" y="78" width="11" height="74" rx="5" fill="#d9b6ff" opacity="0.5"/><ellipse cx="310" cy="78" rx="44" ry="25" fill="url(#mg2)"/>
-    <rect x="476" y="100" width="8" height="52" rx="4" fill="#bfe9df" opacity="0.5"/><ellipse cx="480" cy="100" rx="28" ry="16" fill="url(#mg3)"/>
-    <rect x="712" y="84" width="10" height="68" rx="5" fill="#bfe9df" opacity="0.5"/><ellipse cx="717" cy="84" rx="40" ry="23" fill="url(#mg1)"/>
-    <rect x="900" y="96" width="9" height="56" rx="4" fill="#d9b6ff" opacity="0.5"/><ellipse cx="904" cy="96" rx="32" ry="19" fill="url(#mg2)"/>
-    <rect x="1050" y="80" width="11" height="72" rx="5" fill="#8fdcff" opacity="0.5"/><ellipse cx="1055" cy="80" rx="42" ry="24" fill="url(#mg3)"/>
-  </g>
+  <g opacity="0.95"><ellipse cx="150" cy="166" rx="64" ry="18" fill="url(#ug)"/><path d="M146,92 L147,168 L153,168 L154,92 Z" fill="#cdeee7" opacity="0.5"/><ellipse cx="150" cy="92" rx="38" ry="21" fill="url(#mcA)"/><ellipse cx="150" cy="84" rx="32" ry="8" fill="#eafffb" opacity="0.28"/><ellipse cx="250" cy="166" rx="32" ry="18" fill="url(#ug)"/><path d="M246,110 L247,168 L253,168 L254,110 Z" fill="#cdeee7" opacity="0.5"/><ellipse cx="250" cy="110" rx="19" ry="11" fill="url(#mcC)"/><ellipse cx="250" cy="106" rx="16" ry="4" fill="#eafffb" opacity="0.28"/><ellipse cx="330" cy="166" rx="85" ry="18" fill="url(#ug)"/><path d="M326,80 L327,168 L333,168 L334,80 Z" fill="#cdeee7" opacity="0.5"/><ellipse cx="330" cy="80" rx="50" ry="27" fill="url(#mcB)"/><ellipse cx="330" cy="70" rx="42" ry="10" fill="#eafffb" opacity="0.28"/><ellipse cx="470" cy="166" rx="44" ry="18" fill="url(#ug)"/><path d="M466,104 L467,168 L473,168 L474,104 Z" fill="#cdeee7" opacity="0.5"/><ellipse cx="470" cy="104" rx="26" ry="15" fill="url(#mcA)"/><ellipse cx="470" cy="98" rx="22" ry="6" fill="#eafffb" opacity="0.28"/><ellipse cx="610" cy="166" rx="71" ry="18" fill="url(#ug)"/><path d="M606,90 L607,168 L613,168 L614,90 Z" fill="#cdeee7" opacity="0.5"/><ellipse cx="610" cy="90" rx="42" ry="23" fill="url(#mcC)"/><ellipse cx="610" cy="81" rx="35" ry="9" fill="#eafffb" opacity="0.28"/><ellipse cx="700" cy="166" rx="28" ry="18" fill="url(#ug)"/><path d="M696,112 L697,168 L703,168 L704,112 Z" fill="#cdeee7" opacity="0.5"/><ellipse cx="700" cy="112" rx="17" ry="10" fill="url(#mcD)"/><ellipse cx="700" cy="108" rx="14" ry="4" fill="#eafffb" opacity="0.28"/><ellipse cx="790" cy="166" rx="57" ry="18" fill="url(#ug)"/><path d="M786,96 L787,168 L793,168 L794,96 Z" fill="#cdeee7" opacity="0.5"/><ellipse cx="790" cy="96" rx="34" ry="19" fill="url(#mcB)"/><ellipse cx="790" cy="89" rx="28" ry="7" fill="#eafffb" opacity="0.28"/><ellipse cx="910" cy="166" rx="51" ry="18" fill="url(#ug)"/><path d="M906,102 L907,168 L913,168 L914,102 Z" fill="#cdeee7" opacity="0.5"/><ellipse cx="910" cy="102" rx="30" ry="17" fill="url(#mcA)"/><ellipse cx="910" cy="96" rx="25" ry="6" fill="#eafffb" opacity="0.28"/><ellipse cx="1040" cy="166" rx="78" ry="18" fill="url(#ug)"/><path d="M1036,82 L1037,168 L1043,168 L1044,82 Z" fill="#cdeee7" opacity="0.5"/><ellipse cx="1040" cy="82" rx="46" ry="25" fill="url(#mcC)"/><ellipse cx="1040" cy="73" rx="39" ry="10" fill="#eafffb" opacity="0.28"/><ellipse cx="1130" cy="166" rx="35" ry="18" fill="url(#ug)"/><path d="M1126,108 L1127,168 L1133,168 L1134,108 Z" fill="#cdeee7" opacity="0.5"/><ellipse cx="1130" cy="108" rx="21" ry="12" fill="url(#mcD)"/><ellipse cx="1130" cy="103" rx="17" ry="4" fill="#eafffb" opacity="0.28"/></g>
 </svg>
 
 <div class="app">
@@ -2613,22 +2609,25 @@ function startSpores(){
   if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;   // respect OS reduced-motion
   if(resolveTheme()==="light") return;                                  // spores are hidden in light theme
   const canvas=$("#spores"), ctx=canvas.getContext("2d"); let W,H,parts;
-  const COLORS=["#2ee6c5","#34d9ff","#a78bfa","#e85bf0","#5ef08a"];
+  const COLORS=[[122,240,221],[52,217,255],[167,139,250],[232,91,240],[94,240,138]];
   function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight;
-    const n=Math.min(70,Math.round(W*H/26000));
-    parts=Array.from({length:n},()=>({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*2.2+0.6,
-      s:Math.random()*0.4+0.12, d:Math.random()*0.5-0.25, a:Math.random()*0.5+0.25, c:COLORS[(Math.random()*COLORS.length)|0], ph:Math.random()*6.28 })); }
+    const n=Math.min(46,Math.round(W*H/34000));
+    parts=Array.from({length:n},()=>{ const depth=Math.random(), r=2+depth*13;
+      return { x:Math.random()*W, y:Math.random()*H, r, s:(1-depth)*0.32+0.05, d:Math.random()*0.4-0.2,
+        a:(1-depth)*0.5+0.12, c:COLORS[(Math.random()*COLORS.length)|0], ph:Math.random()*6.28 }; }); }
   resize(); addEventListener("resize",resize);
   function frame(t){
     ctx.clearRect(0,0,W,H);
     for(const p of parts){
-      p.y-=p.s; p.x+=p.d+Math.sin((t/2000)+p.ph)*0.15;
-      if(p.y<-6){ p.y=H+6; p.x=Math.random()*W; }
-      const tw=p.a*(0.6+0.4*Math.sin(t/700+p.ph));
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.28);
-      ctx.fillStyle=p.c; ctx.globalAlpha=tw; ctx.shadowColor=p.c; ctx.shadowBlur=p.r*4; ctx.fill();
+      p.y-=p.s; p.x+=p.d+Math.sin(t/2600+p.ph)*0.12;
+      if(p.y<-p.r-4){ p.y=H+p.r+4; p.x=Math.random()*W; }
+      const tw=Math.max(0,p.a*(0.5+0.5*Math.sin(t/900+p.ph))), c=p.c;
+      const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+      g.addColorStop(0,"rgba("+c[0]+","+c[1]+","+c[2]+","+tw+")");
+      g.addColorStop(0.4,"rgba("+c[0]+","+c[1]+","+c[2]+","+(tw*0.45)+")");
+      g.addColorStop(1,"rgba("+c[0]+","+c[1]+","+c[2]+",0)");
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.28); ctx.fill();
     }
-    ctx.globalAlpha=1; ctx.shadowBlur=0;
     sporeAnim=requestAnimationFrame(frame);
   }
   sporeAnim=requestAnimationFrame(frame);
@@ -2692,8 +2691,9 @@ if($("#voiceBtn")) $("#voiceBtn").onclick=startVoice;
 applyTheme(); applyTextSize(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder(); applyMealReminder(); applyWeeklyReminder(); maybeAutoCoach();
 try{ const a=new URLSearchParams(location.search).get("a"); if(a==="add") setTimeout(()=>openAdd(pendingMeal),300); else if(a==="weigh"){ showView("trends"); setTimeout(()=>{ const w=$("#wInput"); if(w){ w.focus(); w.scrollIntoView({block:"center"}); } },400); } }catch(e){}
 /* ---- Changelog ---- */
-const APP_VERSION="1.25.0";
+const APP_VERSION="1.26.0";
 const CHANGELOG=[
+  {v:"1.26.0",d:"18 Jun 2026",items:["Refined the artwork: a deeper, more atmospheric bioluminescent forest with a low moon and mist, softer glowing mushrooms, and gentler bokeh-style drifting spores."]},
   {v:"1.25.0",d:"18 Jun 2026",items:["Expanded achievements from 13 to 38 badges - streaks, variety, clean-eating, fasting, measurements, check-ins, recipes and more."]},
   {v:"1.24.0",d:"18 Jun 2026",items:["Quick-add calories, undo after deleting an entry, and a daily check-in (energy, mood, hunger, sleep).","New on Trends: a macros-over-time chart and a 13-week logging-streak heatmap.","Share a progress card, print/save a PDF report, import a food log from CSV, and dictate searches by voice.","Home-screen app shortcuts, a larger-text option, a weekly check-in reminder, and a gentle low-calorie warning."]},
   {v:"1.23.0",d:"18 Jun 2026",items:["Build-your-own recipes can now be totalled from ingredients - search foods, add servings, and the macros fill in automatically.","Micronutrients: searched foods now show iron, calcium, potassium, vitamin C and more (from Open Food Facts) as % of a daily target on Today."]},
