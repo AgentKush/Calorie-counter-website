@@ -343,6 +343,12 @@ small.note{color:var(--faint);font-size:.74rem;display:block;margin-top:6px;line
 .rd-scale .step b{min-width:22px;text-align:center;color:var(--text);font-size:1rem;}
 .rd-img-ph{display:grid;place-items:center;font-size:3.4rem;background:linear-gradient(150deg,#1aa897,#6a52d8);height:150px;border-radius:14px;margin-bottom:14px;}
 textarea.input{resize:vertical;min-height:64px;line-height:1.4;}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+.photo-grid .pg{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;border:1px solid var(--brd);cursor:pointer;background:var(--glass-2);}
+.photo-grid .pg img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-grid .pg .pg-date{position:absolute;left:0;right:0;bottom:0;font-size:.6rem;text-align:center;padding:2px;background:rgba(0,0,0,.55);color:#fff;}
+.meas-row{display:flex;justify-content:space-between;font-size:.84rem;padding:6px 0;border-top:1px solid var(--brd);}
+.meas-row .mk{color:var(--muted);} .meas-row .mv{font-weight:700;}
 .recipe .rec-img img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block;}
 .recipe .rec-img .rec-cal{position:absolute;z-index:2;right:10px;bottom:10px;background:rgba(6,12,22,.85);color:var(--teal);font-weight:800;font-size:.84rem;padding:5px 11px;border-radius:11px;border:1px solid var(--brd);backdrop-filter:blur(4px);}
 .recipe .rec-fav{position:absolute;z-index:2;top:10px;right:10px;width:38px;height:38px;border-radius:11px;border:1px solid var(--brd);background:rgba(6,12,22,.72);color:var(--amber);font-size:1.1rem;cursor:pointer;backdrop-filter:blur(4px);}
@@ -522,6 +528,10 @@ textarea.input{resize:vertical;min-height:64px;line-height:1.4;}
         <div class="section-title">📅 This week</div>
         <div id="weekReview"></div>
       </div>
+      <div class="card" id="coachCard" style="display:none">
+        <div class="section-title">🧭 Adaptive coach</div>
+        <div id="coachBody"></div>
+      </div>
       <div class="card">
         <div class="section-title">📈 Calorie Intake</div>
         <div class="seg-range" id="rangeSel">
@@ -536,6 +546,27 @@ textarea.input{resize:vertical;min-height:64px;line-height:1.4;}
           <button class="btn primary" id="wAdd" style="width:auto;padding:12px 18px">Log</button>
         </div>
         <div class="chart-box"><canvas id="wChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="section-title">📏 Measurements</div>
+        <div class="row3">
+          <div class="field"><label id="mWaistL">Waist (cm)</label><input class="input" id="mWaist" type="number" inputmode="decimal" placeholder="—"></div>
+          <div class="field"><label id="mHipsL">Hips (cm)</label><input class="input" id="mHips" type="number" inputmode="decimal" placeholder="—"></div>
+          <div class="field"><label id="mChestL">Chest (cm)</label><input class="input" id="mChest" type="number" inputmode="decimal" placeholder="—"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label id="mArmsL">Arms (cm)</label><input class="input" id="mArms" type="number" inputmode="decimal" placeholder="—"></div>
+          <div class="field"><label>Body fat (%)</label><input class="input" id="mBf" type="number" inputmode="decimal" placeholder="—"></div>
+        </div>
+        <button class="btn primary" id="measSave">Log measurements</button>
+        <div id="measList" style="margin-top:12px"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">📸 Progress photos</div>
+        <p class="welcome" style="margin-bottom:10px">Stored privately on this device only — never uploaded.</p>
+        <button class="btn ghost" id="photoAddBtn">＋ Add photo</button>
+        <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+        <div id="photoGrid" class="photo-grid"></div>
       </div>
       <div class="card">
         <div class="section-title">🔬 Smart Insights</div>
@@ -682,7 +713,25 @@ textarea.input{resize:vertical;min-height:64px;line-height:1.4;}
         <div class="field"><label>Water reminder</label>
           <div class="segmented" id="setWaterRemind"><button data-v="off" class="on">Off</button><button data-v="on">Every 2h</button></div>
         </div>
-        <small class="note">Reminds you to hydrate every 2 hours while the app is open or installed to your home screen. You'll be asked to allow notifications.</small>
+        <div class="field"><label>Meal reminders</label>
+          <div class="segmented" id="setMealRemind"><button data-v="off" class="on">Off</button><button data-v="on">Breakfast/lunch/dinner</button></div>
+        </div>
+        <small class="note">Nudges to hydrate and to log your meals (around 8am, 1pm and 7pm) while the app is open or installed. You'll be asked to allow notifications.</small>
+      </div>
+      <div class="card">
+        <div class="section-title">🔁 Plan &amp; cycling</div>
+        <div class="field"><label>Calorie cycling</label>
+          <div class="segmented" id="setCycle"><button data-v="off" class="on">Off</button><button data-v="on">On</button></div>
+        </div>
+        <div id="cycleCfg" style="display:none">
+          <div class="field"><label>Higher-day calories</label><input class="input" id="cycHi" type="number" inputmode="numeric" placeholder="e.g. 2400"></div>
+          <div class="field"><label>Higher days</label>
+            <div class="seg-range" id="cycDays" style="flex-wrap:wrap"><button data-d="Mon">Mon</button><button data-d="Tue">Tue</button><button data-d="Wed">Wed</button><button data-d="Thu">Thu</button><button data-d="Fri">Fri</button><button data-d="Sat">Sat</button><button data-d="Sun">Sun</button></div>
+          </div>
+          <small class="note">On the days you pick (e.g. training days or weekends) your goal switches to the higher number; other days use your normal goal.</small>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Diet break</label><div id="phaseBox"></div></div>
+        <small class="note">A diet break temporarily sets your goal to maintenance calories to give you a rest from a deficit.</small>
       </div>
       <div class="card" id="installCard">
         <div class="section-title">📲 Install app</div>
@@ -884,6 +933,16 @@ textarea.input{resize:vertical;min-height:64px;line-height:1.4;}
   </div>
 </div>
 
+<div class="modal-bg" id="photoBg">
+  <div class="modal">
+    <div class="modal-head"><h3 id="photoTitle">Progress photo</h3><button class="icon-btn" id="photoClose" aria-label="Close">✕</button></div>
+    <div class="modal-body">
+      <img id="photoView" alt="Progress photo" style="width:100%;border-radius:14px;display:block">
+      <button class="btn danger" id="photoDel" style="margin-top:14px">Delete photo</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -899,8 +958,9 @@ const round=(n,d=0)=>{const m=10**d;return Math.round((+n||0)*m)/m;};
 const defaultState = ()=>({
   schemaV:2,
   profile:{ name:"", sex:"male", age:null, height:null, weight:null, weightKg:null, activity:1.55, units:"metric", weightUnit:"kg",
-            calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain", goalWeight:null, goalWeightKg:null, goalWeeks:null },
-  log:{}, exercise:{}, water:{}, weights:[], recent:[], favorites:[], myFoods:[], mealTemplates:[], favRecipes:[], myRecipes:[], plan:{}, fast:{start:null,target:16}, fastHistory:[], prefs:{ animations:true, waterRemind:false, theme:"dark" }
+            calorieGoal:2000, proteinGoal:140, carbGoal:220, fatGoal:60, waterGoal:2000, goalDir:"maintain", goalWeight:null, goalWeightKg:null, goalWeeks:null,
+            cycle:{on:false,hi:null,hiDays:["Sat","Sun"]}, phase:{type:"none",until:null} },
+  log:{}, exercise:{}, water:{}, weights:[], measures:[], recent:[], favorites:[], myFoods:[], mealTemplates:[], favRecipes:[], myRecipes:[], plan:{}, fast:{start:null,target:16}, fastHistory:[], prefs:{ animations:true, waterRemind:false, mealRemind:false, autoCoach:false, theme:"dark" }
 });
 let state = load();
 let curDate = todayKey();
@@ -963,9 +1023,45 @@ function renderDate(){
 
 function setRing(el,pct,circ){ el.style.strokeDashoffset = circ*(1-clamp(pct,0,1)); }
 
+function maintenanceEstimate(){
+  const a=adaptiveTDEE(); if(a) return a.tdee;
+  const p=state.profile;
+  if(p.weightKg&&p.height&&p.age){ const cm=p.units==="metric"?p.height:p.height*2.54; const bmr=10*p.weightKg+6.25*cm-5*p.age+(p.sex==="male"?5:-161); return Math.round(bmr*(p.activity||1.55)); }
+  return null;
+}
+function effectiveGoal(key){
+  const p=state.profile; let g=p.calorieGoal||0;
+  if(p.phase && p.phase.type==="break" && p.phase.until && key<=p.phase.until){ const m=maintenanceEstimate(); if(m) g=m; }
+  else if(p.cycle && p.cycle.on && +p.cycle.hi>0){ const dow=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][keyToDate(key).getDay()]; if((p.cycle.hiDays||[]).includes(dow)) g=+p.cycle.hi; }
+  return Math.round(g);
+}
+function phaseChip(key){
+  const p=state.profile;
+  if(p.phase && p.phase.type==="break" && p.phase.until && key<=p.phase.until) return '<span class="ne" style="border-color:var(--amber)">Diet break · maintenance</span>';
+  if(p.cycle && p.cycle.on && +p.cycle.hi>0){ const dow=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][keyToDate(key).getDay()]; if((p.cycle.hiDays||[]).includes(dow)) return '<span class="ne" style="border-color:var(--teal)">High day</span>'; }
+  return "";
+}
+function coachSuggest(){
+  const a=adaptiveTDEE(); if(!a) return null;
+  const p=state.profile; let target=a.tdee, dir="maintain";
+  if(p.goalWeightKg!=null && p.weightKg!=null && Math.abs(p.goalWeightKg-p.weightKg)>=0.3){
+    dir=(p.goalWeightKg-p.weightKg)<0?"lose":"gain";
+    const weeks=p.goalWeeks||12, dailyAdj=Math.abs(p.goalWeightKg-p.weightKg)*7700/(weeks*7);
+    target=a.tdee+(dir==="lose"?-dailyAdj:dailyAdj);
+  } else if(p.goalDir==="lose"){ target=a.tdee*0.85; dir="lose"; }
+  else if(p.goalDir==="gain"){ target=a.tdee*1.10; dir="gain"; }
+  if(target<1200) target=1200; target=Math.round(target);
+  return {tdee:a.tdee, target, dir, cur:p.calorieGoal||0, days:a.loggedDays};
+}
+function applyCoach(){
+  const c=coachSuggest(); if(!c) return; const p=state.profile;
+  const protG=Math.round((p.weightKg||70)*(c.dir==="lose"?2.2:1.9)), fatG=Math.round(c.target*0.25/9), carbG=Math.max(0,Math.round((c.target-protG*4-fatG*9)/4));
+  Object.assign(p,{calorieGoal:c.target,proteinGoal:protG,carbGoal:carbG,fatGoal:fatG,goalDir:c.dir}); recSel=c.dir;
+  save(); render(); fillSettings(); toast("Target set to "+c.target.toLocaleString()+" kcal/day");
+}
 function renderToday(){
   const p=state.profile, t=dayTotals(curDate);
-  const goal=p.calorieGoal||0;
+  const goal=effectiveGoal(curDate);
   const ex=dayExercise(curDate).reduce((s,e)=>s+(+e.kcal||0),0);
   const budget=goal+ex;
   const remain=Math.round(budget - t.kcal);
@@ -989,7 +1085,7 @@ function renderToday(){
   macro("#ringC","#pctC","#valC",t.carbs,p.carbGoal);
   macro("#ringF","#pctF","#valF",t.fat,p.fatGoal);
   const netCarbs=Math.max(0,t.carbs-t.fiber); const q=foodScore(t);
-  $("#nutriExtra").innerHTML=(t.kcal>0?`<span class="ne" style="border-color:${q.color}">Quality <b style="color:${q.color}">${q.grade}</b> ${q.score}</span>`:"")+`<span class="ne">Net carbs <b>${round(netCarbs)}</b> g</span><span class="ne">Fibre <b>${round(t.fiber)}</b> g</span><span class="ne">Sugar <b>${round(t.sugar)}</b> g</span><span class="ne">Sat fat <b>${round(t.satfat)}</b> g</span><span class="ne">Sodium <b>${Math.round(t.sodium*1000)}</b> mg</span>`;
+  $("#nutriExtra").innerHTML=phaseChip(curDate)+(t.kcal>0?`<span class="ne" style="border-color:${q.color}">Quality <b style="color:${q.color}">${q.grade}</b> ${q.score}</span>`:"")+`<span class="ne">Net carbs <b>${round(netCarbs)}</b> g</span><span class="ne">Fibre <b>${round(t.fiber)}</b> g</span><span class="ne">Sugar <b>${round(t.sugar)}</b> g</span><span class="ne">Sat fat <b>${round(t.satfat)}</b> g</span><span class="ne">Sodium <b>${Math.round(t.sodium*1000)}</b> mg</span>`;
 
   renderMeals();
   renderExercise();
@@ -1918,7 +2014,71 @@ function renderTrends(){
   renderInsights();
   renderBadges();
   renderWeekReview();
+  renderCoach();
+  renderMeasures();
+  renderPhotos();
 }
+/* ---- adaptive coach card ---- */
+function renderCoach(){
+  const card=$("#coachCard"), box=$("#coachBody"); if(!card||!box) return;
+  const c=coachSuggest();
+  if(!c){ card.style.display="none"; return; }
+  card.style.display="";
+  const diff=c.target-c.cur, dirLbl={lose:"lose weight",maintain:"maintain",gain:"gain weight"}[c.dir];
+  box.innerHTML=`<div class="calc-grid"><div class="calc-cell"><div class="cv">${c.target.toLocaleString()}</div><div class="ck">suggested kcal/day</div></div><div class="calc-cell"><div class="cv" style="font-size:1.4rem">${c.tdee.toLocaleString()}</div><div class="ck">your real burn</div></div></div>`+
+    `<div class="exfx" style="margin:0 0 12px">From your last ${c.days} logged days vs. your weight trend. To ${dirLbl}, your target ${diff===0?"matches your current goal":((diff>0?"should rise by "+diff:"should drop by "+(-diff))+" kcal")}.</div>`+
+    (Math.abs(diff)>=25?`<button class="btn primary" id="coachApply">Update my target to ${c.target.toLocaleString()}</button>`:`<div class="exfx" style="margin:0;color:var(--green)">Your current target is on track.</div>`)+
+    `<div class="field" style="margin-top:12px"><label>Auto-adjust weekly</label><div class="segmented" id="setAutoCoach"><button data-v="off">Off</button><button data-v="on">On</button></div></div>`+
+    `<small class="note">When on, Mycelia nudges your target each week as your weight responds.</small>`;
+  $$("#setAutoCoach button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.autoCoach?"on":"off")));
+  const ap=$("#coachApply"); if(ap) ap.onclick=applyCoach;
+  $$("#setAutoCoach button").forEach(b=>b.onclick=()=>{ state.prefs.autoCoach=b.dataset.v==="on"; $$("#setAutoCoach button").forEach(x=>x.classList.toggle("on",x===b)); save(); });
+}
+/* ---- body measurements ---- */
+function measUnit(){ return state.profile.units==="imperial"?"in":"cm"; }
+function renderMeasures(){
+  const u=measUnit();
+  [["mWaistL","Waist"],["mHipsL","Hips"],["mChestL","Chest"],["mArmsL","Arms"]].forEach(s=>{ const el=$("#"+s[0]); if(el) el.textContent=s[1]+" ("+u+")"; });
+  const list=$("#measList"); if(!list) return;
+  const ms=(state.measures||[]).slice().sort((a,b)=>a.date<b.date?1:-1);
+  if(!ms.length){ list.innerHTML='<div class="exfx" style="margin:0">Log waist, hips and more to track changes over time.</div>'; return; }
+  const latest=ms[0], first=ms[ms.length-1];
+  const rows=[["Waist","waist",u],["Hips","hips",u],["Chest","chest",u],["Arms","arms",u],["Body fat","bf","%"]].filter(r=>latest[r[1]]!=null).map(r=>{
+    const cur=latest[r[1]], f=first[r[1]]; let chg="";
+    if(ms.length>1 && f!=null){ const d=Math.round((cur-f)*10)/10; chg=` <span style="color:${d<0?'var(--green)':d>0?'var(--amber)':'var(--muted)'}">(${d>0?"+":""}${d})</span>`; }
+    return `<div class="meas-row"><span class="mk">${r[0]}</span><span class="mv">${cur} ${r[2]}${chg}</span></div>`;
+  }).join("");
+  list.innerHTML=`<div class="exfx" style="margin:0 0 4px">Latest · ${latest.date}</div>`+rows;
+}
+function saveMeasures(){
+  const g=id=>{ const v=$("#"+id).value.trim(); return v===""?null:+v; };
+  const rec={ date:todayKey(), waist:g("mWaist"), hips:g("mHips"), chest:g("mChest"), arms:g("mArms"), bf:g("mBf") };
+  if(rec.waist==null&&rec.hips==null&&rec.chest==null&&rec.arms==null&&rec.bf==null){ toast("Enter at least one measurement"); return; }
+  if(!Array.isArray(state.measures)) state.measures=[];
+  const i=state.measures.findIndex(m=>m.date===rec.date);
+  if(i>=0) state.measures[i]=rec; else state.measures.push(rec);
+  save(); ["mWaist","mHips","mChest","mArms","mBf"].forEach(id=>$("#"+id).value=""); renderMeasures(); toast("Measurements logged");
+}
+/* ---- progress photos (IndexedDB, local only) ---- */
+let _pdb=null;
+function pdb(){ return new Promise((res,rej)=>{ if(_pdb)return res(_pdb); const r=indexedDB.open("mycelia-photos",1); r.onupgradeneeded=()=>r.result.createObjectStore("p",{keyPath:"id",autoIncrement:true}); r.onsuccess=()=>{_pdb=r.result;res(_pdb);}; r.onerror=()=>rej(r.error); }); }
+function pdbAll(){ return pdb().then(db=>new Promise(res=>{ const out=[]; db.transaction("p").objectStore("p").openCursor(null,"prev").onsuccess=e=>{ const c=e.target.result; if(c){out.push(c.value);c.continue();}else res(out); }; })); }
+function pdbAdd(rec){ return pdb().then(db=>new Promise((res,rej)=>{ const tx=db.transaction("p","readwrite"); tx.objectStore("p").add(rec); tx.oncomplete=res; tx.onerror=()=>rej(tx.error); })); }
+function pdbDel(id){ return pdb().then(db=>new Promise(res=>{ const tx=db.transaction("p","readwrite"); tx.objectStore("p").delete(id); tx.oncomplete=res; })); }
+function compressImg(file,max,q){ return new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>{ let w=img.width,h=img.height; const sc=Math.min(1,max/Math.max(w,h)); const cv=document.createElement("canvas"); cv.width=Math.round(w*sc); cv.height=Math.round(h*sc); cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height); res(cv.toDataURL("image/jpeg",q)); URL.revokeObjectURL(img.src); }; img.onerror=rej; img.src=URL.createObjectURL(file); }); }
+function renderPhotos(){
+  const grid=$("#photoGrid"); if(!grid) return;
+  pdbAll().then(ps=>{ grid.innerHTML=ps.map(p=>`<div class="pg" data-id="${p.id}"><img src="${p.data}" alt="progress ${p.date}"><span class="pg-date">${p.date}</span></div>`).join("");
+    $$(".pg",grid).forEach(el=>el.onclick=()=>openPhoto(+el.dataset.id)); }).catch(()=>{ grid.innerHTML='<div class="exfx" style="margin:0">Photos aren\'t available in this browser.</div>'; });
+}
+let curPhotoId=null;
+function openPhoto(id){ pdbAll().then(ps=>{ const p=ps.find(x=>x.id===id); if(!p) return; curPhotoId=id; $("#photoView").src=p.data; $("#photoTitle").textContent="Progress · "+p.date; $("#photoBg").classList.add("show"); }); }
+if($("#measSave")) $("#measSave").onclick=saveMeasures;
+if($("#photoAddBtn")) $("#photoAddBtn").onclick=()=>$("#photoInput").click();
+if($("#photoInput")) $("#photoInput").onchange=e=>{ const f=e.target.files[0]; if(!f) return; toast("Saving photo…"); compressImg(f,700,0.7).then(data=>pdbAdd({date:todayKey(),data})).then(()=>{ renderPhotos(); toast("Photo saved"); }).catch(()=>toast("Couldn't save photo")); e.target.value=""; };
+if($("#photoClose")) $("#photoClose").onclick=()=>$("#photoBg").classList.remove("show");
+if($("#photoBg")) $("#photoBg").onclick=e=>{ if(e.target===$("#photoBg")) $("#photoBg").classList.remove("show"); };
+if($("#photoDel")) $("#photoDel").onclick=()=>{ if(curPhotoId!=null && confirm("Delete this photo?")){ pdbDel(curPhotoId).then(()=>{ $("#photoBg").classList.remove("show"); renderPhotos(); toast("Photo deleted"); }); } };
 function renderWeekReview(){
   const box=$("#weekReview"); if(!box) return;
   const keys=lastKeys(7);
@@ -2110,6 +2270,12 @@ function fillSettings(){
   $$("#setAnim button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.animations?"on":"off")));
   $$("#setTheme button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.theme||"dark")));
   $$("#setWaterRemind button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.waterRemind?"on":"off")));
+  $$("#setMealRemind button").forEach(b=>b.classList.toggle("on",b.dataset.v===(state.prefs.mealRemind?"on":"off")));
+  const cyc=state.profile.cycle||{}; $$("#setCycle button").forEach(b=>b.classList.toggle("on",b.dataset.v===(cyc.on?"on":"off")));
+  if($("#cycleCfg")) $("#cycleCfg").style.display=cyc.on?"block":"none";
+  if($("#cycHi")) $("#cycHi").value=cyc.hi!=null?cyc.hi:"";
+  $$("#cycDays button").forEach(b=>b.classList.toggle("on",(cyc.hiDays||[]).includes(b.dataset.d)));
+  renderPhaseBox();
 }
 let waterTimer=null;
 function applyWaterReminder(){
@@ -2128,6 +2294,44 @@ $$("#setWaterRemind button").forEach(b=>b.onclick=async()=>{
   } else { state.prefs.waterRemind=false; }
   $$("#setWaterRemind button").forEach(x=>x.classList.toggle("on",x===b)); save(); applyWaterReminder();
 });
+let mealTimer=null;
+function applyMealReminder(){
+  if(mealTimer){ clearInterval(mealTimer); mealTimer=null; }
+  if(state.prefs.mealRemind && "Notification" in window && Notification.permission==="granted"){
+    let lastSlot=null;
+    mealTimer=setInterval(()=>{ const h=new Date().getHours(); let slot=h===8?"breakfast":h===13?"lunch":h===19?"dinner":null;
+      if(slot && slot!==lastSlot){ lastSlot=slot; try{ new Notification("Mycelia 🍴",{body:"Time to log your "+slot+".",icon:"icon.svg"}); }catch(e){} }
+      else if(!slot) lastSlot=null;
+    }, 60000);
+  }
+}
+$$("#setMealRemind button").forEach(b=>b.onclick=async()=>{
+  if(b.dataset.v==="on"){
+    if(!("Notification" in window)){ toast("Notifications aren't supported here"); return; }
+    let perm=Notification.permission; if(perm==="default") perm=await Notification.requestPermission();
+    if(perm!=="granted"){ toast("Allow notifications to enable reminders"); return; }
+    state.prefs.mealRemind=true;
+  } else state.prefs.mealRemind=false;
+  $$("#setMealRemind button").forEach(x=>x.classList.toggle("on",x===b)); save(); applyMealReminder();
+});
+$$("#setCycle button").forEach(b=>b.onclick=()=>{ state.profile.cycle.on=b.dataset.v==="on"; $$("#setCycle button").forEach(x=>x.classList.toggle("on",x===b)); $("#cycleCfg").style.display=state.profile.cycle.on?"block":"none"; save(); renderToday(); });
+$("#cycHi")&&$("#cycHi").addEventListener("change",()=>{ state.profile.cycle.hi=+$("#cycHi").value||null; save(); renderToday(); });
+$$("#cycDays button").forEach(b=>b.onclick=()=>{ const d=b.dataset.d, arr=state.profile.cycle.hiDays||[]; const i=arr.indexOf(d); if(i>=0)arr.splice(i,1); else arr.push(d); state.profile.cycle.hiDays=arr; b.classList.toggle("on"); save(); renderToday(); });
+function renderPhaseBox(){
+  const box=$("#phaseBox"); if(!box) return; const ph=state.profile.phase||{type:"none"};
+  if(ph.type==="break" && ph.until && todayKey()<=ph.until){
+    box.innerHTML=`<div class="statrow"><span class="k">On a diet break</span><span class="v">until ${ph.until}</span></div><button class="btn ghost" id="phaseEnd" style="margin-top:8px">End break now</button>`;
+    $("#phaseEnd").onclick=()=>{ state.profile.phase={type:"none",until:null}; save(); renderPhaseBox(); renderToday(); toast("Diet break ended"); };
+  } else {
+    box.innerHTML=`<div class="row2"><button class="btn ghost" data-wk="1">Start 1-week break</button><button class="btn ghost" data-wk="2">2 weeks</button></div>`;
+    $$("#phaseBox button[data-wk]").forEach(b=>b.onclick=()=>{ state.profile.phase={type:"break",until:shiftKey(todayKey(),(+b.dataset.wk)*7)}; save(); renderPhaseBox(); renderToday(); toast(b.dataset.wk+"-week diet break started"); });
+  }
+}
+function maybeAutoCoach(){
+  if(!state.prefs.autoCoach) return;
+  if(state.prefs.coachLast){ const days=(keyToDate(todayKey())-keyToDate(state.prefs.coachLast))/86400000; if(days<7) return; }
+  const c=coachSuggest(); if(c && Math.abs(c.target-c.cur)>=25){ state.prefs.coachLast=todayKey(); applyCoach(); }
+}
 $$("#macroMode button").forEach(b=>b.onclick=()=>{
   const mode=b.dataset.m; if(mode===macroMode) return;
   const cal=+$("#gCal").value||0;
@@ -2260,10 +2464,11 @@ function firstRunCheck(){
     setTimeout(openOnboarding,400);
   }
 }
-applyTheme(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder();
+applyTheme(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder(); applyMealReminder(); maybeAutoCoach();
 /* ---- Changelog ---- */
-const APP_VERSION="1.21.0";
+const APP_VERSION="1.22.0";
 const CHANGELOG=[
+  {v:"1.22.0",d:"18 Jun 2026",items:["Body measurements (waist, hips, chest, arms, body fat) and private on-device progress photos, on the Trends tab.","Adaptive coach: suggests an updated daily target from your real burn vs your weight trend, with optional weekly auto-adjust.","Diet phases: calorie cycling for higher days, plus a maintenance diet break.","Meal reminders to log breakfast, lunch and dinner."]},
   {v:"1.21.0",d:"17 Jun 2026",items:[
     "18 new recipes (now 45 in total) — six more each for fat loss, maintenance and muscle gain, with photos and full methods.",
     "Filter recipes by meal: Breakfast, Lunch, Dinner or Snack."]},
