@@ -487,6 +487,7 @@ textarea.input{resize:vertical;min-height:64px;line-height:1.4;}
           <div class="mname">Fat</div><div class="mval" id="valF">0 / 0 g</div></div>
       </div>
       <div class="nutri-extra" id="nutriExtra"></div>
+      <div id="microWrap"></div>
     </div>
 
     <div class="card" id="goalCard" style="margin-top:16px;display:none"></div>
@@ -921,6 +922,12 @@ textarea.input{resize:vertical;min-height:64px;line-height:1.4;}
           <div class="segmented" id="rbGoal"><button data-g="lose">Lose</button><button data-g="maintain" class="on">Maintain</button><button data-g="gain">Gain</button></div>
         </div>
       </div>
+      <details id="rbCalc" style="margin-bottom:14px;border:1px solid var(--brd);border-radius:12px;padding:10px 12px">
+        <summary style="cursor:pointer;color:var(--teal);font-weight:600;font-size:.85rem">Build from ingredients (auto-fills macros)</summary>
+        <input class="input" id="rbIngSearch" placeholder="Search foods to add..." style="margin:10px 0 8px">
+        <div id="rbIngResults" class="results" style="max-height:170px"></div>
+        <div id="rbIngChosen" style="margin-top:8px"></div>
+      </details>
       <div class="row3">
         <div class="field"><label>Protein g</label><input class="input" id="rbP" type="number" inputmode="decimal" placeholder="0"></div>
         <div class="field"><label>Carbs g</label><input class="input" id="rbC" type="number" inputmode="decimal" placeholder="0"></div>
@@ -1008,8 +1015,16 @@ function entryTotals(e){ const p=e.per; return { kcal:p.kcal*e.qty, protein:p.pr
   fiber:(p.fiber||0)*e.qty, sugar:(p.sugar||0)*e.qty, sodium:(p.sodium||0)*e.qty, satfat:(p.satfat||0)*e.qty }; }
 function dayTotals(k){
   return dayEntries(k).reduce((t,e)=>{ const x=entryTotals(e); t.kcal+=x.kcal; t.protein+=x.protein; t.carbs+=x.carbs; t.fat+=x.fat;
-    t.fiber+=x.fiber; t.sugar+=x.sugar; t.sodium+=x.sodium; t.satfat+=x.satfat; return t; },
-    {kcal:0,protein:0,carbs:0,fat:0,fiber:0,sugar:0,sodium:0,satfat:0});
+    t.fiber+=x.fiber; t.sugar+=x.sugar; t.sodium+=x.sodium; t.satfat+=x.satfat;
+    const mi=e.per&&e.per.mi; if(mi){ for(const kk in t.mi) t.mi[kk]+=(+mi[kk]||0)*e.qty; } return t; },
+    {kcal:0,protein:0,carbs:0,fat:0,fiber:0,sugar:0,sodium:0,satfat:0,mi:{iron:0,calcium:0,potassium:0,magnesium:0,zinc:0,vitc:0,vita:0,vitd:0,chol:0}});
+}
+const MICRO_DEF=[["Iron","iron",1000,"mg",18],["Calcium","calcium",1000,"mg",1000],["Potassium","potassium",1000,"mg",3500],["Magnesium","magnesium",1000,"mg",400],["Zinc","zinc",1000,"mg",11],["Vitamin C","vitc",1000,"mg",90],["Vitamin A","vita",1000000,"ug",900],["Vitamin D","vitd",1000000,"ug",20],["Cholesterol","chol",1000,"mg",300]];
+function renderMicros(mi){
+  const box=$("#microWrap"); if(!box) return;
+  if(!mi){ box.innerHTML=""; return; }
+  const rows=MICRO_DEF.filter(d=>mi[d[1]]>0).map(d=>{ const amt=mi[d[1]]*d[2], pct=Math.round(amt/d[4]*100), disp=amt>=100?Math.round(amt):Math.round(amt*10)/10; return `<div class="meas-row"><span class="mk">${d[0]}</span><span class="mv">${disp} ${d[3]} <span style="color:var(--muted);font-weight:600">${pct}%</span></span></div>`; }).join("");
+  box.innerHTML = rows ? `<details style="margin-top:10px;border-top:1px solid var(--brd);padding-top:8px"><summary style="cursor:pointer;color:var(--teal);font-weight:600;font-size:.82rem">Micronutrients</summary><div style="margin-top:6px">${rows}<small class="note" style="display:block;margin-top:6px">% of a typical daily target. Shown for foods that include vitamin/mineral data from Open Food Facts.</small></div></details>` : "";
 }
 
 /* ============ rendering ============ */
@@ -1087,6 +1102,7 @@ function renderToday(){
   const netCarbs=Math.max(0,t.carbs-t.fiber); const q=foodScore(t);
   $("#nutriExtra").innerHTML=phaseChip(curDate)+(t.kcal>0?`<span class="ne" style="border-color:${q.color}">Quality <b style="color:${q.color}">${q.grade}</b> ${q.score}</span>`:"")+`<span class="ne">Net carbs <b>${round(netCarbs)}</b> g</span><span class="ne">Fibre <b>${round(t.fiber)}</b> g</span><span class="ne">Sugar <b>${round(t.sugar)}</b> g</span><span class="ne">Sat fat <b>${round(t.satfat)}</b> g</span><span class="ne">Sodium <b>${Math.round(t.sodium*1000)}</b> mg</span>`;
 
+  renderMicros(t.mi);
   renderMeals();
   renderExercise();
   renderWater();
@@ -1449,7 +1465,8 @@ function mapOFF(p){
     per:{ kcal:+kcal/100, protein:(+n["proteins_100g"]||0)/100, carbs:(+n["carbohydrates_100g"]||0)/100, fat:(+n["fat_100g"]||0)/100,
           fiber:(+n["fiber_100g"]||0)/100, sugar:(+n["sugars_100g"]||0)/100,
           sodium:((n["sodium_100g"]!=null ? +n["sodium_100g"] : (+n["salt_100g"]||0)/2.5)||0)/100,
-          satfat:(+n["saturated-fat_100g"]||0)/100 },
+          satfat:(+n["saturated-fat_100g"]||0)/100,
+          mi:{ iron:(+n["iron_100g"]||0)/100, calcium:(+n["calcium_100g"]||0)/100, potassium:(+n["potassium_100g"]||0)/100, magnesium:(+n["magnesium_100g"]||0)/100, zinc:(+n["zinc_100g"]||0)/100, vitc:(+n["vitamin-c_100g"]||0)/100, vita:(+n["vitamin-a_100g"]||0)/100, vitd:(+n["vitamin-d_100g"]||0)/100, chol:(+n["cholesterol_100g"]||0)/100 } },
     serving_size:p.serving_size||"" };
 }
 function renderResults(box,items){
@@ -1844,11 +1861,33 @@ $("#recSurprise").onclick=()=>{
 const recBuildBg=$("#recBuildBg");
 let rbGoal="maintain";
 function rbUpdateKcal(){ const p=+$("#rbP").value||0,c=+$("#rbC").value||0,f=+$("#rbF").value||0; $("#rbKcal").textContent=Math.round(p*4+c*4+f*9).toLocaleString(); }
-$("#recCreate").onclick=()=>{ ["rbName","rbServ","rbP","rbC","rbF","rbIng"].forEach(id=>$("#"+id).value=""); rbGoal="maintain"; $$("#rbGoal button").forEach(b=>b.classList.toggle("on",b.dataset.g==="maintain")); rbUpdateKcal(); recBuildBg.classList.add("show"); setTimeout(()=>$("#rbName").focus(),250); };
+$("#recCreate").onclick=()=>{ ["rbName","rbServ","rbP","rbC","rbF","rbIng"].forEach(id=>$("#"+id).value=""); rbGoal="maintain"; $$("#rbGoal button").forEach(b=>b.classList.toggle("on",b.dataset.g==="maintain")); rbItems=[]; if($("#rbIngResults"))$("#rbIngResults").innerHTML=""; if($("#rbIngChosen"))$("#rbIngChosen").innerHTML=""; if($("#rbIngSearch"))$("#rbIngSearch").value=""; if($("#rbCalc"))$("#rbCalc").open=false; rbUpdateKcal(); recBuildBg.classList.add("show"); setTimeout(()=>$("#rbName").focus(),250); };
 $("#recBuildClose").onclick=()=>recBuildBg.classList.remove("show");
 recBuildBg.onclick=e=>{ if(e.target===recBuildBg) recBuildBg.classList.remove("show"); };
 $$("#rbGoal button").forEach(b=>b.onclick=()=>{ rbGoal=b.dataset.g; $$("#rbGoal button").forEach(x=>x.classList.toggle("on",x===b)); });
 ["rbP","rbC","rbF"].forEach(id=>$("#"+id).addEventListener("input",rbUpdateKcal));
+let rbItems=[];
+function rbRecompute(){
+  if(rbItems.length){ const tot=rbItems.reduce((a,it)=>{ a.p+=it.per.protein*it.qty; a.c+=it.per.carbs*it.qty; a.f+=it.per.fat*it.qty; return a; },{p:0,c:0,f:0});
+    $("#rbP").value=Math.round(tot.p); $("#rbC").value=Math.round(tot.c); $("#rbF").value=Math.round(tot.f); rbUpdateKcal();
+    $("#rbIng").value=rbItems.map(it=>it.label).join("\n"); }
+  $("#rbIngChosen").innerHTML=rbItems.map((it,i)=>`<div class="meas-row"><span class="mk">${esc(it.label)}</span><button class="star off" data-i="${i}" style="width:30px;height:26px;flex:none">x</button></div>`).join("");
+  $$("#rbIngChosen button").forEach(b=>b.onclick=()=>{ rbItems.splice(+b.dataset.i,1); rbRecompute(); });
+}
+function rbSearch(q){
+  const box=$("#rbIngResults"); q=(q||"").trim().toLowerCase();
+  if(!q){ box.innerHTML=""; return; }
+  const pool=[...COMMON.map(c=>({name:c[0],serv:c[1],unit:"serving",per:{kcal:c[2],protein:c[3],carbs:c[4],fat:c[5]}})), ...(state.myFoods||[])];
+  const hits=pool.filter(x=>x.name.toLowerCase().includes(q)).slice(0,12);
+  box.innerHTML=hits.map((x,i)=>`<button class="res" data-i="${i}"><div class="r-main"><div class="r-name">${esc(x.name)}</div><div class="r-sub">${Math.round(x.per.kcal)} kcal · ${esc(x.serv||"serving")}</div></div><div class="r-cal">+</div></button>`).join("")||`<div class="hint">No matches in common foods.</div>`;
+  $$("#rbIngResults .res").forEach((btn,i)=>btn.onclick=()=>rbAdd(hits[i]));
+}
+function rbAdd(x){
+  const qs=prompt("How many servings of "+x.name+" ("+(x.serv||"1 serving")+")?","1"); if(qs==null) return;
+  const q=+qs; if(!(q>0)){ toast("Enter a quantity"); return; }
+  rbItems.push({ label:(q===1?"":q+" x ")+x.name, qty:q, per:x.per }); rbRecompute();
+}
+if($("#rbIngSearch")) $("#rbIngSearch").addEventListener("input",e=>rbSearch(e.target.value));
 $("#rbSave").onclick=()=>{
   const name=$("#rbName").value.trim(); if(!name){ toast("Give your recipe a name"); return; }
   const p=+$("#rbP").value||0, c=+$("#rbC").value||0, f=+$("#rbF").value||0;
@@ -2466,8 +2505,9 @@ function firstRunCheck(){
 }
 applyTheme(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder(); applyMealReminder(); maybeAutoCoach();
 /* ---- Changelog ---- */
-const APP_VERSION="1.22.0";
+const APP_VERSION="1.23.0";
 const CHANGELOG=[
+  {v:"1.23.0",d:"18 Jun 2026",items:["Build-your-own recipes can now be totalled from ingredients - search foods, add servings, and the macros fill in automatically.","Micronutrients: searched foods now show iron, calcium, potassium, vitamin C and more (from Open Food Facts) as % of a daily target on Today."]},
   {v:"1.22.0",d:"18 Jun 2026",items:["Body measurements (waist, hips, chest, arms, body fat) and private on-device progress photos, on the Trends tab.","Adaptive coach: suggests an updated daily target from your real burn vs your weight trend, with optional weekly auto-adjust.","Diet phases: calorie cycling for higher days, plus a maintenance diet break.","Meal reminders to log breakfast, lunch and dinner."]},
   {v:"1.21.0",d:"17 Jun 2026",items:[
     "18 new recipes (now 45 in total) — six more each for fat loss, maintenance and muscle gain, with photos and full methods.",
