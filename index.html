@@ -2282,25 +2282,59 @@ function renderInsights(){
 function computeBadges(){
   const days=Object.keys(state.log);
   const totalFoods=days.reduce((s,k)=>s+state.log[k].length,0);
+  const distinct=new Set(); days.forEach(k=>state.log[k].forEach(e=>distinct.add((e.name||"").toLowerCase())));
   const totalWorkouts=Object.keys(state.exercise).reduce((s,k)=>s+state.exercise[k].length,0);
   const st=streak();
-  const proteinHit=days.some(k=>state.profile.proteinGoal>0 && dayTotals(k).protein>=state.profile.proteinGoal);
-  const goalHit=days.some(k=>state.profile.calorieGoal>0 && Math.abs(dayTotals(k).kcal-state.profile.calorieGoal)<=50);
-  const waterHit=Object.keys(state.water).some(k=>state.water[k]>=(state.profile.waterGoal||2000));
+  const pg=state.profile.proteinGoal||0, cg=state.profile.calorieGoal||0, wg=state.profile.waterGoal||2000;
+  const proteinDays=days.filter(k=>pg>0&&dayTotals(k).protein>=pg).length;
+  const calDays=days.filter(k=>cg>0&&Math.abs(dayTotals(k).kcal-cg)<=cg*0.1).length;
+  const waterDays=Object.keys(state.water).filter(k=>state.water[k]>=wg).length;
+  const aDays=days.filter(k=>{const t=dayTotals(k); return t.kcal>0 && foodScore(t).score>=85;}).length;
+  const balancedDay=days.some(k=>{const t=dayTotals(k), p=state.profile; return p.proteinGoal&&p.carbGoal&&p.fatGoal && t.protein>=p.proteinGoal && t.carbs>=p.carbGoal*0.9 && t.fat>=p.fatGoal*0.9;});
+  const fh=Array.isArray(state.fastHistory)?state.fastHistory:[]; const fstreak=(typeof fastStats==="function")?fastStats().streak:0;
+  const measures=(state.measures||[]).length, checkins=Object.keys(state.checkins||{}).length;
+  const myRec=(state.myRecipes||[]).length, favRec=(state.favRecipes||[]).length, savedMeals=(state.mealTemplates||[]).length;
+  const planUsed=Object.keys(state.plan||{}).some(d=>(state.plan[d]||[]).length);
+  const weighIns=state.weights.length;
   return [
     {i:"🍽️",n:"First Bite",d:"Log a food",ok:totalFoods>=1},
+    {i:"🎬",n:"Getting Started",d:"Set up your profile",ok:state.profile.age!=null},
+    {i:"🎚️",n:"Goal Setter",d:"Set a goal weight",ok:state.profile.goalWeightKg!=null},
     {i:"🔥",n:"On a Roll",d:"3-day streak",ok:st>=3},
     {i:"🌟",n:"Week Warrior",d:"7-day streak",ok:st>=7},
+    {i:"🗓️",n:"Fortnight",d:"14-day streak",ok:st>=14},
     {i:"🏆",n:"Unstoppable",d:"30-day streak",ok:st>=30},
-    {i:"💪",n:"Protein Pro",d:"Hit protein goal",ok:proteinHit},
-    {i:"🎯",n:"Goal Getter",d:"Hit calorie goal",ok:goalHit},
-    {i:"💧",n:"Hydrated",d:"Reach water goal",ok:waterHit},
+    {i:"👑",n:"Centurion",d:"100-day streak",ok:st>=100},
+    {i:"📅",n:"Consistent",d:"Log 14 days",ok:days.length>=14},
+    {i:"📆",n:"Monthly Master",d:"Log 30 days",ok:days.length>=30},
+    {i:"💯",n:"Century",d:"Log 100 foods",ok:totalFoods>=100},
+    {i:"🍲",n:"Big Eater",d:"Log 500 foods",ok:totalFoods>=500},
+    {i:"🧭",n:"Explorer",d:"25 different foods",ok:distinct.size>=25},
+    {i:"🌈",n:"Connoisseur",d:"75 different foods",ok:distinct.size>=75},
+    {i:"💪",n:"Protein Pro",d:"Hit your protein goal",ok:proteinDays>=1},
+    {i:"🥩",n:"Protein Week",d:"Protein goal on 7 days",ok:proteinDays>=7},
+    {i:"🎯",n:"Goal Getter",d:"Hit your calorie goal",ok:calDays>=1},
+    {i:"🎯",n:"On Target",d:"Calorie goal on 7 days",ok:calDays>=7},
+    {i:"⚖️",n:"Balanced",d:"Hit all macros in a day",ok:balancedDay},
+    {i:"🥗",n:"Clean Eats",d:"An A-grade day",ok:aDays>=1},
+    {i:"🌿",n:"Clean Week",d:"7 A-grade days",ok:aDays>=7},
+    {i:"💧",n:"Hydrated",d:"Reach your water goal",ok:waterDays>=1},
+    {i:"🌊",n:"Aqua Streak",d:"Water goal on 7 days",ok:waterDays>=7},
     {i:"🏃",n:"Sweat Equity",d:"Log a workout",ok:totalWorkouts>=1},
     {i:"🏋️",n:"Gym Rat",d:"Log 10 workouts",ok:totalWorkouts>=10},
-    {i:"⚖️",n:"On the Scale",d:"Log your weight",ok:state.weights.length>=1},
-    {i:"⏳",n:"Faster",d:"Complete a fast",ok:Array.isArray(state.fastHistory)&&state.fastHistory.length>=1},
-    {i:"📅",n:"Consistent",d:"Log 14 days",ok:days.length>=14},
-    {i:"💯",n:"Century",d:"Log 100 foods",ok:totalFoods>=100}
+    {i:"🦾",n:"Iron Will",d:"Log 50 workouts",ok:totalWorkouts>=50},
+    {i:"⚖️",n:"On the Scale",d:"Log your weight",ok:weighIns>=1},
+    {i:"📉",n:"Tracker",d:"10 weigh-ins",ok:weighIns>=10},
+    {i:"📏",n:"Tape Measure",d:"Log body measurements",ok:measures>=1},
+    {i:"⏳",n:"Faster",d:"Complete a fast",ok:fh.length>=1},
+    {i:"🌙",n:"Fasting Streak",d:"3-day fasting streak",ok:fstreak>=3},
+    {i:"⌛",n:"Marathon Faster",d:"Complete 10 fasts",ok:fh.length>=10},
+    {i:"📝",n:"Mindful",d:"Log a daily check-in",ok:checkins>=1},
+    {i:"🧘",n:"Reflective",d:"7 daily check-ins",ok:checkins>=7},
+    {i:"🧑‍🍳",n:"Home Chef",d:"Create your own recipe",ok:myRec>=1},
+    {i:"⭐",n:"Curator",d:"Favourite 3 recipes",ok:favRec>=3},
+    {i:"🍱",n:"Meal Prepper",d:"Save a meal",ok:savedMeals>=1},
+    {i:"🗒️",n:"Planner",d:"Use the weekly planner",ok:planUsed}
   ];
 }
 function renderBadges(){
@@ -2658,8 +2692,9 @@ if($("#voiceBtn")) $("#voiceBtn").onclick=startVoice;
 applyTheme(); applyTextSize(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder(); applyMealReminder(); applyWeeklyReminder(); maybeAutoCoach();
 try{ const a=new URLSearchParams(location.search).get("a"); if(a==="add") setTimeout(()=>openAdd(pendingMeal),300); else if(a==="weigh"){ showView("trends"); setTimeout(()=>{ const w=$("#wInput"); if(w){ w.focus(); w.scrollIntoView({block:"center"}); } },400); } }catch(e){}
 /* ---- Changelog ---- */
-const APP_VERSION="1.24.0";
+const APP_VERSION="1.25.0";
 const CHANGELOG=[
+  {v:"1.25.0",d:"18 Jun 2026",items:["Expanded achievements from 13 to 38 badges - streaks, variety, clean-eating, fasting, measurements, check-ins, recipes and more."]},
   {v:"1.24.0",d:"18 Jun 2026",items:["Quick-add calories, undo after deleting an entry, and a daily check-in (energy, mood, hunger, sleep).","New on Trends: a macros-over-time chart and a 13-week logging-streak heatmap.","Share a progress card, print/save a PDF report, import a food log from CSV, and dictate searches by voice.","Home-screen app shortcuts, a larger-text option, a weekly check-in reminder, and a gentle low-calorie warning."]},
   {v:"1.23.0",d:"18 Jun 2026",items:["Build-your-own recipes can now be totalled from ingredients - search foods, add servings, and the macros fill in automatically.","Micronutrients: searched foods now show iron, calcium, potassium, vitamin C and more (from Open Food Facts) as % of a daily target on Today."]},
   {v:"1.22.0",d:"18 Jun 2026",items:["Body measurements (waist, hips, chest, arms, body fat) and private on-device progress photos, on the Trends tab.","Adaptive coach: suggests an updated daily target from your real burn vs your weight trend, with optional weekly auto-adjust.","Diet phases: calorie cycling for higher days, plus a maintenance diet break.","Meal reminders to log breakfast, lunch and dinner."]},
