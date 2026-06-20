@@ -62,6 +62,7 @@ html[data-theme="light"] body::before{
 }
 html[data-theme="light"] .forest,
 html[data-theme="light"] .glow-fungi,
+html[data-theme="light"] .moon,
 html[data-theme="light"] #spores{ display:none; }
 html[data-theme="light"] .calc-cell .cv{ background:none; -webkit-text-fill-color:var(--teal); color:var(--teal); }
 html[data-theme="light"] .tabbar{ background:rgba(255,255,255,0.88); box-shadow:0 12px 34px rgba(40,70,120,0.18); }
@@ -109,6 +110,7 @@ body::before{
 @keyframes mycPulse{0%,100%{opacity:.78}50%{opacity:.97}}
 @keyframes mycTwinkle{0%,100%{opacity:.55}50%{opacity:.9}}
 @media (prefers-reduced-motion: no-preference){ .glow-fungi{animation:mycPulse 6s ease-in-out infinite;} .forest .stars{animation:mycTwinkle 5s ease-in-out infinite;} }
+.moon{position:fixed;z-index:0;pointer-events:none;top:clamp(54px,9%,120px);right:clamp(14px,8vw,96px);width:clamp(74px,15vw,128px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 62% 32%,rgba(150,180,172,.55) 0 5%,transparent 6%),radial-gradient(circle at 44% 60%,rgba(150,180,172,.45) 0 3.5%,transparent 4.5%),radial-gradient(circle at 70% 66%,rgba(150,180,172,.4) 0 3%,transparent 4%),radial-gradient(circle at 40% 36%,#f6fbf8,#d2e8e0 62%,#bcd9d0 100%);box-shadow:0 0 50px 18px rgba(189,238,230,.20),0 0 130px 60px rgba(120,190,190,.12);}
 .app{position:relative;z-index:2;max-width:920px;margin:0 auto;padding:18px 16px 130px;}
 
 /* header */
@@ -402,6 +404,7 @@ html[data-text="lg"]{zoom:1.12;}
 </style>
 </head>
 <body>
+<div class="moon" aria-hidden="true"></div>
 <svg class="forest" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
   <defs>
     <radialGradient id="moonH" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="rgba(205,240,234,.45)"/><stop offset="0.45" stop-color="rgba(120,190,190,.10)"/><stop offset="1" stop-color="rgba(120,190,190,0)"/></radialGradient>
@@ -413,9 +416,6 @@ html[data-text="lg"]{zoom:1.12;}
     <g id="fir3"><path d="M0,-262 L28,-150 L14,-156 L44,-66 L24,-76 L52,0 L-52,0 L-24,-76 L-44,-66 L-14,-156 L-28,-150 Z"/></g>
   </defs>
   <g class="stars"><circle cx="140" cy="90" r="1.4" fill="#dfeefb" opacity="0.5"/><circle cx="300" cy="60" r="1.1" fill="#dfeefb" opacity="0.45"/><circle cx="470" cy="120" r="1.6" fill="#dfeefb" opacity="0.6"/><circle cx="520" cy="300" r="1.2" fill="#dfeefb" opacity="0.4"/><circle cx="360" cy="210" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="210" cy="360" r="1.3" fill="#dfeefb" opacity="0.45"/><circle cx="640" cy="80" r="1.2" fill="#dfeefb" opacity="0.5"/><circle cx="700" cy="250" r="1.5" fill="#dfeefb" opacity="0.5"/><circle cx="820" cy="150" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="900" cy="330" r="1.3" fill="#dfeefb" opacity="0.45"/><circle cx="900" cy="90" r="1.6" fill="#dfeefb" opacity="0.55"/><circle cx="1080" cy="200" r="1.2" fill="#dfeefb" opacity="0.45"/><circle cx="1180" cy="120" r="1.4" fill="#dfeefb" opacity="0.5"/><circle cx="1140" cy="330" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="60" cy="180" r="1.2" fill="#dfeefb" opacity="0.45"/><circle cx="100" cy="300" r="1.5" fill="#dfeefb" opacity="0.5"/><circle cx="420" cy="40" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="560" cy="180" r="1.1" fill="#dfeefb" opacity="0.4"/><circle cx="760" cy="360" r="1.3" fill="#dfeefb" opacity="0.45"/><circle cx="390" cy="330" r="1.2" fill="#dfeefb" opacity="0.45"/><circle cx="1020" cy="300" r="1.4" fill="#dfeefb" opacity="0.5"/><circle cx="660" cy="400" r="1" fill="#dfeefb" opacity="0.35"/></g>
-  <circle cx="840" cy="140" r="205" fill="url(#moonH)"/>
-  <circle cx="840" cy="140" r="58" fill="url(#moonB)"/>
-  <circle cx="822" cy="126" r="11" fill="#bcdfd6" opacity="0.35"/><circle cx="860" cy="156" r="7" fill="#bcdfd6" opacity="0.3"/><circle cx="852" cy="122" r="5" fill="#bcdfd6" opacity="0.3"/>
   <ellipse cx="900" cy="200" rx="380" ry="240" fill="url(#aurGlow)"/>
   <ellipse cx="600" cy="478" rx="900" ry="120" fill="url(#horizonG)"/>
   <g fill="#163039" opacity="0.55"><use href="#fir2" transform="translate(12,470) scale(0.35)"/><use href="#fir3" transform="translate(82,470) scale(0.40)"/><use href="#fir2" transform="translate(152,470) scale(0.32)"/><use href="#fir3" transform="translate(222,470) scale(0.32)"/><use href="#fir2" transform="translate(292,470) scale(0.40)"/><use href="#fir3" transform="translate(362,470) scale(0.35)"/><use href="#fir2" transform="translate(432,470) scale(0.30)"/><use href="#fir3" transform="translate(502,470) scale(0.38)"/><use href="#fir2" transform="translate(572,470) scale(0.37)"/><use href="#fir3" transform="translate(642,470) scale(0.30)"/><use href="#fir2" transform="translate(712,470) scale(0.36)"/><use href="#fir3" transform="translate(782,470) scale(0.39)"/><use href="#fir2" transform="translate(852,470) scale(0.31)"/><use href="#fir3" transform="translate(922,470) scale(0.33)"/><use href="#fir2" transform="translate(992,470) scale(0.40)"/><use href="#fir3" transform="translate(1062,470) scale(0.34)"/><use href="#fir2" transform="translate(1132,470) scale(0.31)"/></g>
@@ -2717,8 +2717,9 @@ if($("#voiceBtn")) $("#voiceBtn").onclick=startVoice;
 applyTheme(); applyTextSize(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder(); applyMealReminder(); applyWeeklyReminder(); maybeAutoCoach();
 try{ const a=new URLSearchParams(location.search).get("a"); if(a==="add") setTimeout(()=>openAdd(pendingMeal),300); else if(a==="weigh"){ showView("trends"); setTimeout(()=>{ const w=$("#wInput"); if(w){ w.focus(); w.scrollIntoView({block:"center"}); } },400); } }catch(e){}
 /* ---- Changelog ---- */
-const APP_VERSION="1.27.0";
+const APP_VERSION="1.27.1";
 const CHANGELOG=[
+  {v:"1.27.1",d:"18 Jun 2026",items:["The moon is now pinned to the top-right of the screen so it stays visible on tall/phone windows instead of being cropped off."]},
   {v:"1.27.0",d:"18 Jun 2026",items:["Reliability & polish: automatic daily backups with one-tap Restore, safer validated imports, the background now pauses when the app is hidden (saves battery), screen-reader + keyboard improvements, and subtle tree variety with a gentle glow."]},
   {v:"1.26.2",d:"18 Jun 2026",items:["Redrew the glowing mushrooms with rounded domed caps, short stout stems and a soft bloom so they look natural instead of flat discs on sticks."]},
   {v:"1.26.1",d:"18 Jun 2026",items:["Reworked the night-forest scene to feel deeper and more realistic — a starry sky with a brighter moon, a treeline that recedes into the distance over gently rolling ground, and soft mist instead of hard bands."]},
