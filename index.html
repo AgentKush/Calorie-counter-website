@@ -110,7 +110,7 @@ body::before{
 @keyframes mycPulse{0%,100%{opacity:.78}50%{opacity:.97}}
 @keyframes mycTwinkle{0%,100%{opacity:.55}50%{opacity:.9}}
 @media (prefers-reduced-motion: no-preference){ .glow-fungi{animation:mycPulse 6s ease-in-out infinite;} .forest .stars{animation:mycTwinkle 5s ease-in-out infinite;} }
-.moon{position:fixed;z-index:0;pointer-events:none;top:clamp(54px,9%,120px);right:clamp(14px,8vw,96px);width:clamp(74px,15vw,128px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 62% 32%,rgba(150,180,172,.55) 0 5%,transparent 6%),radial-gradient(circle at 44% 60%,rgba(150,180,172,.45) 0 3.5%,transparent 4.5%),radial-gradient(circle at 70% 66%,rgba(150,180,172,.4) 0 3%,transparent 4%),radial-gradient(circle at 40% 36%,#f6fbf8,#d2e8e0 62%,#bcd9d0 100%);box-shadow:0 0 50px 18px rgba(189,238,230,.20),0 0 130px 60px rgba(120,190,190,.12);}
+.moon{position:fixed;z-index:1;pointer-events:none;top:clamp(54px,9%,120px);right:clamp(14px,8vw,96px);width:clamp(74px,15vw,128px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 62% 32%,rgba(150,180,172,.55) 0 5%,transparent 6%),radial-gradient(circle at 44% 60%,rgba(150,180,172,.45) 0 3.5%,transparent 4.5%),radial-gradient(circle at 70% 66%,rgba(150,180,172,.4) 0 3%,transparent 4%),radial-gradient(circle at 40% 36%,#f6fbf8,#d2e8e0 62%,#bcd9d0 100%);box-shadow:0 0 50px 18px rgba(189,238,230,.20),0 0 130px 60px rgba(120,190,190,.12);}
 .app{position:relative;z-index:2;max-width:920px;margin:0 auto;padding:18px 16px 130px;}
 
 /* header */
@@ -2717,8 +2717,9 @@ if($("#voiceBtn")) $("#voiceBtn").onclick=startVoice;
 applyTheme(); applyTextSize(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder(); applyMealReminder(); applyWeeklyReminder(); maybeAutoCoach();
 try{ const a=new URLSearchParams(location.search).get("a"); if(a==="add") setTimeout(()=>openAdd(pendingMeal),300); else if(a==="weigh"){ showView("trends"); setTimeout(()=>{ const w=$("#wInput"); if(w){ w.focus(); w.scrollIntoView({block:"center"}); } },400); } }catch(e){}
 /* ---- Changelog ---- */
-const APP_VERSION="1.27.1";
+const APP_VERSION="1.27.2";
 const CHANGELOG=[
+  {v:"1.27.2",d:"18 Jun 2026",items:["The moon now sits cleanly above the distant treeline instead of having tree tips clip across it."]},
   {v:"1.27.1",d:"18 Jun 2026",items:["The moon is now pinned to the top-right of the screen so it stays visible on tall/phone windows instead of being cropped off."]},
   {v:"1.27.0",d:"18 Jun 2026",items:["Reliability & polish: automatic daily backups with one-tap Restore, safer validated imports, the background now pauses when the app is hidden (saves battery), screen-reader + keyboard improvements, and subtle tree variety with a gentle glow."]},
   {v:"1.26.2",d:"18 Jun 2026",items:["Redrew the glowing mushrooms with rounded domed caps, short stout stems and a soft bloom so they look natural instead of flat discs on sticks."]},
