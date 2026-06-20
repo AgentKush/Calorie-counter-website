@@ -106,6 +106,9 @@ body::before{
 .forest{position:fixed;top:0;left:0;width:100%;height:100vh;height:100lvh;z-index:0;pointer-events:none;opacity:.82;}
 #spores{position:fixed;top:0;left:0;width:100%;height:100vh;height:100lvh;z-index:1;pointer-events:none;}
 .glow-fungi{position:fixed;left:0;right:0;bottom:-10px;z-index:1;width:100%;opacity:.8;pointer-events:none;filter:drop-shadow(0 0 18px rgba(46,230,197,.25));}
+@keyframes mycPulse{0%,100%{opacity:.78}50%{opacity:.97}}
+@keyframes mycTwinkle{0%,100%{opacity:.55}50%{opacity:.9}}
+@media (prefers-reduced-motion: no-preference){ .glow-fungi{animation:mycPulse 6s ease-in-out infinite;} .forest .stars{animation:mycTwinkle 5s ease-in-out infinite;} }
 .app{position:relative;z-index:2;max-width:920px;margin:0 auto;padding:18px 16px 130px;}
 
 /* header */
@@ -407,19 +410,20 @@ html[data-text="lg"]{zoom:1.12;}
     <radialGradient id="horizonG" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="rgba(46,150,150,.16)"/><stop offset="0.6" stop-color="rgba(46,150,150,.05)"/><stop offset="1" stop-color="rgba(46,150,150,0)"/></radialGradient>
     <radialGradient id="mistGlow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="rgba(170,220,214,.13)"/><stop offset="0.6" stop-color="rgba(170,220,214,.04)"/><stop offset="1" stop-color="rgba(170,220,214,0)"/></radialGradient>
     <g id="fir2"><path d="M0,-260 L34,-140 L18,-146 L52,-50 L30,-60 L62,0 L-62,0 L-30,-60 L-52,-50 L-18,-146 L-34,-140 Z"/></g>
+    <g id="fir3"><path d="M0,-262 L28,-150 L14,-156 L44,-66 L24,-76 L52,0 L-52,0 L-24,-76 L-44,-66 L-14,-156 L-28,-150 Z"/></g>
   </defs>
-  <g><circle cx="140" cy="90" r="1.4" fill="#dfeefb" opacity="0.5"/><circle cx="300" cy="60" r="1.1" fill="#dfeefb" opacity="0.45"/><circle cx="470" cy="120" r="1.6" fill="#dfeefb" opacity="0.6"/><circle cx="520" cy="300" r="1.2" fill="#dfeefb" opacity="0.4"/><circle cx="360" cy="210" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="210" cy="360" r="1.3" fill="#dfeefb" opacity="0.45"/><circle cx="640" cy="80" r="1.2" fill="#dfeefb" opacity="0.5"/><circle cx="700" cy="250" r="1.5" fill="#dfeefb" opacity="0.5"/><circle cx="820" cy="150" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="900" cy="330" r="1.3" fill="#dfeefb" opacity="0.45"/><circle cx="900" cy="90" r="1.6" fill="#dfeefb" opacity="0.55"/><circle cx="1080" cy="200" r="1.2" fill="#dfeefb" opacity="0.45"/><circle cx="1180" cy="120" r="1.4" fill="#dfeefb" opacity="0.5"/><circle cx="1140" cy="330" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="60" cy="180" r="1.2" fill="#dfeefb" opacity="0.45"/><circle cx="100" cy="300" r="1.5" fill="#dfeefb" opacity="0.5"/><circle cx="420" cy="40" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="560" cy="180" r="1.1" fill="#dfeefb" opacity="0.4"/><circle cx="760" cy="360" r="1.3" fill="#dfeefb" opacity="0.45"/><circle cx="390" cy="330" r="1.2" fill="#dfeefb" opacity="0.45"/><circle cx="1020" cy="300" r="1.4" fill="#dfeefb" opacity="0.5"/><circle cx="660" cy="400" r="1" fill="#dfeefb" opacity="0.35"/></g>
+  <g class="stars"><circle cx="140" cy="90" r="1.4" fill="#dfeefb" opacity="0.5"/><circle cx="300" cy="60" r="1.1" fill="#dfeefb" opacity="0.45"/><circle cx="470" cy="120" r="1.6" fill="#dfeefb" opacity="0.6"/><circle cx="520" cy="300" r="1.2" fill="#dfeefb" opacity="0.4"/><circle cx="360" cy="210" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="210" cy="360" r="1.3" fill="#dfeefb" opacity="0.45"/><circle cx="640" cy="80" r="1.2" fill="#dfeefb" opacity="0.5"/><circle cx="700" cy="250" r="1.5" fill="#dfeefb" opacity="0.5"/><circle cx="820" cy="150" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="900" cy="330" r="1.3" fill="#dfeefb" opacity="0.45"/><circle cx="900" cy="90" r="1.6" fill="#dfeefb" opacity="0.55"/><circle cx="1080" cy="200" r="1.2" fill="#dfeefb" opacity="0.45"/><circle cx="1180" cy="120" r="1.4" fill="#dfeefb" opacity="0.5"/><circle cx="1140" cy="330" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="60" cy="180" r="1.2" fill="#dfeefb" opacity="0.45"/><circle cx="100" cy="300" r="1.5" fill="#dfeefb" opacity="0.5"/><circle cx="420" cy="40" r="1" fill="#dfeefb" opacity="0.4"/><circle cx="560" cy="180" r="1.1" fill="#dfeefb" opacity="0.4"/><circle cx="760" cy="360" r="1.3" fill="#dfeefb" opacity="0.45"/><circle cx="390" cy="330" r="1.2" fill="#dfeefb" opacity="0.45"/><circle cx="1020" cy="300" r="1.4" fill="#dfeefb" opacity="0.5"/><circle cx="660" cy="400" r="1" fill="#dfeefb" opacity="0.35"/></g>
   <circle cx="840" cy="140" r="205" fill="url(#moonH)"/>
   <circle cx="840" cy="140" r="58" fill="url(#moonB)"/>
   <circle cx="822" cy="126" r="11" fill="#bcdfd6" opacity="0.35"/><circle cx="860" cy="156" r="7" fill="#bcdfd6" opacity="0.3"/><circle cx="852" cy="122" r="5" fill="#bcdfd6" opacity="0.3"/>
   <ellipse cx="900" cy="200" rx="380" ry="240" fill="url(#aurGlow)"/>
   <ellipse cx="600" cy="478" rx="900" ry="120" fill="url(#horizonG)"/>
-  <g fill="#163039" opacity="0.55"><use href="#fir2" transform="translate(12,470) scale(0.35)"/><use href="#fir2" transform="translate(82,470) scale(0.40)"/><use href="#fir2" transform="translate(152,470) scale(0.32)"/><use href="#fir2" transform="translate(222,470) scale(0.32)"/><use href="#fir2" transform="translate(292,470) scale(0.40)"/><use href="#fir2" transform="translate(362,470) scale(0.35)"/><use href="#fir2" transform="translate(432,470) scale(0.30)"/><use href="#fir2" transform="translate(502,470) scale(0.38)"/><use href="#fir2" transform="translate(572,470) scale(0.37)"/><use href="#fir2" transform="translate(642,470) scale(0.30)"/><use href="#fir2" transform="translate(712,470) scale(0.36)"/><use href="#fir2" transform="translate(782,470) scale(0.39)"/><use href="#fir2" transform="translate(852,470) scale(0.31)"/><use href="#fir2" transform="translate(922,470) scale(0.33)"/><use href="#fir2" transform="translate(992,470) scale(0.40)"/><use href="#fir2" transform="translate(1062,470) scale(0.34)"/><use href="#fir2" transform="translate(1132,470) scale(0.31)"/></g>
+  <g fill="#163039" opacity="0.55"><use href="#fir2" transform="translate(12,470) scale(0.35)"/><use href="#fir3" transform="translate(82,470) scale(0.40)"/><use href="#fir2" transform="translate(152,470) scale(0.32)"/><use href="#fir3" transform="translate(222,470) scale(0.32)"/><use href="#fir2" transform="translate(292,470) scale(0.40)"/><use href="#fir3" transform="translate(362,470) scale(0.35)"/><use href="#fir2" transform="translate(432,470) scale(0.30)"/><use href="#fir3" transform="translate(502,470) scale(0.38)"/><use href="#fir2" transform="translate(572,470) scale(0.37)"/><use href="#fir3" transform="translate(642,470) scale(0.30)"/><use href="#fir2" transform="translate(712,470) scale(0.36)"/><use href="#fir3" transform="translate(782,470) scale(0.39)"/><use href="#fir2" transform="translate(852,470) scale(0.31)"/><use href="#fir3" transform="translate(922,470) scale(0.33)"/><use href="#fir2" transform="translate(992,470) scale(0.40)"/><use href="#fir3" transform="translate(1062,470) scale(0.34)"/><use href="#fir2" transform="translate(1132,470) scale(0.31)"/></g>
   <ellipse cx="600" cy="470" rx="860" ry="60" fill="url(#mistGlow)"/>
-  <g fill="#0d242e" opacity="0.78"><use href="#fir2" transform="translate(-15,514) scale(0.57)"/><use href="#fir2" transform="translate(79,514) scale(0.56)"/><use href="#fir2" transform="translate(173,514) scale(0.46)"/><use href="#fir2" transform="translate(267,514) scale(0.42)"/><use href="#fir2" transform="translate(361,514) scale(0.49)"/><use href="#fir2" transform="translate(455,514) scale(0.58)"/><use href="#fir2" transform="translate(549,514) scale(0.55)"/><use href="#fir2" transform="translate(643,514) scale(0.45)"/><use href="#fir2" transform="translate(737,514) scale(0.43)"/><use href="#fir2" transform="translate(831,514) scale(0.51)"/><use href="#fir2" transform="translate(925,514) scale(0.58)"/><use href="#fir2" transform="translate(1019,514) scale(0.53)"/><use href="#fir2" transform="translate(1113,514) scale(0.44)"/><use href="#fir2" transform="translate(1207,514) scale(0.43)"/></g>
-  <g fill="#08161f" opacity="0.94"><use href="#fir2" transform="translate(20,592) scale(0.83)"/><use href="#fir2" transform="translate(138,592) scale(0.72)"/><use href="#fir2" transform="translate(256,592) scale(0.60)"/><use href="#fir2" transform="translate(374,592) scale(0.60)"/><use href="#fir2" transform="translate(492,592) scale(0.73)"/><use href="#fir2" transform="translate(610,592) scale(0.83)"/><use href="#fir2" transform="translate(728,592) scale(0.81)"/><use href="#fir2" transform="translate(846,592) scale(0.67)"/><use href="#fir2" transform="translate(964,592) scale(0.58)"/><use href="#fir2" transform="translate(1082,592) scale(0.63)"/><use href="#fir2" transform="translate(1200,592) scale(0.76)"/></g>
+  <g fill="#0d242e" opacity="0.78"><use href="#fir3" transform="translate(-15,514) scale(0.57)"/><use href="#fir2" transform="translate(79,514) scale(0.56)"/><use href="#fir3" transform="translate(173,514) scale(0.46)"/><use href="#fir2" transform="translate(267,514) scale(0.42)"/><use href="#fir3" transform="translate(361,514) scale(0.49)"/><use href="#fir2" transform="translate(455,514) scale(0.58)"/><use href="#fir3" transform="translate(549,514) scale(0.55)"/><use href="#fir2" transform="translate(643,514) scale(0.45)"/><use href="#fir3" transform="translate(737,514) scale(0.43)"/><use href="#fir2" transform="translate(831,514) scale(0.51)"/><use href="#fir3" transform="translate(925,514) scale(0.58)"/><use href="#fir2" transform="translate(1019,514) scale(0.53)"/><use href="#fir3" transform="translate(1113,514) scale(0.44)"/><use href="#fir2" transform="translate(1207,514) scale(0.43)"/></g>
+  <g fill="#08161f" opacity="0.94"><use href="#fir3" transform="translate(20,592) scale(0.83)"/><use href="#fir2" transform="translate(138,592) scale(0.72)"/><use href="#fir3" transform="translate(256,592) scale(0.60)"/><use href="#fir2" transform="translate(374,592) scale(0.60)"/><use href="#fir3" transform="translate(492,592) scale(0.73)"/><use href="#fir2" transform="translate(610,592) scale(0.83)"/><use href="#fir3" transform="translate(728,592) scale(0.81)"/><use href="#fir2" transform="translate(846,592) scale(0.67)"/><use href="#fir3" transform="translate(964,592) scale(0.58)"/><use href="#fir2" transform="translate(1082,592) scale(0.63)"/><use href="#fir3" transform="translate(1200,592) scale(0.76)"/></g>
   <ellipse cx="600" cy="556" rx="860" ry="54" fill="url(#mistGlow)" opacity="0.8"/>
-  <g fill="#04090f" opacity="1"><use href="#fir2" transform="translate(-15,704) scale(1.18)"/><use href="#fir2" transform="translate(120,704) scale(0.98)"/><use href="#fir2" transform="translate(285,704) scale(1.34)"/><use href="#fir2" transform="translate(470,704) scale(1.02)"/><use href="#fir2" transform="translate(660,704) scale(1.22)"/><use href="#fir2" transform="translate(845,704) scale(0.96)"/><use href="#fir2" transform="translate(1010,704) scale(1.40)"/><use href="#fir2" transform="translate(1130,704) scale(1.05)"/><use href="#fir2" transform="translate(1215,704) scale(1.25)"/></g>
+  <g fill="#04090f" opacity="1"><use href="#fir2" transform="translate(-15,704) scale(1.18)"/><use href="#fir3" transform="translate(120,704) scale(0.98)"/><use href="#fir2" transform="translate(285,704) scale(1.34)"/><use href="#fir3" transform="translate(470,704) scale(1.02)"/><use href="#fir2" transform="translate(660,704) scale(1.22)"/><use href="#fir3" transform="translate(845,704) scale(0.96)"/><use href="#fir2" transform="translate(1010,704) scale(1.40)"/><use href="#fir3" transform="translate(1130,704) scale(1.05)"/><use href="#fir2" transform="translate(1215,704) scale(1.25)"/></g>
   <path d="M0,800 L0,716 Q320,690 600,702 Q900,714 1200,668 L1200,800 Z" fill="#070f18"/>
 </svg>
 <canvas id="spores"></canvas>
@@ -461,7 +465,7 @@ html[data-text="lg"]{zoom:1.12;}
     <div class="card">
       <div class="hero">
         <div class="ringwrap" id="calRingWrap">
-          <svg width="210" height="210" viewBox="0 0 210 210">
+          <svg width="210" height="210" viewBox="0 0 210 210" aria-hidden="true">
             <defs>
               <linearGradient id="calGrad" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0" stop-color="#2ee6c5"/><stop offset="0.5" stop-color="#34d9ff"/><stop offset="1" stop-color="#a78bfa"/>
@@ -486,15 +490,15 @@ html[data-text="lg"]{zoom:1.12;}
       </div>
       <div class="macros">
         <div class="macro"><div class="mwrap">
-          <svg width="74" height="74" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="rgba(94,240,138,.14)" stroke-width="7"/><circle id="ringP" cx="37" cy="37" r="30" fill="none" stroke="#5ef08a" stroke-width="7" stroke-linecap="round" transform="rotate(-90 37 37)" stroke-dasharray="188" stroke-dashoffset="188" style="transition:stroke-dashoffset .6s;filter:drop-shadow(0 0 5px rgba(94,240,138,.6))"/></svg>
+          <svg width="74" height="74" viewBox="0 0 74 74" aria-hidden="true"><circle cx="37" cy="37" r="30" fill="none" stroke="rgba(94,240,138,.14)" stroke-width="7"/><circle id="ringP" cx="37" cy="37" r="30" fill="none" stroke="#5ef08a" stroke-width="7" stroke-linecap="round" transform="rotate(-90 37 37)" stroke-dasharray="188" stroke-dashoffset="188" style="transition:stroke-dashoffset .6s;filter:drop-shadow(0 0 5px rgba(94,240,138,.6))"/></svg>
           <div class="mc" id="pctP">0%</div></div>
           <div class="mname">Protein</div><div class="mval" id="valP">0 / 0 g</div></div>
         <div class="macro"><div class="mwrap">
-          <svg width="74" height="74" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="rgba(52,217,255,.14)" stroke-width="7"/><circle id="ringC" cx="37" cy="37" r="30" fill="none" stroke="#34d9ff" stroke-width="7" stroke-linecap="round" transform="rotate(-90 37 37)" stroke-dasharray="188" stroke-dashoffset="188" style="transition:stroke-dashoffset .6s;filter:drop-shadow(0 0 5px rgba(52,217,255,.6))"/></svg>
+          <svg width="74" height="74" viewBox="0 0 74 74" aria-hidden="true"><circle cx="37" cy="37" r="30" fill="none" stroke="rgba(52,217,255,.14)" stroke-width="7"/><circle id="ringC" cx="37" cy="37" r="30" fill="none" stroke="#34d9ff" stroke-width="7" stroke-linecap="round" transform="rotate(-90 37 37)" stroke-dasharray="188" stroke-dashoffset="188" style="transition:stroke-dashoffset .6s;filter:drop-shadow(0 0 5px rgba(52,217,255,.6))"/></svg>
           <div class="mc" id="pctC">0%</div></div>
           <div class="mname">Carbs</div><div class="mval" id="valC">0 / 0 g</div></div>
         <div class="macro"><div class="mwrap">
-          <svg width="74" height="74" viewBox="0 0 74 74"><circle cx="37" cy="37" r="30" fill="none" stroke="rgba(232,91,240,.14)" stroke-width="7"/><circle id="ringF" cx="37" cy="37" r="30" fill="none" stroke="#e85bf0" stroke-width="7" stroke-linecap="round" transform="rotate(-90 37 37)" stroke-dasharray="188" stroke-dashoffset="188" style="transition:stroke-dashoffset .6s;filter:drop-shadow(0 0 5px rgba(232,91,240,.6))"/></svg>
+          <svg width="74" height="74" viewBox="0 0 74 74" aria-hidden="true"><circle cx="37" cy="37" r="30" fill="none" stroke="rgba(232,91,240,.14)" stroke-width="7"/><circle id="ringF" cx="37" cy="37" r="30" fill="none" stroke="#e85bf0" stroke-width="7" stroke-linecap="round" transform="rotate(-90 37 37)" stroke-dasharray="188" stroke-dashoffset="188" style="transition:stroke-dashoffset .6s;filter:drop-shadow(0 0 5px rgba(232,91,240,.6))"/></svg>
           <div class="mc" id="pctF">0%</div></div>
           <div class="mname">Fat</div><div class="mval" id="valF">0 / 0 g</div></div>
       </div>
@@ -555,15 +559,15 @@ html[data-text="lg"]{zoom:1.12;}
         <div class="seg-range" id="rangeSel">
           <button data-r="7" class="on">7 days</button><button data-r="14">14 days</button><button data-r="30">30 days</button>
         </div>
-        <div class="chart-box"><canvas id="calChart"></canvas></div>
+        <div class="chart-box"><canvas id="calChart" role="img" aria-label="Calorie intake over time"></canvas></div>
       </div>
       <div class="card">
         <div class="section-title">🍱 Macros over time</div>
-        <div class="chart-box"><canvas id="macroChart"></canvas></div>
+        <div class="chart-box"><canvas id="macroChart" role="img" aria-label="Protein, carbs and fat over time"></canvas></div>
       </div>
       <div class="card">
         <div class="section-title">🔥 Logging streak</div>
-        <div class="heatmap" id="heatmap"></div>
+        <div class="heatmap" id="heatmap" role="img" aria-label="Daily logging streak, last 13 weeks"></div>
       </div>
       <div class="card">
         <div class="section-title">⚖️ Weight</div>
@@ -571,7 +575,7 @@ html[data-text="lg"]{zoom:1.12;}
           <input class="input" id="wInput" type="number" inputmode="decimal" placeholder="Today's weight">
           <button class="btn primary" id="wAdd" style="width:auto;padding:12px 18px">Log</button>
         </div>
-        <div class="chart-box"><canvas id="wChart"></canvas></div>
+        <div class="chart-box"><canvas id="wChart" role="img" aria-label="Weight trend over time"></canvas></div>
       </div>
       <div class="card">
         <div class="section-title">📏 Measurements</div>
@@ -792,6 +796,7 @@ html[data-text="lg"]{zoom:1.12;}
           <button class="btn ghost" id="exportBtn">⬇ Export JSON</button>
           <button class="btn ghost" id="importBtn">⬆ Import JSON</button>
         </div>
+        <button class="btn ghost" id="restoreBtn" style="margin-bottom:10px">↺ Restore last backup</button>
         <button class="btn ghost" id="exportCsv" style="margin-bottom:10px">⬇ Export food log (CSV)</button>
         <button class="btn ghost" id="importCsvBtn" style="margin-bottom:10px">⬆ Import food log (CSV)</button>
         <div class="row2" style="margin-bottom:10px">
@@ -991,7 +996,7 @@ html[data-text="lg"]{zoom:1.12;}
 
 <div id="printArea"></div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script>
 "use strict";
@@ -1017,8 +1022,12 @@ let pendingFood = null;   // food being added via qty modal
 let charts = { cal:null, w:null };
 let chartRange = 7;
 
+const BAK = KEY+"_bak";
+function hydrate(d){ const base=defaultState(); const s={...base,...d,profile:{...base.profile,...d.profile},prefs:{...base.prefs,...(d.prefs||{})}}; if(!(d.schemaV>=2)) migrateWeights(s); return s; }
 function load(){
-  try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d&&d.profile){ const base=defaultState(); const s={...base,...d,profile:{...base.profile,...d.profile},prefs:{...base.prefs,...(d.prefs||{})}}; if(!(d.schemaV>=2)) migrateWeights(s); return s; } }catch(e){}
+  for(const k of [KEY,BAK]){
+    try{ const d=JSON.parse(localStorage.getItem(k)); if(d&&d.profile){ if(k===BAK){ try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(_){ } } return hydrate(d); } }catch(e){}
+  }
   return defaultState();
 }
 /* v1 stored weight in display units tied to metric/imperial; v2 stores canonical kg + a separate weightUnit. */
@@ -1030,7 +1039,10 @@ function migrateWeights(s){
   if(Array.isArray(s.weights)) s.weights = s.weights.map(w=>({date:w.date, kg: imp ? +w.kg*0.453592 : +w.kg}));
   s.schemaV=2;
 }
-function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+function save(){ const j=JSON.stringify(state);
+  try{ localStorage.setItem(KEY, j); }catch(e){ toast("Storage full — couldn't save"); return; }
+  try{ const d=todayKey(); if(localStorage.getItem(BAK+"_day")!==d){ localStorage.setItem(BAK, j); localStorage.setItem(BAK+"_day", d); } }catch(_){ } }
+function maybeBackupNudge(){ try{ if(!(state.weights&&state.weights.length)) return; const last=state.prefs.lastExport||0, nud=state.prefs.lastNudge||0, now=Date.now(); if(now-last>12096e5 && now-nud>12096e5){ state.prefs.lastNudge=now; save(); toast("Tip: back up your data — Settings → Export JSON"); } }catch(_){ } }
 /* ---- weight units (kg / lb / st), independent of the metric/imperial height-water setting ---- */
 const WT_F = { kg:1, lb:2.2046226218, st:0.1574730444 };  // kg → unit multiplier
 function wUnit(){ return state.profile.weightUnit || "kg"; }
@@ -1126,6 +1138,7 @@ function renderToday(){
   $("#calRemain").textContent = Math.abs(remain).toLocaleString();
   $("#calRemainLbl").textContent = remain<0 ? "kcal over" : "kcal left";
   rw.classList.toggle("over", remain<0);
+  rw.setAttribute("role","img"); rw.setAttribute("aria-label","Calories: "+Math.round(t.kcal).toLocaleString()+" of "+goal.toLocaleString()+" eaten, "+Math.abs(remain).toLocaleString()+(remain<0?" over budget":" left"));
   setRing($("#calRing"), budget? t.kcal/budget : 0, 578);
   $("#sGoal").textContent = goal.toLocaleString();
   $("#sFood").textContent = Math.round(t.kcal).toLocaleString();
@@ -2571,7 +2584,8 @@ try{ matchMedia("(prefers-color-scheme: light)").addEventListener("change",()=>{
 
 $("#exportBtn").onclick=()=>{
   const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="mycelia-data.json"; a.click(); URL.revokeObjectURL(a.href); toast("Exported");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="mycelia-data.json"; a.click(); URL.revokeObjectURL(a.href);
+  state.prefs.lastExport=Date.now(); save(); toast("Exported");
 };
 function csvCell(v){ v=String(v==null?"":v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
 function downloadCsv(rows,name){
@@ -2589,11 +2603,19 @@ $("#exportCsv").onclick=()=>{
 $("#importBtn").onclick=()=>$("#importFile").click();
 $("#importFile").onchange=e=>{
   const f=e.target.files[0]; if(!f) return; const r=new FileReader();
-  r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!d.profile) throw 0;
-    localStorage.setItem(KEY,JSON.stringify(d)); state=load(); curDate=todayKey(); render(); fillSettings(); toast("Imported ✓"); }
-    catch(_){ toast("Invalid file"); } };
+  r.onload=()=>{ let d; try{ d=JSON.parse(r.result); }catch(_){ toast("Not a valid backup file"); return; }
+    if(!d || typeof d!=="object" || !d.profile || typeof d.profile!=="object"){ toast("That doesn't look like a Mycelia backup"); return; }
+    if(!confirm("Import this backup? It replaces the data on this device. A one-time copy of your current data is kept so you can undo with Restore.")) return;
+    try{ localStorage.setItem(BAK, JSON.stringify(state)); localStorage.setItem(BAK+"_day", todayKey()); }catch(_){ }
+    try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(_){ toast("Storage full — import failed"); return; }
+    state=load(); curDate=todayKey(); render(); fillSettings(); toast("Imported ✓"); };
   r.readAsText(f); e.target.value="";
 };
+$("#restoreBtn").onclick=()=>{ let d; try{ d=JSON.parse(localStorage.getItem(BAK)); }catch(_){ d=null; }
+  if(!d||!d.profile){ toast("No automatic backup found yet"); return; }
+  if(!confirm("Restore your most recent automatic backup? This replaces the current data on this device.")) return;
+  try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(_){ toast("Couldn't restore"); return; }
+  state=load(); curDate=todayKey(); render(); fillSettings(); toast("Backup restored ✓"); };
 $("#resetBtn").onclick=()=>{ if(confirm("Erase all logged food, weights and goals on this device?")){ localStorage.removeItem(KEY); state=defaultState(); curDate=todayKey(); render(); fillSettings(); toast("Data cleared"); } };
 
 /* ============ toast ============ */
@@ -2607,6 +2629,7 @@ function toastUndo(msg,fn){ const t=$("#toast"); t.innerHTML=esc(msg)+' <button 
 let sporeAnim=null;
 function toggleSpores(){ if(state.prefs.animations) startSpores(); else stopSpores(); }
 function stopSpores(){ if(sporeAnim) cancelAnimationFrame(sporeAnim), sporeAnim=null; const c=$("#spores"); c.getContext("2d").clearRect(0,0,c.width,c.height); }
+document.addEventListener("visibilitychange",()=>{ if(document.hidden) stopSpores(); else if(state.prefs.animations) startSpores(); });
 function startSpores(){
   if(sporeAnim) return;
   if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;   // respect OS reduced-motion
@@ -2694,8 +2717,9 @@ if($("#voiceBtn")) $("#voiceBtn").onclick=startVoice;
 applyTheme(); applyTextSize(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder(); applyMealReminder(); applyWeeklyReminder(); maybeAutoCoach();
 try{ const a=new URLSearchParams(location.search).get("a"); if(a==="add") setTimeout(()=>openAdd(pendingMeal),300); else if(a==="weigh"){ showView("trends"); setTimeout(()=>{ const w=$("#wInput"); if(w){ w.focus(); w.scrollIntoView({block:"center"}); } },400); } }catch(e){}
 /* ---- Changelog ---- */
-const APP_VERSION="1.26.2";
+const APP_VERSION="1.27.0";
 const CHANGELOG=[
+  {v:"1.27.0",d:"18 Jun 2026",items:["Reliability & polish: automatic daily backups with one-tap Restore, safer validated imports, the background now pauses when the app is hidden (saves battery), screen-reader + keyboard improvements, and subtle tree variety with a gentle glow."]},
   {v:"1.26.2",d:"18 Jun 2026",items:["Redrew the glowing mushrooms with rounded domed caps, short stout stems and a soft bloom so they look natural instead of flat discs on sticks."]},
   {v:"1.26.1",d:"18 Jun 2026",items:["Reworked the night-forest scene to feel deeper and more realistic — a starry sky with a brighter moon, a treeline that recedes into the distance over gently rolling ground, and soft mist instead of hard bands."]},
   {v:"1.26.0",d:"18 Jun 2026",items:["Refined the artwork: a deeper, more atmospheric bioluminescent forest with a low moon and mist, softer glowing mushrooms, and gentler bokeh-style drifting spores."]},
@@ -2939,6 +2963,12 @@ onboardBg.onclick=e=>{ if(e.target===onboardBg) closeOnboarding(); };
   addEventListener("appinstalled",()=>{ btn.style.display="none"; hint.textContent="✓ Installed — find Mycelia on your home screen / desktop."; toast("Installed 🍄"); });
 })();
 /* ---- Service worker: register + check for updates each launch ---- */
+addEventListener("keydown",e=>{
+  const ms=document.querySelectorAll(".modal-bg.show"); const m=ms[ms.length-1]; if(!m) return;
+  if(e.key==="Escape"){ const c=m.querySelector('[id$="Close"]'); if(c){ c.click(); } else { m.classList.remove("show"); } return; }
+  if(e.key==="Tab"){ const f=[...m.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.offsetParent!==null); if(!f.length) return; const first=f[0], last=f[f.length-1]; if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); } }
+});
+setTimeout(maybeBackupNudge,4000);
 if("serviceWorker" in navigator){ addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").then(reg=>reg.update()).catch(()=>{}); }); }
 </script>
 </body>
