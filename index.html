@@ -1002,6 +1002,7 @@ html[data-text="lg"]{zoom:1.12;}
 "use strict";
 /* ============ Mycelia calorie tracker ============ */
 const KEY = "mycelia_v1";
+const BAK = KEY+"_bak";
 const $ = (s,el=document)=>el.querySelector(s);
 const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -1022,7 +1023,6 @@ let pendingFood = null;   // food being added via qty modal
 let charts = { cal:null, w:null };
 let chartRange = 7;
 
-const BAK = KEY+"_bak";
 function hydrate(d){ const base=defaultState(); const s={...base,...d,profile:{...base.profile,...d.profile},prefs:{...base.prefs,...(d.prefs||{})}}; if(!(d.schemaV>=2)) migrateWeights(s); return s; }
 function load(){
   for(const k of [KEY,BAK]){
@@ -2717,8 +2717,9 @@ if($("#voiceBtn")) $("#voiceBtn").onclick=startVoice;
 applyTheme(); applyTextSize(); render(); toggleSpores(); firstRunCheck(); applyWaterReminder(); applyMealReminder(); applyWeeklyReminder(); maybeAutoCoach();
 try{ const a=new URLSearchParams(location.search).get("a"); if(a==="add") setTimeout(()=>openAdd(pendingMeal),300); else if(a==="weigh"){ showView("trends"); setTimeout(()=>{ const w=$("#wInput"); if(w){ w.focus(); w.scrollIntoView({block:"center"}); } },400); } }catch(e){}
 /* ---- Changelog ---- */
-const APP_VERSION="1.27.2";
+const APP_VERSION="1.27.3";
 const CHANGELOG=[
+  {v:"1.27.3",d:"18 Jun 2026",items:["Fixed a startup crash (introduced with the backup feature) that left the app blank and unresponsive — your data was safe the whole time."]},
   {v:"1.27.2",d:"18 Jun 2026",items:["The moon now sits cleanly above the distant treeline instead of having tree tips clip across it."]},
   {v:"1.27.1",d:"18 Jun 2026",items:["The moon is now pinned to the top-right of the screen so it stays visible on tall/phone windows instead of being cropped off."]},
   {v:"1.27.0",d:"18 Jun 2026",items:["Reliability & polish: automatic daily backups with one-tap Restore, safer validated imports, the background now pauses when the app is hidden (saves battery), screen-reader + keyboard improvements, and subtle tree variety with a gentle glow."]},
